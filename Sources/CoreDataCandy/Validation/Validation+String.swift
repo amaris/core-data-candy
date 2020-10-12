@@ -28,11 +28,28 @@ public extension Validation where Value == String {
         }
     }
 
-    static func count(_ count: Int) -> Self {
+    static func contains(_ string: String) -> Self {
         Validation {
-            if $0.count != count {
-                throw CoreDataCandyError.dataValidation(description: "Value \($0) should \(count) characters")
+            if !$0.contains(string) {
+                throw CoreDataCandyError.dataValidation(description: "Value \($0) should contain \(string)")
             }
         }
     }
+
+    static func doesNotContain(_ string: String) -> Self {
+        Validation {
+            if $0.contains(string) {
+                throw CoreDataCandyError.dataValidation(description: "Value \($0) should not contain \(string)")
+            }
+        }
+    }
+
+    static func count(_ count: Int) -> Self {
+        Validation {
+            if $0.count != count {
+                throw CoreDataCandyError.dataValidation(description: "Value \($0) should have \(count) character(s)")
+            }
+        }
+    }
+
 }

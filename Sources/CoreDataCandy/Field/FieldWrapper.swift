@@ -5,12 +5,8 @@
 import CoreData
 import Combine
 
-public class FieldAbstract<Entity: NSManagedObject> {
-    var entity: Entity!
-}
-
-@propertyWrapper
-public final class FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject, OutputError: ConversionError, StoreError: Error>: FieldAbstract<Entity> {
+/// Holds a CoreData field with custom validation and codable logic
+public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -19,7 +15,11 @@ public final class FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: N
 
     // MARK: - Properties
 
+    /// Key path to the entity property
     private var keyPath: WritableKeyPath<Entity, FieldValue>
+
+    /// The data base model can optionally define a default value to use when `outputConversion` returns a failure
+    private var defaultValue: Value?
 
     /// Transform the data base field value into the value
     private var outputConversion: OutputConversion
@@ -29,32 +29,11 @@ public final class FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: N
 
     /// Identify the field when decoding/encoding
     private var name: FieldCodingKey?
-    
+
     public var projectedValue: FieldWrapper { self }
 
+    /// Validation to run before setting a value
     private var validation: Validation<Value>
-
-    private var defaultValue: Value?
-
-    public var wrappedValue: AnyPublisher<Value, OutputError> {
-        entity.publisher(for: keyPath)
-            .tryMap { [unowned self] dbValue in
-                let outputValue = self.outputConversion(dbValue)
-
-                switch outputValue {
-                case .success(let value):
-                    return value
-                case .failure(let error):
-                    if let value = defaultValue {
-                        return value
-                    } else {
-                        throw error
-                    }
-                }
-            }
-            .mapError { $0 as? OutputError ?? .unknown }
-            .eraseToAnyPublisher()
-    }
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>, name: FieldCodingKey?, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
@@ -70,11 +49,28 @@ public final class FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: N
             }
         }
     }
+
+    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>, name: FieldCodingKey?, defaultValue: Value? = nil,
+         outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
+         validations: [Validation<U>] = [])
+    where Value == U? {
+        self.keyPath = keyPath
+        self.name = name
+        self.defaultValue = defaultValue
+        self.outputConversion = outputConversion
+        self.storeConversion = storeConversion
+        self.validation = Validation<Value> { value in
+            try validations.forEach {
+                guard let value = value else { return }
+                try $0.validate(value)
+            }
+        }
+    }
 }
 
 extension FieldWrapper: FieldPublisher {
 
-    public func store(_ value: Value) throws {
+    public func set(_ value: Value, on entity: inout Entity) throws {
         try validation.validate(value)
         let storeConverted = storeConversion(value)
 
@@ -84,5 +80,23 @@ extension FieldWrapper: FieldPublisher {
         }
     }
 
-    public var publisher: AnyPublisher<Value, OutputError> { wrappedValue }
+    public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
+        entity.publisher(for: keyPath)
+            .tryMap { dbValue in
+                let outputValue = outputConversion(dbValue)
+
+                switch outputValue {
+                case .success(let value):
+                    return value
+                case .failure(let error):
+                    if let value = defaultValue {
+                        return value
+                    } else {
+                        throw error
+                    }
+                }
+            }
+            .mapError { $0 as? OutputError ?? .unknown }
+            .eraseToAnyPublisher()
+    }
 }

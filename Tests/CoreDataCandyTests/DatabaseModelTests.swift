@@ -5,72 +5,53 @@
 import XCTest
 import Combine
 import CoreData
-@testable import CoreDataCandy
+import CoreDataCandy
 
 final class DatabaseModelTests: XCTestCase {
 
-//    private var subscriptions = [AnyCancellable]()
-//
-//    func testAssign() throws {
-//        let model = StubModel()
-//        model.$property.validate = {
-//            if $0 == "Yo" {
-//                throw CoreDataCandyError.dataValidation(description: "That's impolite!")
-//            }
-//        }
-//
-//        try model.assign("Hello", to: \.$property)
-//
-//        XCTAssertEqual(model.property, "Hello")
-//    }
-//
-//    func testValidateAssign_ValidateWrongValueThrows() throws {
-//        let model = StubModel()
-//        model.$property.validate = {
-//            if $0 == "Yo" {
-//                throw CoreDataCandyError.dataValidation(description: "That's impolite!")
-//            }
-//        }
-//
-//        XCTAssertThrowsError(try model.assign("Yo", to: \.$property))
-//    }
-//
-//    func testValidateAssignWithPublisher() throws {
-//        let model = StubModel()
-//        model.$property.validate = {
-//            if $0 == "Yo" {
-//                throw CoreDataCandyError.dataValidation(description: "That's impolite!")
-//            }
-//        }
-//
-//        Just("Hello")
-//            .tryAssign(to: \.$property, on: model)
-//            .sink { completion in
-//                if case .failure = completion {
-//                    XCTFail()
-//                }
-//            } receiveValue: { (_) in }
-//            .store(in: &subscriptions)
-//    }
-//
-//    func testValidateAssignWithPublisher_ValidateWrongValueThrows() throws {
-//        let model = StubModel()
-//        model.$property.validate = {
-//            if $0 == "Yo" {
-//                throw CoreDataCandyError.dataValidation(description: "That's impolite!")
-//            }
-//        }
-//
-//        Just("Yo")
-//            .tryAssign(to: \.$property, on: model)
-//            .sink { completion in
-//                guard case .failure = completion else {
-//                    XCTFail()
-//                    return
-//                }
-//            } receiveValue: { (_) in }
-//            .store(in: &subscriptions)
-//    }
+    private var subscriptions = Set<AnyCancellable>()
+
+    override func setUp() {
+        subscriptions = []
+    }
+
+    func testAssign() throws {
+        let model = StubModel()
+
+        try model.assign("Hello", to: \.property)
+
+        XCTAssertEqual(model.entity.property, "Hello")
+    }
+
+    func testValidateAssign_ValidateWrongValueThrows() throws {
+        let model = StubModel()
+
+        XCTAssertThrowsError(try model.assign("Yo", to: \.property))
+    }
+
+    func testValidateAssignWithPublisher() throws {
+        let model = StubModel()
+
+        Just("Hello")
+            .tryAssign(to: \.property, on: model)
+            .sink { _ in  }
+                receiveValue: { (_) in XCTAssertEqual(model.entity.property, "Hello") }
+            .store(in: &subscriptions)
+    }
+
+    func testValidateAssignWithPublisher_ValidateWrongValueThrows() throws {
+        let model = StubModel()
+
+        Just("Yo")
+            .tryAssign(to: \.property, on: model)
+            .sink { completion in
+                guard case .failure = completion else {
+                    XCTFail()
+                    return
+                }
+            } receiveValue: { (_) in }
+            .store(in: &subscriptions)
+    }
 }
 
 extension DatabaseModelTests {
@@ -80,39 +61,16 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        var property = ""
-        var imageData: Data?
-        var color = NSObject()
+        @objc var property = ""
     }
 
-    struct StubModel: DatabaseModel {
+    final class StubModel: DatabaseModel {
         var entity = StubEntity()
-        var context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
 
-        @Field(\.property, name: "property", validations: .notEmpty, .hasPrefix("Hello"))
-        var property
+        let property = Field(\.property, name: "property", validations: .doesNotContain("Yo"))
 
-        @Field(\.imageData, name: "", output: UIImage?.self)
-        var image
-
-        @Field(\.color, name: "", output: UIColor.self, default: .defaultTint)
-        var color
-
-        init(entity: StubEntity, context: NSManagedObjectContext) {}
+        init(entity: StubEntity) {}
 
         init() {}
-
-        func tes() {
-
-        }
     }
-}
-
-
-extension UIImage {
-    static let template = UIImage()
-}
-
-extension UIColor {
-    static let defaultTint = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
 }

@@ -7,12 +7,30 @@ import Foundation
 // MARK: - Identity
 
 public extension FieldWrapper where FieldValue == Value,
-                             OutputError == Never,
-                             StoreError == Never {
+                                    OutputError == Never,
+                                    StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      validations: Validation<Value>...) {
+        self.init(
+            keyPath,
+            name: name,
+            outputConversion: { .success($0) },
+            storeConversion: { .success($0) },
+            validations: validations
+        )
+    }
+}
+
+public extension FieldWrapper where FieldValue == Value,
+                                    FieldValue: ExpressibleByNilLiteral,
+                                    OutputError == Never,
+                                    StoreError == Never {
+
+    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+                     name: FieldCodingKey? = nil,
+                     validations: Validation<U>...) where Value == U? {
         self.init(
             keyPath,
             name: name,
@@ -26,11 +44,11 @@ public extension FieldWrapper where FieldValue == Value,
 // MARK: - Int
 
 public extension FieldWrapper where FieldValue == Int16,
-                             Value == Int,
-                             OutputError == Never,
-                             StoreError == Never {
+                                    Value == Int,
+                                    OutputError == Never,
+                                    StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity,FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
@@ -45,11 +63,11 @@ public extension FieldWrapper where FieldValue == Int16,
 }
 
 public extension FieldWrapper where FieldValue == Int32,
-                             Value == Int,
-                             OutputError == Never,
-                             StoreError == Never {
+                                    Value == Int,
+                                    OutputError == Never,
+                                    StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
@@ -64,11 +82,11 @@ public extension FieldWrapper where FieldValue == Int32,
 }
 
 public extension FieldWrapper where FieldValue == Int64,
-                             Value == Int,
-                             OutputError == Never,
-                             StoreError == Never {
+                                    Value == Int,
+                                    OutputError == Never,
+                                    StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
@@ -86,11 +104,11 @@ public extension FieldWrapper where FieldValue == Int64,
 // MARK: Default value
 
 public extension FieldWrapper where FieldValue == Data,
-                             Value: DataConvertible,
-                             OutputError == Never,
-                             StoreError == CoreDataCandyError {
+                                    Value: DataConvertible,
+                                    OutputError == Never,
+                                    StoreError == CoreDataCandyError {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil, output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
@@ -116,7 +134,7 @@ public extension FieldWrapper where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      default defaultValue: Value,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
@@ -143,7 +161,7 @@ public extension FieldWrapper where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      default defaultValue: Value,
@@ -173,11 +191,11 @@ public extension FieldWrapper where FieldValue == Data,
 // MARK: Error (no default)
 
 public extension FieldWrapper where FieldValue == Data,
-                             Value: DataConvertible,
-                             OutputError == CoreDataCandyError,
-                             StoreError == CoreDataCandyError {
+                                    Value: DataConvertible,
+                                    OutputError == CoreDataCandyError,
+                                    StoreError == CoreDataCandyError {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type,
                      validations: Validation<Value>...) {
@@ -203,7 +221,7 @@ public extension FieldWrapper where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
                      validations: Validation<Value>...) {
@@ -229,7 +247,7 @@ public extension FieldWrapper where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      validations: Validation<Value>...) {
@@ -260,11 +278,11 @@ public extension FieldWrapper where FieldValue == Data,
 // MARK: Error (no default)
 
 public extension FieldWrapper where FieldValue == Data?,
-                             Value: ExpressibleByNilLiteral,
-                             OutputError == CoreDataCandyError,
-                             StoreError == CoreDataCandyError {
+                                    Value: ExpressibleByNilLiteral,
+                                    OutputError == CoreDataCandyError,
+                                    StoreError == CoreDataCandyError {
 
-    convenience init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                                          name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          validations: Validation<Value>...) where Value == D? {
@@ -291,7 +309,7 @@ public extension FieldWrapper where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                                          name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          storeAs storeFunction: @escaping ((D) -> Data?),
@@ -322,7 +340,7 @@ public extension FieldWrapper where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                                          name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          storeAs storeKeyPath: KeyPath<D, Data?>,
@@ -362,7 +380,7 @@ extension FieldWrapper where FieldValue == NSObject,
                              OutputError == Never,
                              StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type,
                      default defaultValue: Value,
@@ -380,11 +398,11 @@ extension FieldWrapper where FieldValue == NSObject,
 // MARK: Error (no default)
 
 public extension FieldWrapper where FieldValue == NSObject,
-                             Value: NSObject,
-                             OutputError == CoreDataCandyError,
-                             StoreError == Never {
+                                    Value: NSObject,
+                                    OutputError == CoreDataCandyError,
+                                    StoreError == Never {
 
-    convenience init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      name: FieldCodingKey? = nil,
                      output: Value.Type,
                      validations: Validation<Value>...) {
@@ -411,10 +429,10 @@ public extension FieldWrapper where FieldValue == NSObject?,
                              OutputError == CoreDataCandyError,
                              StoreError == Never {
 
-    convenience init<O: NSObject>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<O: NSObject>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                                   name: FieldCodingKey? = nil,
                                   output: Value.Type,
-                                  validations: Validation<Value>...) where Value == Optional<O> {
+                                  validations: Validation<Value>...) where Value == O? {
         self.init(
             keyPath,
             name: name,

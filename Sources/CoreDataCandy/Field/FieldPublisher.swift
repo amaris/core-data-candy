@@ -3,13 +3,17 @@
 //
 
 import Combine
+import CoreData
 
 /// A field that can publish its value
-public protocol FieldPublisher: class {
+public protocol FieldPublisher {
+    associatedtype Entity: NSManagedObject
     associatedtype Value
     associatedtype OutputError: ConversionError
 
-    var publisher: AnyPublisher<Value, OutputError> { get }
+    /// A publisher for the given entity property with an ouput conversion
+    func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError>
 
-    func store(_ value: Value) throws
+    /// Store the value in the entity after validating it
+    func set(_ value: Value, on entity: inout Entity) throws
 }

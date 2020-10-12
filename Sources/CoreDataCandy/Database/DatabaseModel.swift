@@ -6,53 +6,47 @@ import CoreData
 import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel {
+public protocol DatabaseModel: class {
     associatedtype Entity: NSManagedObject & DatabaseEntity
 
-    var context: NSManagedObjectContext { get }
-    var entity: Entity { get }
+    var entity: Entity { get set }
 
-    init(entity: Entity, context: NSManagedObjectContext)
+    init(entity: Entity)
 }
 
 public extension DatabaseModel {
-    typealias Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error> = FieldWrapper<FieldValue, Value, Entity, OutputError, StoreError>
-
-    /// Pass `context` and `entity`  to the field properties for them to interact with the database
-    func setupFields() {
-        let mirror = Mirror(reflecting: self)
-
-        mirror.children.forEach { (child) in
-            if let field = child.value as? FieldAbstract<Entity> {
-                field.entity = entity
-            }
-        }
-    }
+    typealias
+        Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        FieldWrapper<FieldValue, Value, Entity, OutputError, StoreError>
 
     /// Return a `DatabaseModel` wrapping the first entity found with the given criterias
-    static func fetch<V>(for field: KeyPath<Entity,V>, value: V, in context: NSManagedObjectContext) throws -> Self? {
+    static func fetch<V: DatabaseFieldValue>(for field: KeyPath<Entity, V>, value: V, in context: NSManagedObjectContext) throws -> Self? {
         let request = Entity.fetch
         request.predicate = .keyPath(field, equals: value)
         let results = try context.fetch(request)
 
         guard let entity = results.first else { return nil }
 
-        let model = Self.init(entity: entity, context: context)
+        let model = Self.init(entity: entity)
         return model
     }
 
-    func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>) throws where F.Value == Value {
+    /// Assign the output of the upstream to the given field property
+    func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>) throws
+    where F.Value == Value, F.Entity == Entity {
         let field = self[keyPath: keyPath]
-        try field.store(value)
+        try field.set(value, on: &entity)
         do {
-            try context.save()
+            try entity.managedObjectContext?.save()
         } catch {
             throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
         }
     }
 
+    /// Publisher for the given field
     func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
-    where Value == F.Value, E == F.OutputError  {
-        self[keyPath: keyPath].publisher
+    where Value == F.Value, E == F.OutputError, F.Entity == Entity {
+        self[keyPath: keyPath].publisher(for: entity)
     }
 }
