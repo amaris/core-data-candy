@@ -6,8 +6,8 @@ import CoreData
 import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel: class {
-    associatedtype Entity: NSManagedObject & DatabaseEntity
+public protocol DatabaseModel: class, Fetchable {
+    associatedtype Entity: DatabaseEntity
 
     var entity: Entity { get set }
 
@@ -19,18 +19,6 @@ public extension DatabaseModel {
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
         FieldWrapper<FieldValue, Value, Entity, OutputError, StoreError>
-
-    /// Return a `DatabaseModel` wrapping the first entity found with the given criterias
-    static func fetch<V: DatabaseFieldValue>(for field: KeyPath<Entity, V>, value: V, in context: NSManagedObjectContext) throws -> Self? {
-        let request = Entity.fetch
-        request.predicate = .keyPath(field, equals: value)
-        let results = try context.fetch(request)
-
-        guard let entity = results.first else { return nil }
-
-        let model = Self.init(entity: entity)
-        return model
-    }
 
     /// Assign the output of the upstream to the given field property
     func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>) throws

@@ -56,18 +56,20 @@ final class DatabaseModelTests: XCTestCase {
 
 extension DatabaseModelTests {
 
-    final class StubEntity: NSManagedObject, DatabaseEntity {
+    final class StubEntity: NSManagedObject, FetchableEntity {
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
+        var age: Int?
         @objc var property = ""
     }
 
     final class StubModel: DatabaseModel {
         var entity = StubEntity()
 
-        let property = Field(\.property, name: "property", validations: .doesNotContain("Yo"))
+        let property = Field(\.property, validations: .doesNotContain("Yo"))
+        let age = Field(\.age)
 
         init(entity: StubEntity) {}
 

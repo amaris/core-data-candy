@@ -11,11 +11,10 @@ public extension FieldWrapper where FieldValue == Value,
                                     StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
-                     validations: Validation<Value>...) {
+         validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -29,11 +28,10 @@ public extension FieldWrapper where FieldValue == Value,
                                     StoreError == Never {
 
     init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
-                     validations: Validation<U>...) where Value == U? {
+            validations: Validation<U>...) where Value == U? {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -49,12 +47,11 @@ public extension FieldWrapper where FieldValue == Int16,
                                     StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int16($0)) },
             validations: validations
@@ -68,12 +65,11 @@ public extension FieldWrapper where FieldValue == Int32,
                                     StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int32($0)) },
             validations: validations
@@ -87,11 +83,11 @@ public extension FieldWrapper where FieldValue == Int64,
                                     StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
+
         self.init(
-            keyPath, name: name,
+            keyPath,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int64($0)) },
             validations: validations
@@ -109,12 +105,12 @@ public extension FieldWrapper where FieldValue == Data,
                                     StoreError == CoreDataCandyError {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil, output: Value.Type,
+                     output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -135,13 +131,12 @@ public extension FieldWrapper where FieldValue == Data,
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      default defaultValue: Value,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -162,13 +157,12 @@ public extension FieldWrapper where FieldValue == Data,
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -196,12 +190,10 @@ public extension FieldWrapper where FieldValue == Data,
                                     StoreError == CoreDataCandyError {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type,
                      validations: Validation<Value>...) {
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -222,12 +214,11 @@ public extension FieldWrapper where FieldValue == Data,
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -248,12 +239,11 @@ public extension FieldWrapper where FieldValue == Data,
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -283,12 +273,11 @@ public extension FieldWrapper where FieldValue == Data?,
                                     StoreError == CoreDataCandyError {
 
     init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                                         name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          validations: Validation<Value>...) where Value == D? {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -310,13 +299,12 @@ public extension FieldWrapper where FieldValue == Data?,
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
     init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                                         name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          storeAs storeFunction: @escaping ((D) -> Data?),
                                          validations: Validation<Value>...) where Value == D? {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -341,13 +329,12 @@ public extension FieldWrapper where FieldValue == Data?,
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
     init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                                         name: FieldCodingKey? = nil,
                                          output: Value.Type,
                                          storeAs storeKeyPath: KeyPath<D, Data?>,
                                          validations: Validation<Value>...) where Value == D? {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -381,13 +368,12 @@ extension FieldWrapper where FieldValue == NSObject,
                              StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { .success($0 as? Value ?? defaultValue) },
             storeConversion: { .success($0) },
             validations: validations
@@ -403,12 +389,11 @@ public extension FieldWrapper where FieldValue == NSObject,
                                     StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     name: FieldCodingKey? = nil,
                      output: Value.Type,
                      validations: Validation<Value>...) {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: {
                 guard let outputValue = $0 as? Value else {
                     return .failure(.outputConversion(keyPath: keyPath.label))
@@ -430,12 +415,11 @@ public extension FieldWrapper where FieldValue == NSObject?,
                              StoreError == Never {
 
     init<O: NSObject>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                                  name: FieldCodingKey? = nil,
                                   output: Value.Type,
                                   validations: Validation<Value>...) where Value == O? {
+
         self.init(
             keyPath,
-            name: name,
             outputConversion: { object in
                 if let object = object as? Value {
                     return .success(object)
