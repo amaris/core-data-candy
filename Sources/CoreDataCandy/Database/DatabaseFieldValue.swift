@@ -2,6 +2,8 @@
 // Copyright © 2018-present Amaris Software.
 //
 
+import Foundation
+
 /// Value type that a CoreData attribute can take
 public protocol DatabaseFieldValue {}
 

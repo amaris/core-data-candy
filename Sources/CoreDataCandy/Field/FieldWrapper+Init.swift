@@ -126,7 +126,7 @@ public extension FieldWrapper where FieldValue == Data,
                 if let data = $0.data {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -153,7 +153,7 @@ public extension FieldWrapper where FieldValue == Data,
                 if let data = storeFunction($0) {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -180,7 +180,7 @@ public extension FieldWrapper where FieldValue == Data,
                 if let data = $0[keyPath: storeKeyPath] {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -206,14 +206,14 @@ public extension FieldWrapper where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             storeConversion: {
                 if let data = $0.data {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -232,14 +232,14 @@ public extension FieldWrapper where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             storeConversion: {
                 if let data = storeFunction($0) {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.storeConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -258,14 +258,14 @@ public extension FieldWrapper where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             storeConversion: {
                 if let data = $0[keyPath: storeKeyPath] {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.storeConversion(keyPath: keyPath.label))
                 }
             },
             validations: validations
@@ -294,13 +294,13 @@ public extension FieldWrapper where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
                 return .success(value)
             },
             storeConversion: { value in
                 guard let data = value?.data else {
-                    return .failure(.storeConversion)
+                    return .failure(.storeConversion(keyPath: keyPath.label))
                 }
                 return .success(data)
             },
@@ -322,7 +322,7 @@ public extension FieldWrapper where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
                 return .success(value)
             },
@@ -331,7 +331,7 @@ public extension FieldWrapper where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let data = storeFunction(value) else {
-                    return .failure(.storeConversion)
+                    return .failure(.storeConversion(keyPath: keyPath.label))
                 }
                 return .success(data)
             },
@@ -353,7 +353,7 @@ public extension FieldWrapper where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
                 return .success(value)
             },
@@ -362,7 +362,7 @@ public extension FieldWrapper where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let data = value[keyPath: storeKeyPath] else {
-                    return .failure(.storeConversion)
+                    return .failure(.storeConversion(keyPath: keyPath.label))
                 }
                 return .success(data)
             },
@@ -411,7 +411,7 @@ public extension FieldWrapper where FieldValue == NSObject,
             name: name,
             outputConversion: {
                 guard let outputValue = $0 as? Value else {
-                    return .failure(.outputConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
 
                 return .success(outputValue)
@@ -440,7 +440,7 @@ public extension FieldWrapper where FieldValue == NSObject?,
                 if let object = object as? Value {
                     return .success(object)
                 } else {
-                    return .failure(.storeConversion)
+                    return .failure(.outputConversion(keyPath: keyPath.label))
                 }
             },
             storeConversion: { .success($0) },
