@@ -21,6 +21,6 @@ extension NSObject: DatabaseFieldValue {}
 extension Optional: DatabaseFieldValue where Wrapped: DatabaseFieldValue {}
 
 /** Int cannot be stored a Core Data type but we make it implement the DatabaseFieldValue
- protocol  anyway for fetching. Anyway, it will not be possible to target a Int property of a
+ protocol for fetching. Anyway, it will not be possible to target a Int property of a
  CoreData entity from a FieldWrapper */
 extension Int: DatabaseFieldValue {}

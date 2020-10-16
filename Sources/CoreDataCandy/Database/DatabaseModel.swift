@@ -15,13 +15,26 @@ public protocol DatabaseModel: class, Fetchable {
 }
 
 public extension DatabaseModel {
+
+    // MARK: - Constants
+
     typealias
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
         FieldWrapper<FieldValue, Value, Entity, OutputError, StoreError>
 
+    // MARK: - Initialisation
+
+    init(context: NSManagedObjectContext) {
+        let entity = Entity(context: context)
+        self.init(entity: entity)
+    }
+
+    // MARK: - Functions
+
     /// Assign the output of the upstream to the given field property
-    func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>) throws
+    func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
+    throws
     where F.Value == Value, F.Entity == Entity {
         let field = self[keyPath: keyPath]
         try field.set(value, on: &entity)
