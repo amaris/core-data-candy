@@ -52,22 +52,31 @@ final class DatabaseModelTests: XCTestCase {
             } receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
+
+    func test() throws {
+        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        let ent = try StubEntity.fetch(.all(), where: \.age == 25, in: context)
+        print(ent)
+    }
 }
 
 extension DatabaseModelTests {
 
-    final class StubEntity: NSManagedObject, DatabaseEntity {
+    final class StubEntity: NSManagedObject, FetchableEntity {
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
+        let id = UUID()
+        var age: Int?
         @objc var property = ""
     }
 
     final class StubModel: DatabaseModel {
         var entity = StubEntity()
 
-        let property = Field(\.property, name: "property", validations: .doesNotContain("Yo"))
+        let property = Field(\.property, validations: .doesNotContain("Yo"))
+        let age = Field(\.age)
 
         init(entity: StubEntity) {}
 

@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData field with custom validation and codable logic
-public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject, OutputError: ConversionError, StoreError: Error> {
+public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject & FetchResultEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -27,19 +27,15 @@ public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSMana
     /// Transform the value into the data base field value
     private var storeConversion: StoreConversion
 
-    /// Identify the field when decoding/encoding
-    private var name: FieldCodingKey?
-
     public var projectedValue: FieldWrapper { self }
 
     /// Validation to run before setting a value
     private var validation: Validation<Value>
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>, name: FieldCodingKey?, defaultValue: Value? = nil,
+    init(_ keyPath: WritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<Value>] = []) {
         self.keyPath = keyPath
-        self.name = name
         self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
@@ -50,12 +46,11 @@ public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSMana
         }
     }
 
-    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>, name: FieldCodingKey?, defaultValue: Value? = nil,
+    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<U>] = [])
     where Value == U? {
         self.keyPath = keyPath
-        self.name = name
         self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion

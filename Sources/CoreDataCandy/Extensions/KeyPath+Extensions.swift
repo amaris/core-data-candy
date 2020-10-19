@@ -3,8 +3,9 @@
 //
 
 import Foundation
+import CoreData
 
-public extension KeyPath {
+extension KeyPath where Root: FetchResultEntity {
 
     /// Name of the property pointed at
     var label: String { NSExpression(forKeyPath: self).keyPath }
