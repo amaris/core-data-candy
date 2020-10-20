@@ -3,7 +3,7 @@
 //
 
 /// Speficy the expected results when fetching: all, first, first nth elements..
-public struct FetchTarget<InputValue: DatabaseFieldValue, F: Fetchable, OutputValue: FetchResult> {
+public struct FetchTarget<F: Fetchable, OutputValue: FetchResult> {
     let type: TargetType
 
     var limit: Int? {
@@ -24,17 +24,17 @@ public extension FetchTarget {
 public extension FetchTarget {
 
     /// Retrieve all the matches
-    static func all<Value: DatabaseFieldValue, F: Fetchable>() -> FetchTarget<Value, F, [F]> {
-        return FetchTarget<Value, F, [F]>(type: .all)
+    static func all<F: Fetchable>() -> FetchTarget<F, [F]> {
+        return FetchTarget<F, [F]>(type: .all)
     }
 
     /// Retrieve the first match
-    static func first<Value: DatabaseFieldValue, F: Fetchable>() -> FetchTarget<Value, F, F?> {
-        return FetchTarget<Value, F, F?>(type: .firstNth(limit: 1))
+    static func first<F: Fetchable>() -> FetchTarget<F, F?> {
+        return FetchTarget<F, F?>(type: .firstNth(limit: 1))
     }
 
     /// Retrieve the first nth matches
-    static func first<Value: DatabaseFieldValue, F: Fetchable>(nth limit: Int) -> FetchTarget<Value, F, [F]> {
-        return FetchTarget<Value, F, [F]>(type: .firstNth(limit: limit))
+    static func first<F: Fetchable>(nth limit: Int) -> FetchTarget< F, [F]> {
+        return FetchTarget<F, [F]>(type: .firstNth(limit: limit))
     }
 }
