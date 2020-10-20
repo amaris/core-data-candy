@@ -9,7 +9,7 @@ import Combine
 public protocol DatabaseModel: class, Fetchable {
     associatedtype Entity: DatabaseEntity
 
-    var entity: Entity { get set }
+    var entity: Entity { get }
 
     init(entity: Entity)
 }
@@ -37,7 +37,7 @@ public extension DatabaseModel {
     throws
     where F.Value == Value, F.Entity == Entity {
         let field = self[keyPath: keyPath]
-        try field.set(value, on: &entity)
+        try field.set(value, on: entity)
         do {
             try entity.managedObjectContext?.save()
         } catch {

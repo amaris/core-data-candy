@@ -10,7 +10,7 @@ public extension FieldInterface where FieldValue == Value,
                                       OutputError == Never,
                                       StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
@@ -29,7 +29,7 @@ public extension FieldInterface where FieldValue == Value,
                                       OutputError == Never,
                                       StoreError == Never {
 
-    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
 
         self.init(
@@ -48,7 +48,7 @@ public extension FieldInterface where FieldValue == Int16,
                                       OutputError == Never,
                                       StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
          validations: Validation<Value>...) {
 
@@ -66,7 +66,7 @@ public extension FieldInterface where FieldValue == Int32,
                                       OutputError == Never,
                                       StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
 
@@ -84,7 +84,7 @@ public extension FieldInterface where FieldValue == Int64,
                                       OutputError == Never,
                                       StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type = Int.self,
                      validations: Validation<Value>...) {
 
@@ -106,7 +106,7 @@ public extension FieldInterface where FieldValue == Data,
                                       OutputError == Never,
                                       StoreError == CoreDataCandyError {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
@@ -132,7 +132,7 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      default defaultValue: Value,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
                      validations: Validation<Value>...) {
@@ -158,7 +158,7 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
@@ -191,7 +191,7 @@ public extension FieldInterface where FieldValue == Data,
                                       OutputError == CoreDataCandyError,
                                       StoreError == CoreDataCandyError {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
                      validations: Validation<Value>...) {
         self.init(
@@ -215,7 +215,7 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      storeAs storeFunction: @escaping ((Value) -> Data?),
                      validations: Validation<Value>...) {
 
@@ -240,7 +240,7 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      storeAs storeKeyPath: KeyPath<Value, Data?>,
                      validations: Validation<Value>...) {
 
@@ -274,7 +274,7 @@ public extension FieldInterface where FieldValue == Data?,
                                       OutputError == CoreDataCandyError,
                                       StoreError == CoreDataCandyError {
 
-    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                                          output: Value.Type,
                                          validations: Validation<Value>...) where Value == D? {
 
@@ -300,7 +300,7 @@ public extension FieldInterface where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                                          output: Value.Type,
                                          storeAs storeFunction: @escaping ((D) -> Data?),
                                          validations: Validation<Value>...) where Value == D? {
@@ -330,7 +330,7 @@ public extension FieldInterface where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                                          output: Value.Type,
                                          storeAs storeKeyPath: KeyPath<D, Data?>,
                                          validations: Validation<Value>...) where Value == D? {
@@ -369,7 +369,7 @@ extension FieldInterface where FieldValue == NSObject,
                                OutputError == Never,
                                StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
@@ -390,7 +390,7 @@ public extension FieldInterface where FieldValue == NSObject,
                                       OutputError == CoreDataCandyError,
                                       StoreError == Never {
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
                      validations: Validation<Value>...) {
 
@@ -416,7 +416,7 @@ public extension FieldInterface where FieldValue == NSObject?,
                              OutputError == CoreDataCandyError,
                              StoreError == Never {
 
-    init<O: NSObject>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
+    init<O: NSObject>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                                   output: Value.Type,
                                   validations: Validation<Value>...) where Value == O? {
 

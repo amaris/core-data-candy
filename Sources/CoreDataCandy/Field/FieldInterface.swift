@@ -16,7 +16,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
     // MARK: - Properties
 
     /// Key path to the entity property
-    private var keyPath: WritableKeyPath<Entity, FieldValue>
+    private var keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
 
     /// The data base model can optionally define a default value to use when `outputConversion` returns a failure
     private var defaultValue: Value?
@@ -34,7 +34,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
 
     // MARK: - Initialisation
 
-    init(_ keyPath: WritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<Value>] = []) {
         self.keyPath = keyPath
@@ -48,7 +48,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
         }
     }
 
-    init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
+    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<U>] = [])
     where Value == U? {
@@ -67,7 +67,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
 
 extension FieldInterface: FieldPublisher {
 
-    public func set(_ value: Value, on entity: inout Entity) throws {
+    public func set(_ value: Value, on entity: Entity) throws {
         try validation.validate(value)
         let storeConverted = storeConversion(value)
 
