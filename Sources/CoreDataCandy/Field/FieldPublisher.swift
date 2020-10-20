@@ -15,5 +15,5 @@ public protocol FieldPublisher {
     func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError>
 
     /// Store the value in the entity after validating it
-    func set(_ value: Value, on entity: inout Entity) throws
+    func set(_ value: Value, on entity: Entity) throws
 }
