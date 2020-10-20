@@ -21,7 +21,7 @@ public extension DatabaseModel {
     typealias
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
-        FieldWrapper<FieldValue, Value, Entity, OutputError, StoreError>
+        FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 
     // MARK: - Initialisation
 

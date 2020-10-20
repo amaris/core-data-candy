@@ -52,12 +52,6 @@ final class DatabaseModelTests: XCTestCase {
             } receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
-
-    func test() throws {
-        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        let ent = try StubEntity.fetch(.all(), where: \.age == 25, in: context)
-        print(ent)
-    }
 }
 
 extension DatabaseModelTests {
@@ -67,8 +61,6 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        let id = UUID()
-        var age: Int?
         @objc var property = ""
     }
 
@@ -76,7 +68,6 @@ extension DatabaseModelTests {
         var entity = StubEntity()
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
-        let age = Field(\.age)
 
         init(entity: StubEntity) {}
 
