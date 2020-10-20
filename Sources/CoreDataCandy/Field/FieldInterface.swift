@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData field with custom validation and codable logic
-public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject & FetchResultEntity, OutputError: ConversionError, StoreError: Error> {
+public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject & FetchResultEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -27,10 +27,12 @@ public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSMana
     /// Transform the value into the data base field value
     private var storeConversion: StoreConversion
 
-    public var projectedValue: FieldWrapper { self }
+    public var projectedValue: FieldInterface { self }
 
     /// Validation to run before setting a value
     private var validation: Validation<Value>
+
+    // MARK: - Initialisation
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
@@ -63,7 +65,7 @@ public struct FieldWrapper<FieldValue: DatabaseFieldValue, Value, Entity: NSMana
     }
 }
 
-extension FieldWrapper: FieldPublisher {
+extension FieldInterface: FieldPublisher {
 
     public func set(_ value: Value, on entity: inout Entity) throws {
         try validation.validate(value)

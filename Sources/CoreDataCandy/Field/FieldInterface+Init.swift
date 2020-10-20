@@ -6,9 +6,9 @@ import Foundation
 
 // MARK: - Identity
 
-public extension FieldWrapper where FieldValue == Value,
-                                    OutputError == Never,
-                                    StoreError == Never {
+public extension FieldInterface where FieldValue == Value,
+                                      OutputError == Never,
+                                      StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
@@ -22,10 +22,12 @@ public extension FieldWrapper where FieldValue == Value,
     }
 }
 
-public extension FieldWrapper where FieldValue == Value,
-                                    FieldValue: ExpressibleByNilLiteral,
-                                    OutputError == Never,
-                                    StoreError == Never {
+// MARK: - ExpressibleByNilLiteral
+
+public extension FieldInterface where FieldValue == Value,
+                                      FieldValue: ExpressibleByNilLiteral,
+                                      OutputError == Never,
+                                      StoreError == Never {
 
     init<U>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
@@ -41,14 +43,14 @@ public extension FieldWrapper where FieldValue == Value,
 
 // MARK: - Int
 
-public extension FieldWrapper where FieldValue == Int16,
-                                    Value == Int,
-                                    OutputError == Never,
-                                    StoreError == Never {
+public extension FieldInterface where FieldValue == Int16,
+                                      Value == Int,
+                                      OutputError == Never,
+                                      StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type = Int.self,
-                     validations: Validation<Value>...) {
+         output: Value.Type = Int.self,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
@@ -59,10 +61,10 @@ public extension FieldWrapper where FieldValue == Int16,
     }
 }
 
-public extension FieldWrapper where FieldValue == Int32,
-                                    Value == Int,
-                                    OutputError == Never,
-                                    StoreError == Never {
+public extension FieldInterface where FieldValue == Int32,
+                                      Value == Int,
+                                      OutputError == Never,
+                                      StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type = Int.self,
@@ -77,10 +79,10 @@ public extension FieldWrapper where FieldValue == Int32,
     }
 }
 
-public extension FieldWrapper where FieldValue == Int64,
-                                    Value == Int,
-                                    OutputError == Never,
-                                    StoreError == Never {
+public extension FieldInterface where FieldValue == Int64,
+                                      Value == Int,
+                                      OutputError == Never,
+                                      StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type = Int.self,
@@ -99,10 +101,10 @@ public extension FieldWrapper where FieldValue == Int64,
 
 // MARK: Default value
 
-public extension FieldWrapper where FieldValue == Data,
-                                    Value: DataConvertible,
-                                    OutputError == Never,
-                                    StoreError == CoreDataCandyError {
+public extension FieldInterface where FieldValue == Data,
+                                      Value: DataConvertible,
+                                      OutputError == Never,
+                                      StoreError == CoreDataCandyError {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
@@ -184,10 +186,10 @@ public extension FieldWrapper where FieldValue == Data,
 
 // MARK: Error (no default)
 
-public extension FieldWrapper where FieldValue == Data,
-                                    Value: DataConvertible,
-                                    OutputError == CoreDataCandyError,
-                                    StoreError == CoreDataCandyError {
+public extension FieldInterface where FieldValue == Data,
+                                      Value: DataConvertible,
+                                      OutputError == CoreDataCandyError,
+                                      StoreError == CoreDataCandyError {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
@@ -267,10 +269,10 @@ public extension FieldWrapper where FieldValue == Data,
 
 // MARK: Error (no default)
 
-public extension FieldWrapper where FieldValue == Data?,
-                                    Value: ExpressibleByNilLiteral,
-                                    OutputError == CoreDataCandyError,
-                                    StoreError == CoreDataCandyError {
+public extension FieldInterface where FieldValue == Data?,
+                                      Value: ExpressibleByNilLiteral,
+                                      OutputError == CoreDataCandyError,
+                                      StoreError == CoreDataCandyError {
 
     init<D: DataConvertible>(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                                          output: Value.Type,
@@ -362,10 +364,10 @@ public extension FieldWrapper where FieldValue == Data?,
 
 // MARK: Default
 
-extension FieldWrapper where FieldValue == NSObject,
-                             Value: NSObject,
-                             OutputError == Never,
-                             StoreError == Never {
+extension FieldInterface where FieldValue == NSObject,
+                               Value: NSObject,
+                               OutputError == Never,
+                               StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
@@ -383,10 +385,10 @@ extension FieldWrapper where FieldValue == NSObject,
 
 // MARK: Error (no default)
 
-public extension FieldWrapper where FieldValue == NSObject,
-                                    Value: NSObject,
-                                    OutputError == CoreDataCandyError,
-                                    StoreError == Never {
+public extension FieldInterface where FieldValue == NSObject,
+                                      Value: NSObject,
+                                      OutputError == CoreDataCandyError,
+                                      StoreError == Never {
 
     init(_ keyPath: WritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
@@ -407,9 +409,9 @@ public extension FieldWrapper where FieldValue == NSObject,
     }
 }
 
-// MARK: Optional NSOject
+// MARK: Optional NSObject
 
-public extension FieldWrapper where FieldValue == NSObject?,
+public extension FieldInterface where FieldValue == NSObject?,
                              Value: ExpressibleByNilLiteral,
                              OutputError == CoreDataCandyError,
                              StoreError == Never {
