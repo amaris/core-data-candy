@@ -41,6 +41,28 @@ public extension FieldInterface where FieldValue == Value,
     }
 }
 
+public extension FieldInterface where FieldValue == Value?,
+                                      OutputError == CoreDataCandyError,
+                                      StoreError == Never {
+
+    /// Try to unwrap the optional field value when publishing
+    init(unwrapped keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         validations: Validation<Value>...) {
+
+        self.init(
+            keyPath,
+            outputConversion: { fieldValue in
+                guard let value = fieldValue else {
+                    return .failure(.outputConversion(keyPath: keyPath.label))
+                }
+                return .success(value)
+            },
+            storeConversion: { .success($0) },
+            validations: validations
+        )
+    }
+}
+
 // MARK: - Int
 
 public extension FieldInterface where FieldValue == Int16,
