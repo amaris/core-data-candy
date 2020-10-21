@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel: class, Fetchable {
+public protocol DatabaseModel: class, Fetchable, Hashable {
     associatedtype Entity: DatabaseEntity
 
     var entity: Entity { get }
@@ -42,5 +42,16 @@ public extension DatabaseModel {
     func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
     where Value == F.Value, E == F.OutputError, F.Entity == Entity {
         self[keyPath: keyPath].publisher(for: entity)
+    }
+}
+
+public extension DatabaseModel {
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(entity)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.entity == rhs.entity
     }
 }
