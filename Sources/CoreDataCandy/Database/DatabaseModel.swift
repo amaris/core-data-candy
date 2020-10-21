@@ -12,12 +12,6 @@ public protocol DatabaseModel: class, Fetchable {
     var entity: Entity { get }
 
     init(entity: Entity)
-
-    /// Create a new model with the associated entity, filling the required fields
-    init(context: NSManagedObjectContext)
-
-    /// Delete the model entity from the context
-    func delete(from context: NSManagedObjectContext)
 }
 
 public extension DatabaseModel {
@@ -28,13 +22,6 @@ public extension DatabaseModel {
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
         FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
-
-    // MARK: - Initialisation
-
-    init(context: NSManagedObjectContext) {
-        let entity = Entity(context: context)
-        self.init(entity: entity)
-    }
 
     // MARK: - Functions
 
@@ -55,10 +42,5 @@ public extension DatabaseModel {
     func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
     where Value == F.Value, E == F.OutputError, F.Entity == Entity {
         self[keyPath: keyPath].publisher(for: entity)
-    }
-
-    /// Delete the model entity from the context
-    func delete(from context: NSManagedObjectContext) {
-        context.delete(entity)
     }
 }
