@@ -23,6 +23,11 @@ public extension DatabaseModel {
         =
         FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 
+    typealias
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+
     // MARK: - Functions
 
     /// Assign the output of the upstream to the given field property
@@ -68,7 +73,5 @@ public extension DatabaseModel {
         let entity = Entity()
         let model = Self(entity: entity)
         try model[keyPath: keyPath].validate(value)
-
-        // unicity
     }
 }
