@@ -16,4 +16,6 @@ public protocol FieldPublisher {
 
     /// Store the value in the entity after validating it
     func set(_ value: Value, on entity: Entity) throws
+
+    func validate(_ value: Value) throws
 }

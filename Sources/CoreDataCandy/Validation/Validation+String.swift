@@ -6,7 +6,7 @@ public extension Validation where Value == String {
 
     static let notEmpty: Self = {
         Validation {
-            if $0.isEmpty {
+            if $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 throw CoreDataCandyError.dataValidation(description: "Value \($0) should not be empty")
             }
         }

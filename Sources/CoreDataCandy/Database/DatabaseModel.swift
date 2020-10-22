@@ -7,7 +7,7 @@ import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
 public protocol DatabaseModel: class, Fetchable, Hashable {
-    associatedtype Entity: DatabaseEntity
+    associatedtype Entity: FetchableEntity
 
     var entity: Entity { get }
 
@@ -22,6 +22,11 @@ public extension DatabaseModel {
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
         FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+
+    typealias
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 
     // MARK: - Functions
 
@@ -55,5 +60,18 @@ public extension DatabaseModel {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entity == rhs.entity
+    }
+}
+
+// MARK: - Validation
+
+public extension DatabaseModel {
+
+    static func validate<Value, F: FieldPublisher>(value: Value, for keyPath: KeyPath<Self, F>)
+    throws
+    where Value == F.Value {
+        let entity = Entity()
+        let model = Self(entity: entity)
+        try model[keyPath: keyPath].validate(value)
     }
 }

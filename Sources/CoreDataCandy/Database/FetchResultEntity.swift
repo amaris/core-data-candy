@@ -6,6 +6,9 @@ import CoreData
 
 /// Absract protocol to augment CoreData entities
 public protocol FetchResultEntity: NSFetchRequestResult {
+
+    static var modelName: String { get }
+
     static func fetchRequest() -> NSFetchRequest<Self>
 }
 

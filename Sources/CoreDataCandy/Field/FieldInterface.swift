@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData field with custom validation and codable logic
-public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject & FetchResultEntity, OutputError: ConversionError, StoreError: Error> {
+public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -16,21 +16,21 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
     // MARK: - Properties
 
     /// Key path to the entity property
-    private var keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
+    let keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
 
     /// The data base model can optionally define a default value to use when `outputConversion` returns a failure
     private var defaultValue: Value?
 
     /// Transform the data base field value into the value
-    private var outputConversion: OutputConversion
+    let outputConversion: OutputConversion
 
     /// Transform the value into the data base field value
-    private var storeConversion: StoreConversion
+    let storeConversion: StoreConversion
 
     public var projectedValue: FieldInterface { self }
 
     /// Validation to run before setting a value
-    private var validation: Validation<Value>
+    public private(set) var validation: Validation<Value>
 
     // MARK: - Initialisation
 
@@ -63,12 +63,16 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
             }
         }
     }
+
+    public func validate(_ value: Value) throws {
+        try validation.validate(value)
+    }
 }
 
 extension FieldInterface: FieldPublisher {
 
     public func set(_ value: Value, on entity: Entity) throws {
-        try validation.validate(value)
+        try validate(value)
         let storeConverted = storeConversion(value)
 
         switch storeConverted {
@@ -79,7 +83,7 @@ extension FieldInterface: FieldPublisher {
 
     public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
         entity.publisher(for: keyPath)
-            .tryMap { dbValue in
+            .tryMap { [outputConversion, defaultValue] dbValue in
                 let outputValue = outputConversion(dbValue)
 
                 switch outputValue {
