@@ -45,6 +45,8 @@ public extension DatabaseModel {
     }
 }
 
+// MARK: - Hashable
+
 public extension DatabaseModel {
 
     func hash(into hasher: inout Hasher) {
