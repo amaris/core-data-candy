@@ -5,7 +5,7 @@
 import Foundation
 
 public struct Sort<Entity: DatabaseEntity> {
-    let descriptor: NSSortDescriptor
+    public let descriptor: NSSortDescriptor
 }
 
 public extension Sort {
