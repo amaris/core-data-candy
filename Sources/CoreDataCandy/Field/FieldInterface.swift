@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData field with custom validation and codable logic
-public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSManagedObject & FetchResultEntity, OutputError: ConversionError, StoreError: Error> {
+public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -30,17 +30,20 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
     public var projectedValue: FieldInterface { self }
 
     /// Validation to run before setting a value
-    private var validation: Validation<Value>
+    public private(set) var validation: Validation<Value>
+
+    let isUnique: Bool
 
     // MARK: - Initialisation
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
-         validations: [Validation<Value>] = []) {
+         isUnique: Bool = false, validations: [Validation<Value>] = []) {
         self.keyPath = keyPath
         self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
+        self.isUnique = isUnique
         self.validation = Validation<Value> { value in
             try validations.forEach {
                 try $0.validate(value)
@@ -50,12 +53,13 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
 
     init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
-         validations: [Validation<U>] = [])
+         isUnique: Bool = false, validations: [Validation<U>] = [])
     where Value == U? {
         self.keyPath = keyPath
         self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
+        self.isUnique = isUnique
         self.validation = Validation<Value> { value in
             try validations.forEach {
                 guard let value = value else { return }
@@ -66,6 +70,10 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: NSMa
 }
 
 extension FieldInterface: FieldPublisher {
+
+    public func validate(_ value: Value) throws {
+        try validation.validate(value)
+    }
 
     public func set(_ value: Value, on entity: Entity) throws {
         try validation.validate(value)
