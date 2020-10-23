@@ -21,4 +21,15 @@ public extension Publisher {
         .mapError { $0 as? CoreDataCandyError ?? .unknown }
         .eraseToAnyPublisher()
     }
+
+    /// Try to toggle the boolean at the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
+    func tryToggle<Model: DatabaseModel, F: FieldPublisher>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
+    where F.Value == Bool, F.Entity == Model.Entity {
+
+        return tryMap { _ in
+            try model.toggle(keyPath)
+        }
+        .mapError { $0 as? CoreDataCandyError ?? .unknown }
+        .eraseToAnyPublisher()
+    }
 }
