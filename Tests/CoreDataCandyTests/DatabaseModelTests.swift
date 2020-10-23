@@ -29,6 +29,14 @@ final class DatabaseModelTests: XCTestCase {
         XCTAssertThrowsError(try model.assign("Yo", to: \.property))
     }
 
+    func testToggle() throws {
+        let model = StubModel()
+
+        try model.toggle(\.flag)
+
+        XCTAssertEqual(model.entity.flag, true)
+    }
+
     func testValidateAssignWithPublisher() throws {
         let model = StubModel()
 
@@ -52,6 +60,28 @@ final class DatabaseModelTests: XCTestCase {
             } receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
+
+    func testPublisherToggle() throws {
+        let model = StubModel()
+
+        Just(())
+            .tryToggle(\.flag, on: model)
+            .sink { (_) in
+                XCTAssertEqual(model.entity.flag, true)
+            } receiveValue: { (_) in }
+            .store(in: &subscriptions)
+    }
+
+    func testPublisherToggl_SeveralTimes() throws {
+        let model = StubModel()
+
+        [1, 2, 3, 4].publisher
+            .tryToggle(\.flag, on: model)
+            .sink { (_) in
+                XCTAssertEqual(model.entity.flag, false)
+            } receiveValue: { (_) in }
+            .store(in: &subscriptions)
+    }
 }
 
 extension DatabaseModelTests {
@@ -63,6 +93,7 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
+        @objc var flag = false
         @objc var property = ""
     }
 
@@ -70,6 +101,7 @@ extension DatabaseModelTests {
         var entity = StubEntity()
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
+        let flag = Field(\.flag)
 
         init(entity: StubEntity) {}
 

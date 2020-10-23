@@ -43,6 +43,19 @@ public extension DatabaseModel {
         }
     }
 
+    /// Try to toggle the boolean at the given key path
+    func toggle<F: FieldPublisher>(_ keyPath: KeyPath<Self, F>)
+    throws
+    where F.Value == Bool, F.Entity == Entity {
+        let field = self[keyPath: keyPath]
+        try field.toggle(on: entity)
+        do {
+            try entity.managedObjectContext?.save()
+        } catch {
+            throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
+        }
+    }
+
     /// Publisher for the given field
     func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
     where Value == F.Value, E == F.OutputError, F.Entity == Entity {
@@ -70,7 +83,7 @@ public extension DatabaseModel {
     static func validate<Value, F: FieldPublisher>(value: Value, for keyPath: KeyPath<Self, F>)
     throws
     where Value == F.Value {
-        let entity = Entity()
+        let entity = Entity(context: .init(concurrencyType: .mainQueueConcurrencyType))
         let model = Self(entity: entity)
         try model[keyPath: keyPath].validate(value)
     }

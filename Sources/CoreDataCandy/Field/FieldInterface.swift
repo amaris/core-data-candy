@@ -71,6 +71,15 @@ public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Fetch
 
 extension FieldInterface: FieldPublisher {
 
+    public func currentValue(in entity: Entity) throws -> Value {
+        let fieldValue = entity[keyPath: keyPath]
+        let outputConverted = outputConversion(fieldValue)
+        switch outputConverted {
+        case .success(let value): return value
+        case .failure(let error): throw error
+        }
+    }
+
     public func set(_ value: Value, on entity: Entity) throws {
         try validate(value)
         let storeConverted = storeConversion(value)
