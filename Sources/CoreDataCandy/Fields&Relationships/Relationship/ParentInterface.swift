@@ -7,7 +7,7 @@ public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel
 
     let keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>
 
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>, type: ParentModel.Type) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>, as type: ParentModel.Type) {
         self.keyPath = keyPath
     }
 }

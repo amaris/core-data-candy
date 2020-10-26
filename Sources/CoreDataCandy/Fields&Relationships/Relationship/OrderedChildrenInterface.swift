@@ -10,7 +10,7 @@ public struct OrderedChildrenInterface<Entity: DatabaseEntity, ChildModel: Datab
 
     let keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>
 
-    init(_ type: ChildModel.Type, _ keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>, as type: ChildModel.Type) {
         self.keyPath = keyPath
     }
 }

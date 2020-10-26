@@ -10,7 +10,7 @@ public struct ChildrenInterface<Entity: DatabaseEntity, ChildModel: DatabaseMode
 
     let keyPath: ReferenceWritableKeyPath<Entity, NSSet?>
 
-    init(type: ChildModel.Type, _ keyPath: ReferenceWritableKeyPath<Entity, NSSet?>) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, NSSet?>, as type: ChildModel.Type) {
         self.keyPath = keyPath
     }
 }

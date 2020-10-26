@@ -10,7 +10,7 @@ public struct SiblingInterface<Entity: DatabaseEntity, SiblingModel: DatabaseMod
 
     let keyPath: ReferenceWritableKeyPath<Entity, SiblingModel.Entity?>
 
-    init(_ type: SiblingModel.Type, _ keyPath: ReferenceWritableKeyPath<Entity, SiblingModel.Entity?>) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, SiblingModel.Entity?>, as type: SiblingModel.Type) {
         self.keyPath = keyPath
     }
 }

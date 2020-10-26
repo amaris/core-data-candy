@@ -5,7 +5,7 @@
 import Combine
 import CoreData
 
-/// A field that can publish its value
+/// A field that can publish its value (in front of a CoreData entity attribute)
 public protocol FieldPublisher {
     associatedtype Entity: DatabaseEntity
     associatedtype Value
