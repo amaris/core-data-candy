@@ -5,8 +5,8 @@
 import CoreData
 import Combine
 
-/// Holds a CoreData field with custom validation and codable logic
-public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error> {
+/// Holds a CoreData field/attribute with custom validation and conversion logic
+public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -71,6 +71,29 @@ public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Fetch
 
 extension FieldInterface: FieldPublisher {
 
+    public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
+        entity.attributePublisher(for: keyPath)
+            .tryMap { [outputConversion, defaultValue] dbValue in
+                let outputValue = outputConversion(dbValue)
+
+                switch outputValue {
+                case .success(let value):
+                    return value
+                case .failure(let error):
+                    if let value = defaultValue {
+                        return value
+                    } else {
+                        throw error
+                    }
+                }
+            }
+            .mapError { $0 as? OutputError ?? .unknown }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension FieldInterface: FieldModifier {
+
     public func currentValue(in entity: Entity) throws -> Value {
         let fieldValue = entity[keyPath: keyPath]
         let outputConverted = outputConversion(fieldValue)
@@ -88,25 +111,5 @@ extension FieldInterface: FieldPublisher {
         case .success(let storableValue): entity[keyPath: keyPath] = storableValue
         case .failure(let error): throw error
         }
-    }
-
-    public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
-        entity.publisher(for: keyPath)
-            .tryMap { [outputConversion, defaultValue] dbValue in
-                let outputValue = outputConversion(dbValue)
-
-                switch outputValue {
-                case .success(let value):
-                    return value
-                case .failure(let error):
-                    if let value = defaultValue {
-                        return value
-                    } else {
-                        throw error
-                    }
-                }
-            }
-            .mapError { $0 as? OutputError ?? .unknown }
-            .eraseToAnyPublisher()
     }
 }

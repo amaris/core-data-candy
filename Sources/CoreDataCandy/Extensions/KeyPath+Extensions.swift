@@ -5,7 +5,7 @@
 import Foundation
 import CoreData
 
-extension KeyPath where Root: FetchResultEntity {
+extension KeyPath where Root: DatabaseEntity {
 
     /// Name of the property pointed at
     var label: String { NSExpression(forKeyPath: self).keyPath }

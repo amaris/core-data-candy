@@ -16,8 +16,18 @@ public extension Fetchable {
     static var context: NSManagedObjectContext? { nil }
 }
 
-/// Abstract protocol on CoreData managed objec to offer fetch requests
-public protocol FetchableEntity: DatabaseEntity, Fetchable {}
+/// Abstract protocol on CoreData managed objects to offer fetch requests
+public protocol FetchableEntity: NSManagedObject, DatabaseEntity, Fetchable {
+
+    /// The associated Database model name for fetching
+    static var modelName: String { get }
+
+    static func fetchRequest() -> NSFetchRequest<Self>
+}
+
+public extension FetchableEntity {
+    static var fetch: NSFetchRequest<Self> { fetchRequest() }
+}
 
 // MARK: - Fetchable Entity extension
 
