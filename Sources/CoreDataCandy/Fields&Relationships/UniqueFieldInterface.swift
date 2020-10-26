@@ -24,3 +24,12 @@ public final class UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatab
         }
     }
 }
+
+public extension DatabaseModel where Entity: FetchableEntity {
+    
+    /// A field that has to be is unique in the entity table
+    typealias
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+}

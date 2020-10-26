@@ -16,16 +16,6 @@ public protocol DatabaseModel: Fetchable, Hashable {
 
 public extension DatabaseModel {
 
-    // MARK: - Constants
-
-    /// Holds a CoreData field/attribute with custom validation and conversion logic
-    typealias
-        Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
-        =
-        FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
-
-    // MARK: - Functions
-
     /// Assign the output of the upstream to the given field property
     func assign<F: FieldModifier, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
     throws
@@ -57,14 +47,6 @@ public extension DatabaseModel {
     where Value == F.Value, E == F.OutputError, F.Entity == Entity {
         self[keyPath: keyPath].publisher(for: entity)
     }
-}
-
-public extension DatabaseModel where Entity: FetchableEntity {
-    /// A field that has to be is unique in the entity table
-    typealias
-        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
-        =
-        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 }
 
 // MARK: - Hashable

@@ -69,6 +69,15 @@ public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Datab
     }
 }
 
+public extension DatabaseModel {
+
+    /// Holds a CoreData field/attribute with custom validation and conversion logic
+    typealias
+        Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+}
+
 extension FieldInterface: FieldPublisher {
 
     public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
