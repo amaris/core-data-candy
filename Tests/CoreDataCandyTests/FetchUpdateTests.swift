@@ -11,39 +11,33 @@ final class FetchUpdateTests: XCTestCase {
     private var subscriptions = Set<AnyCancellable>()
 
     func testGetValues() {
-//        let expectedResults = [[StubEntity(property: "Riri"), StubEntity(property: "Fifi"), StubEntity(property: "Loulou")],
-//                               [StubEntity(property: "Donald"), StubEntity(property: "Daisy")]]
+        let expectedResults: [[StubEntity]] = [[.with(property: "Riri"), .with(property: "Fifi"), .with(property: "Loulou")],
+                                               [.with(property: "Donald"), .with(property: "Daisy")]]
 
         var results = [[StubEntity]]()
         let fetchController = FetchResultsControllerMock()
         let stubController = NSFetchedResultsController<NSFetchRequestResult>()
         let publisher = Publishers.FetchUpdate<StubModel>(controller: fetchController)
-        var count = 0
 
         publisher
-            .print("Fetch")
-            .sink { (completion) in
+            .prefix(3)
+            .sink { (_) in
+                XCTAssertEqual(results.flatMap { $0.map(\.property) }, expectedResults.flatMap { $0.map(\.property) })
             } receiveValue: {
-                count += 1
                 results.append($0.map(\.entity))
-                if count == 3 {
-//                    XCTAssertEqual(results, expectedResults)
-                }
             }
             .store(in: &subscriptions)
 
-//        fetchController.mockObjects = expectedResults[0]
-//        fetchController.delegate?.controllerDidChangeContent?(stubController)
-//        fetchController.mockObjects = expectedResults[1]
-//        fetchController.delegate?.controllerDidChangeContent?(stubController)
+        fetchController.mockObjects = expectedResults[0]
+        fetchController.delegate?.controllerDidChangeContent?(stubController)
+        fetchController.mockObjects = expectedResults[1]
+        fetchController.delegate?.controllerDidChangeContent?(stubController)
     }
 }
 
 extension FetchUpdateTests {
 
     final class StubEntity: NSManagedObject, FetchableEntity {
-
-
         static var modelName = "SutbEntity"
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
@@ -52,6 +46,12 @@ extension FetchUpdateTests {
 
         @objc var flag = false
         @objc var property = ""
+
+        static func with(property: String) -> StubEntity {
+            let entity = StubEntity()
+            entity.property = property
+            return entity
+        }
     }
 
     struct StubModel: DatabaseModel {
@@ -60,7 +60,9 @@ extension FetchUpdateTests {
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
 
-        init(entity: StubEntity) {}
+        init(entity: StubEntity) {
+            self.entity = entity
+        }
 
         init() {}
     }
@@ -68,7 +70,7 @@ extension FetchUpdateTests {
     final class FetchResultsControllerMock: NSFetchedResultsController<StubEntity> {
         var mockObjects = [StubEntity]()
 
-        override var fetchedObjects: [FetchUpdateTests.StubEntity]? {
+        override var fetchedObjects: [StubEntity]? {
             mockObjects
         }
     }

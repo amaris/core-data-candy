@@ -87,7 +87,6 @@ final class DatabaseModelTests: XCTestCase {
 extension DatabaseModelTests {
 
     final class StubEntity: NSManagedObject, FetchableEntity {
-        
 
         static var modelName = "Sutbentity"
 

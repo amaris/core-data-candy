@@ -4,6 +4,7 @@
 
 import Foundation
 
+/// A field that has to be is unique in the entity table
 public final class UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error>:
     FieldInterface<FieldValue, Value, Entity, OutputError, StoreError> {
 

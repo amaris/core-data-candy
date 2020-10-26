@@ -4,7 +4,7 @@
 
 import CoreData
 
-public struct ComparisonPredicate<T: DatabaseEntity, Value: DatabaseFieldValue> {
+public struct ComparisonPredicate<T: FetchableEntity, Value: DatabaseFieldValue> {
     let nsValue: NSPredicate
 }
 

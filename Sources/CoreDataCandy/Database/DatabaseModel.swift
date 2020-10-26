@@ -18,6 +18,7 @@ public extension DatabaseModel {
 
     // MARK: - Constants
 
+    /// Holds a CoreData field/attribute with custom validation and conversion logic
     typealias
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
@@ -59,6 +60,7 @@ public extension DatabaseModel {
 }
 
 public extension DatabaseModel where Entity: FetchableEntity {
+    /// A field that has to be is unique in the entity table
     typealias
         UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
         =
