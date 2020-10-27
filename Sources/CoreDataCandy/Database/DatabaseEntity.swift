@@ -5,7 +5,7 @@
 import CoreData
 import Combine
 
-/// Enitity in CoreData
+/// Entity in CoreData
 public protocol DatabaseEntity: Hashable {
     var managedObjectContext: NSManagedObjectContext? { get }
 

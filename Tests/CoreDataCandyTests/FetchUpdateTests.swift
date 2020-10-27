@@ -3,6 +3,7 @@
 //
 
 import XCTest
+import CoreData
 import Combine
 @testable import CoreDataCandy
 
