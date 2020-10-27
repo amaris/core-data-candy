@@ -3,16 +3,15 @@
 //
 
 /// Relationship many to one
-public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel> {
+public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel>: ParentInterfaceProtocol {
 
-    let keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>
+    public let keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>
 
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>, as type: ParentModel.Type) {
+    public init(_ keyPath: ReferenceWritableKeyPath<Entity, ParentModel.Entity?>, as type: ParentModel.Type) {
         self.keyPath = keyPath
     }
 }
 
-extension DatabaseModel {
-
-    public typealias Parent<ParentModel: DatabaseModel> = ParentInterface<Entity, ParentModel>
+public extension DatabaseModel {
+    typealias Parent<ParentModel: DatabaseModel> = ParentInterface<Entity, ParentModel>
 }

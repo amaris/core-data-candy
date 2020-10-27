@@ -4,7 +4,7 @@
 
 import Combine
 
-/// Protocol to holds the logic of a Field interface
+/// Protocol to hold the logic of a Field interface
 public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
 
     // MARK: - Constants

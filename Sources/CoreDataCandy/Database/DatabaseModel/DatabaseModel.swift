@@ -14,38 +14,27 @@ public protocol DatabaseModel: Fetchable, Hashable {
     init<E: NSManagedObject>(entity: E) where E == Entity
 }
 
-public extension DatabaseModel {
+extension DatabaseModel {
 
-    /// Assign the output of the upstream to the given field property
-    func assign<F: FieldModifier, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
-    throws
-    where F.Value == Value, F.Entity == Entity {
-        let field = self[keyPath: keyPath]
-        try field.set(value, on: entity)
+    func saveEntityContext() throws {
+        guard entity.managedObjectContext?.hasChanges ?? true else {
+            return
+        }
+
         do {
             try entity.managedObjectContext?.save()
         } catch {
             throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
         }
     }
+}
 
-    /// Try to toggle the boolean at the given key path
-    func toggle<F: FieldModifier>(_ keyPath: KeyPath<Self, F>)
-    throws
-    where F.Value == Bool, F.Entity == Entity {
-        let field = self[keyPath: keyPath]
-        try field.toggle(on: entity)
-        do {
-            try entity.managedObjectContext?.save()
-        } catch {
-            throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
-        }
-    }
+public extension DatabaseModel where Entity: NSManagedObject {
 
-    /// Publisher for the given field
-    func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
-    where Value == F.Value, E == F.OutputError, F.Entity == Entity {
-        self[keyPath: keyPath].publisher(for: entity)
+    func remove() throws {
+        let context = entity.managedObjectContext
+        context?.delete(entity)
+        try saveEntityContext()
     }
 }
 
@@ -59,6 +48,14 @@ public extension DatabaseModel {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.entity == rhs.entity
+    }
+}
+
+public extension DatabaseModel {
+
+    /// The current value of the given field
+    func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
+        try self[keyPath: keyPath].currentValue(in: entity)
     }
 }
 
