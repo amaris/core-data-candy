@@ -2,7 +2,7 @@
 // Copyright © 2018-present Amaris Software.
 //
 
-import Foundation
+import CoreData
 import Combine
 
 /// Relationship one to many (ordered)
@@ -47,7 +47,7 @@ public struct OrderedChildrenInterface<Entity: DatabaseEntity, ChildModel: Datab
     }
 }
 
-extension OrderedChildrenInterface: FieldPublisher {
+extension OrderedChildrenInterface: FieldPublisher where Entity: NSManagedObject {
 
     public typealias Value = [ChildModel]
     public typealias OutputError = Never

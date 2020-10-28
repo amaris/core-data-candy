@@ -36,7 +36,7 @@ public struct ChildrenInterface<Entity: DatabaseEntity, ChildModel: DatabaseMode
     }
 }
 
-extension ChildrenInterface: FieldPublisher {
+extension ChildrenInterface: FieldPublisher where Entity: NSManagedObject {
 
     public typealias Value = Set<ChildModel>
     public typealias OutputError = Never

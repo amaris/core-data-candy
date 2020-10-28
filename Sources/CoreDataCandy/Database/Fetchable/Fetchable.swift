@@ -5,11 +5,7 @@
 import CoreData
 
 /// Can be fetched from the CoreData context. Add simple to use fetch functions on a CoreData entity or `DatabaseModel`.
-public protocol Fetchable {
-
-    /// Optionally specify a context to be used by default
-    static var context: NSManagedObjectContext? { get }
-}
+public protocol Fetchable {}
 
 public extension Fetchable {
 
@@ -21,12 +17,16 @@ public protocol FetchableEntity: NSManagedObject, DatabaseEntity, Fetchable {
 
     /// The associated Database model name for fetching when throwing a detailled error
     static var modelName: String { get }
+}
 
-    static func fetchRequest() -> NSFetchRequest<Self>
+public extension FetchableEntity where Self: NSManagedObject {
+
+    static var fetch: NSFetchRequest<Self> {
+        NSFetchRequest<Self>(entityName: String(describing: Self.self))
+    }
 }
 
 public extension FetchableEntity {
-    static var fetch: NSFetchRequest<Self> { fetchRequest() }
 
     static var modelName: String {
         // Default implementation of the model name
@@ -127,7 +127,7 @@ public extension FetchableEntity {
     /// // type: People?
     /// People.fetch(.first(), where: \.name == "Winnie", in: context)
     ///
-    /// /// fetch all the People older than 10, sorted by their name
+    /// // fetch all the People older than 10, sorted by their name
     /// // type: [People]
     /// People.fetch(.all(), where: \.age > 10,
     ///              sortedBy: .ascending(\.name),

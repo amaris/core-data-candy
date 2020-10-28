@@ -6,7 +6,6 @@
 public struct SiblingInterface<Entity: DatabaseEntity, SiblingModel: DatabaseModel>: ParentInterfaceProtocol {
     public typealias ParentModel = SiblingModel
 
-
     public let keyPath: ReferenceWritableKeyPath<Entity, SiblingModel.Entity?>
 
     public init(_ keyPath: ReferenceWritableKeyPath<Entity, SiblingModel.Entity?>, as type: SiblingModel.Type) {

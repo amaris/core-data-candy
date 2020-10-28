@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData field/attribute with custom validation and conversion logic
-public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, OutputError: ConversionError, StoreError: Error>: FieldInterfaceProtocol {
+public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, OutputError: ConversionError, StoreError: Error> {
 
     // MARK: - Constants
 
@@ -46,3 +46,7 @@ public extension DatabaseModel {
         =
         FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 }
+
+extension FieldInterface: FieldModifier where Entity: NSManagedObject {}
+extension FieldInterface: FieldPublisher where Entity: NSManagedObject {}
+extension FieldInterface: FieldInterfaceProtocol where Entity: NSManagedObject {}

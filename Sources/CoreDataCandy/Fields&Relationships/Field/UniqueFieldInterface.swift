@@ -57,7 +57,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
 }
 
 public extension DatabaseModel where Entity: FetchableEntity {
-    
+
     /// A field that has to be unique in the entity when compared to others
     typealias
         UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>

@@ -2,6 +2,7 @@
 // Copyright © 2018-present Amaris Software.
 //
 
+import CoreData
 import Combine
 
 /// Protocol to hold the logic of a Field interface
@@ -61,7 +62,7 @@ public extension FieldInterfaceProtocol {
 
 // MARK: - FieldPublisher
 
-public extension FieldInterfaceProtocol {
+public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 
     func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
         entity.attributePublisher(for: keyPath)
