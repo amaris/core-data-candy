@@ -11,7 +11,7 @@ public extension Publisher {
     }
 
     /// Try to assign the value to the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
-    func tryAssign<Model: DatabaseModel, F: FieldPublisher>(to keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
+    func tryAssign<Model: DatabaseModel, F: FieldModifier>(to keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
     where F.Value == Output, F.Entity == Model.Entity {
 
         return tryMap { value in
@@ -23,7 +23,7 @@ public extension Publisher {
     }
 
     /// Try to toggle the boolean at the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
-    func tryToggle<Model: DatabaseModel, F: FieldPublisher>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
+    func tryToggle<Model: DatabaseModel, F: FieldModifier>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
     where F.Value == Bool, F.Entity == Model.Entity {
 
         return tryMap { _ in

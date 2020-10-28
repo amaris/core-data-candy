@@ -6,32 +6,28 @@ import CoreData
 import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel: class, Fetchable, Hashable {
-    associatedtype Entity: FetchableEntity
+public protocol DatabaseModel: Fetchable, Hashable {
+    associatedtype Entity: DatabaseEntity
 
     var entity: Entity { get }
 
-    init(entity: Entity)
+    init<E: NSManagedObject>(entity: E) where E == Entity
 }
 
 public extension DatabaseModel {
 
     // MARK: - Constants
 
+    /// Holds a CoreData field/attribute with custom validation and conversion logic
     typealias
         Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError, StoreError: Error>
         =
         FieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
 
-    typealias
-        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
-        =
-        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
-
     // MARK: - Functions
 
     /// Assign the output of the upstream to the given field property
-    func assign<F: FieldPublisher, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
+    func assign<F: FieldModifier, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
     throws
     where F.Value == Value, F.Entity == Entity {
         let field = self[keyPath: keyPath]
@@ -44,7 +40,7 @@ public extension DatabaseModel {
     }
 
     /// Try to toggle the boolean at the given key path
-    func toggle<F: FieldPublisher>(_ keyPath: KeyPath<Self, F>)
+    func toggle<F: FieldModifier>(_ keyPath: KeyPath<Self, F>)
     throws
     where F.Value == Bool, F.Entity == Entity {
         let field = self[keyPath: keyPath]
@@ -63,6 +59,14 @@ public extension DatabaseModel {
     }
 }
 
+public extension DatabaseModel where Entity: FetchableEntity {
+    /// A field that has to be is unique in the entity table
+    typealias
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        =
+        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+}
+
 // MARK: - Hashable
 
 public extension DatabaseModel {
@@ -78,9 +82,9 @@ public extension DatabaseModel {
 
 // MARK: - Validation
 
-public extension DatabaseModel {
+public extension DatabaseModel where Entity: NSManagedObject {
 
-    static func validate<Value, F: FieldPublisher>(value: Value, for keyPath: KeyPath<Self, F>)
+    static func validate<Value, F: FieldModifier>(value: Value, for keyPath: KeyPath<Self, F>)
     throws
     where Value == F.Value {
         let entity = Entity(context: .init(concurrencyType: .mainQueueConcurrencyType))

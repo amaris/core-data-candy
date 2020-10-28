@@ -87,6 +87,7 @@ final class DatabaseModelTests: XCTestCase {
 extension DatabaseModelTests {
 
     final class StubEntity: NSManagedObject, FetchableEntity {
+
         static var modelName = "Sutbentity"
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
@@ -97,7 +98,7 @@ extension DatabaseModelTests {
         @objc var property = ""
     }
 
-    final class StubModel: DatabaseModel {
+    struct StubModel: DatabaseModel {
         var entity = StubEntity()
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))

@@ -53,7 +53,7 @@ public extension FieldInterface where FieldValue == Value?,
             keyPath,
             outputConversion: { fieldValue in
                 guard let value = fieldValue else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
                 return .success(value)
             },
@@ -146,7 +146,7 @@ public extension FieldInterface where FieldValue == Data,
                 if let data = $0.data {
                     return.success(data)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             validations: validations
@@ -172,7 +172,7 @@ public extension FieldInterface where FieldValue == Data,
                 if let data = storeFunction($0) {
                     return.success(data)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             validations: validations
@@ -198,7 +198,7 @@ public extension FieldInterface where FieldValue == Data,
                 if let data = $0[keyPath: storeKeyPath] {
                     return.success(data)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             validations: validations
@@ -222,14 +222,14 @@ public extension FieldInterface where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             storeConversion: {
                 if let data = $0.data {
                     return.success(data)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             validations: validations
@@ -247,14 +247,14 @@ public extension FieldInterface where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             storeConversion: {
                 if let data = storeFunction($0) {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion(keyPath: keyPath.label))
+                    return .failure(.storeConversion)
                 }
             },
             validations: validations
@@ -272,14 +272,14 @@ public extension FieldInterface where FieldValue == Data,
                 if let value = Value(data: $0) {
                     return .success(value)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             storeConversion: {
                 if let data = $0[keyPath: storeKeyPath] {
                     return.success(data)
                 } else {
-                    return .failure(.storeConversion(keyPath: keyPath.label))
+                    return .failure(.storeConversion)
                 }
             },
             validations: validations
@@ -307,13 +307,13 @@ public extension FieldInterface where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
                 return .success(value)
             },
             storeConversion: { value in
                 guard let data = value?.data else {
-                    return .failure(.storeConversion(keyPath: keyPath.label))
+                    return .failure(.storeConversion)
                 }
                 return .success(data)
             },
@@ -334,7 +334,7 @@ public extension FieldInterface where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
                 return .success(value)
             },
@@ -343,7 +343,7 @@ public extension FieldInterface where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let data = storeFunction(value) else {
-                    return .failure(.storeConversion(keyPath: keyPath.label))
+                    return .failure(.storeConversion)
                 }
                 return .success(data)
             },
@@ -364,7 +364,7 @@ public extension FieldInterface where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let value = D(data: data) else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
                 return .success(value)
             },
@@ -373,7 +373,7 @@ public extension FieldInterface where FieldValue == Data?,
                     return .success(nil)
                 }
                 guard let data = value[keyPath: storeKeyPath] else {
-                    return .failure(.storeConversion(keyPath: keyPath.label))
+                    return .failure(.storeConversion)
                 }
                 return .success(data)
             },
@@ -420,7 +420,7 @@ public extension FieldInterface where FieldValue == NSObject,
             keyPath,
             outputConversion: {
                 guard let outputValue = $0 as? Value else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
 
                 return .success(outputValue)
@@ -448,7 +448,7 @@ public extension FieldInterface where FieldValue == NSObject?,
                 if let object = object as? Value {
                     return .success(object)
                 } else {
-                    return .failure(.outputConversion(keyPath: keyPath.label))
+                    return .failure(.outputConversion)
                 }
             },
             storeConversion: { .success($0) },

@@ -25,9 +25,9 @@ final class PredicateOperatorTests: XCTestCase {
 
 extension PredicateOperatorTests {
 
-    final class StubEntity: NSManagedObject, FetchResultEntity {
-        static var modelName = "Sutbentity"
+    final class StubEntity: NSManagedObject, FetchableEntity {
 
+        static var modelName = "Sutbentity"
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }

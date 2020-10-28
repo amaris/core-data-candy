@@ -38,7 +38,7 @@ public struct OperatorPredicate<LeftValue, RightValue> {
     // MARK: - Functions
 
     /// Returns a predicate using a keypath operand with the given keypath
-    public func predicate<R: DatabaseEntity, V>(for keyPath: KeyPath<R, V>) -> NSPredicate {
+    public func predicate<R: FetchableEntity, V>(for keyPath: KeyPath<R, V>) -> NSPredicate {
         let arguments = argumentsOrder(keyPath.label)
         let format = formatter("%K")
 

@@ -5,15 +5,16 @@
 import Combine
 import CoreData
 
-extension DatabaseModel {
+extension DatabaseModel where Entity: FetchableEntity {
 
-    private static func fetchController(context: NSManagedObjectContext, sorts: [Sort<Entity>]) -> NSFetchedResultsController<Entity> {
+    static func fetchController(context: NSManagedObjectContext, sorts: [Sort<Entity>]) -> NSFetchedResultsController<Entity> {
         let request = Entity.fetch
         request.sortDescriptors = sorts.map { $0.descriptor }
         return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context,
-                                                     sectionNameKeyPath: nil, cacheName: nil)
+                                          sectionNameKeyPath: nil, cacheName: nil)
     }
 
+    /// Publisher for the entity table updates in CoreData
     public static func updatePublisher(sortingBy sort: Sort<Entity>, in context: NSManagedObjectContext?  = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +
@@ -26,6 +27,7 @@ extension DatabaseModel {
             .eraseToAnyPublisher()
     }
 
+    /// Publisher for the entity table updates in CoreData
     public static func updatePublisher(sortingBy sorts: [Sort<Entity>], in context: NSManagedObjectContext?  = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +

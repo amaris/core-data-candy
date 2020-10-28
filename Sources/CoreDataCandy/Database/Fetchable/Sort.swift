@@ -4,7 +4,7 @@
 
 import Foundation
 
-public struct Sort<Entity: DatabaseEntity> {
+public struct Sort<Entity: FetchableEntity> {
     public let descriptor: NSSortDescriptor
 }
 

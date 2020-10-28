@@ -7,7 +7,8 @@ import Combine
 
 extension Publishers {
 
-    struct FetchUpdate<Model: DatabaseModel>: Publisher {
+    /// Tranforms a fetch controller delegate functions to a publisher
+    struct FetchUpdate<Model: DatabaseModel>: Publisher where Model.Entity: FetchableEntity {
 
         typealias Output = [Model]
         typealias Failure = Never
@@ -29,7 +30,8 @@ extension Publishers {
     }
 }
 
-private final class FetchUpdateSubscription<S: Subscriber, M: DatabaseModel>: NSObject, NSFetchedResultsControllerDelegate, Subscription where S.Input == [M] {
+final class FetchUpdateSubscription<S: Subscriber, M: DatabaseModel>: NSObject, NSFetchedResultsControllerDelegate, Subscription
+where S.Input == [M], M.Entity: FetchableEntity {
 
     var subscriber: S?
     var requested: Subscribers.Demand = .none
@@ -66,6 +68,7 @@ private final class FetchUpdateSubscription<S: Subscriber, M: DatabaseModel>: NS
         guard let objects = fetchController.fetchedObjects else {
             return
         }
+
         guard requested > .none else { return }
 
         requested -= .max(1)
