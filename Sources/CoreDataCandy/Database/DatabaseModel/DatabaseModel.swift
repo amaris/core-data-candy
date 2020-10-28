@@ -17,7 +17,7 @@ public protocol DatabaseModel: Fetchable, Hashable {
 extension DatabaseModel {
 
     func saveEntityContext() throws {
-        guard entity.managedObjectContext?.hasChanges ?? true else {
+        guard entity.managedObjectContext?.hasChanges ?? false else {
             return
         }
 

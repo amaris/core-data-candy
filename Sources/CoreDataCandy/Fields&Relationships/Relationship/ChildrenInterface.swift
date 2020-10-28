@@ -9,7 +9,7 @@ import Combine
 /// Relationship one to many
 public struct ChildrenInterface<Entity: DatabaseEntity, ChildModel: DatabaseModel>: ChildrenInterfaceProtocol {
 
-    public let keyPath: ReferenceWritableKeyPath<Entity, NSSet?>
+    let keyPath: ReferenceWritableKeyPath<Entity, NSSet?>
 
     public init(_ keyPath: ReferenceWritableKeyPath<Entity, NSSet?>, as type: ChildModel.Type) {
         self.keyPath = keyPath
@@ -41,8 +41,8 @@ extension ChildrenInterface: FieldPublisher where Entity: NSManagedObject {
     public typealias Value = Set<ChildModel>
     public typealias OutputError = Never
 
-    public func publisher(for entity: Entity) -> AnyPublisher<Set<ChildModel>, Never> {
-        entity.attributePublisher(for: keyPath)
+    public func publisher(for entity: Entity) -> AnyPublisher<Value, Never> {
+        entity.publisher(for: keyPath)
             .map { $0 as? Value ?? [] }
             .eraseToAnyPublisher()
     }

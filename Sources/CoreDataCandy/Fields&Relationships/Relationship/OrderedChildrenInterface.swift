@@ -8,7 +8,7 @@ import Combine
 /// Relationship one to many (ordered)
 public struct OrderedChildrenInterface<Entity: DatabaseEntity, ChildModel: DatabaseModel>: ChildrenInterfaceProtocol {
 
-    public let keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>
+    let keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>
 
     public init(_ keyPath: ReferenceWritableKeyPath<Entity, NSOrderedSet?>, as type: ChildModel.Type) {
         self.keyPath = keyPath
@@ -52,8 +52,8 @@ extension OrderedChildrenInterface: FieldPublisher where Entity: NSManagedObject
     public typealias Value = [ChildModel]
     public typealias OutputError = Never
 
-    public func publisher(for entity: Entity) -> AnyPublisher<[ChildModel], Never> {
-        entity.attributePublisher(for: keyPath)
+    public func publisher(for entity: Entity) -> AnyPublisher<Value, Never> {
+        entity.publisher(for: keyPath)
             .map { $0?.array as? Value ?? [] }
             .eraseToAnyPublisher()
     }

@@ -11,11 +11,3 @@ public protocol DatabaseEntity: Hashable {
 
     init(context moc: NSManagedObjectContext)
 }
-
-public extension DatabaseEntity where Self: NSManagedObject {
-
-    /// Hide the `NSManagedObject.publisher(for:)` function
-    func attributePublisher<FieldValue: DatabaseFieldValue>(for keyPath: KeyPath<Self, FieldValue>) -> AnyPublisher<FieldValue, Never> {
-        publisher(for: keyPath).eraseToAnyPublisher()
-    }
-}

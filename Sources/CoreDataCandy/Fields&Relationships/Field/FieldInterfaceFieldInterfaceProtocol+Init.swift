@@ -26,7 +26,7 @@ public extension FieldInterfaceProtocol where FieldValue == Value,
 // MARK: - ExpressibleByNilLiteral
 
 public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              FieldValue: ExpressibleByNilLiteral,
+                                              Value: ExpressibleByNilLiteral,
                                               OutputError == Never,
                                               StoreError == Never {
 

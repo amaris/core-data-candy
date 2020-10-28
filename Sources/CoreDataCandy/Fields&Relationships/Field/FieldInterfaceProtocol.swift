@@ -37,10 +37,6 @@ public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<Value>])
-
-    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
-         outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
-         validations: [Validation<U>]) where Value == U?
 }
 
 public extension FieldInterfaceProtocol {
@@ -65,7 +61,7 @@ public extension FieldInterfaceProtocol {
 public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 
     func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
-        entity.attributePublisher(for: keyPath)
+        entity.publisher(for: keyPath)
             .tryMap { [outputConversion, defaultValue] dbValue in
                 let outputValue = outputConversion(dbValue)
 

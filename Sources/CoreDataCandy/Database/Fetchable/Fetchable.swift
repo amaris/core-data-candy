@@ -40,7 +40,7 @@ public extension FetchableEntity {
     }
 }
 
-// MARK: - Fetchable Entity extension
+// MARK: - Fetchable Entity
 
 extension FetchableEntity {
 
@@ -72,48 +72,14 @@ extension FetchableEntity {
 
 public extension FetchableEntity {
 
-    /// Feth the entity in the context
-    /// - Parameters:
-    ///   - target: Retrieve, all values, the first one, the first nth ones...
-    ///   - predicate: The comparison expression to use
-    ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
-    /// - Throws: If the context fails to use the fetch request
-    /// - Returns: The result of the fetch, depending on the given target
-    ///
-    /// For a given `People` model or CoreData managed object, here are some examples
-    /// ```
-    /// // fetch all the People older than 10
-    /// // type: [People]
-    /// People.fetch(.all(), where: \.age > 10, in: context)
-    ///
-    /// // fetch the first person with the name "Winnie"
-    /// // type: People?
-    /// People.fetch(.first(), where: \.name == "Winnie", in: context)
-    ///
-    /// /// fetch all the People older than 10, sorted by their name
-    /// // type: [People]
-    /// People.fetch(.all(), where: \.age > 10,
-    ///              sortedBy: .ascending(\.name),
-    ///              in: context)
-    /// ```
-    static func fetch<Output: FetchResult>(
-        _ target: FetchTarget<Self, Output>,
-        sortedBy sorts: Sort<Self>...,
-        in context: NSManagedObjectContext? = context)
-    throws -> Output
-    where Output.Fetched == Self {
-
-        let results = try fetch(predicate: nil, in: context, limit: target.limit, sorts: sorts)
-        return Output(results: results)
-    }
+    // MARK: No predicate
 
     /// Feth the entity in the context
     /// - Parameters:
     ///   - target: Retrieve, all values, the first one, the first nth ones...
     ///   - predicate: The comparison expression to use
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -132,6 +98,52 @@ public extension FetchableEntity {
     /// People.fetch(.all(), where: \.age > 10,
     ///              sortedBy: .ascending(\.name),
     ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // type: [People]
+    /// People.fetch(.all(), in: context)
+    /// ```
+    static func fetch<Output: FetchResult>(
+        _ target: FetchTarget<Self, Output>,
+        sortedBy sorts: Sort<Self>...,
+        in context: NSManagedObjectContext? = context)
+    throws -> Output
+    where Output.Fetched == Self {
+
+        let results = try fetch(predicate: nil, in: context, limit: target.limit, sorts: sorts)
+        return Output(results: results)
+    }
+
+    // MARK: ComparisonPredicate
+
+    /// Feth the entity in the context
+    /// - Parameters:
+    ///   - target: Retrieve, all values, the first one, the first nth ones...
+    ///   - predicate: The comparison expression to use
+    ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
+    /// - Throws: If the context fails to use the fetch request
+    /// - Returns: The result of the fetch, depending on the given target
+    ///
+    /// For a given `People` model or CoreData managed object, here are some examples
+    /// ```
+    /// // fetch all the People older than 10
+    /// // type: [People]
+    /// People.fetch(.all(), where: \.age > 10, in: context)
+    ///
+    /// // fetch the first person with the name "Winnie"
+    /// // type: People?
+    /// People.fetch(.first(), where: \.name == "Winnie", in: context)
+    ///
+    /// // fetch all the People older than 10, sorted by their name
+    /// // type: [People]
+    /// People.fetch(.all(), where: \.age > 10,
+    ///              sortedBy: .ascending(\.name),
+    ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // type: [People]
+    /// People.fetch(.all(), in: context)
     /// ```
     static func fetch<V: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
@@ -145,13 +157,15 @@ public extension FetchableEntity {
         return Output(results: results)
     }
 
+    // MARK: OperatorPredicate
+
     /// Feth the entity in the context
     /// - Parameters:
     ///   - target: Specify to retrieve all values, the first one, the first nth ones...
     ///   - keyPath: The property to use in the expression
     ///   - predOperator: An operator to apply to the property
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -182,10 +196,10 @@ public extension FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult, RightOperand>(
+    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand>,
-        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand>,
         sortedBy sorts: Sort<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -195,7 +209,7 @@ public extension FetchableEntity {
         return Output(results: results)
     }
 
-    // MARK: Optional Left Operand
+    // MARK: OperatorPredicate optional left operand
 
     /// Feth the entity in the context
     /// - Parameters:
@@ -203,7 +217,7 @@ public extension FetchableEntity {
     ///   - keyPath: The property to use in the expression
     ///   - predOperator: An operator to apply to the property
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -234,10 +248,10 @@ public extension FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult, RightOperand>(
+    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand?>,
-        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand>,
         sortedBy sorts: Sort<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -248,16 +262,18 @@ public extension FetchableEntity {
     }
 }
 
-// MARK: - Fetchable extensnion
+// MARK: - DatabaseModel Fetchable
 
 public extension DatabaseModel where Entity: FetchableEntity {
+
+    // MARK: No predicate
 
     /// Feth the model entity in the context
     /// - Parameters:
     ///   - target: Retrieve, all values, the first one, the first nth ones...
     ///   - predicate: The comparison expression to use
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -276,6 +292,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.all(), where: \.age > 10,
     ///              sortedBy: .ascending(\.name),
     ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // type: [People]
+    /// People.fetch(.all(), in: context)
     /// ```
     static func fetch<Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
@@ -288,13 +308,15 @@ public extension DatabaseModel where Entity: FetchableEntity {
         return Output(results: results)
     }
 
+    // MARK: ComparisonPredicate
+
     /// Feth the model entity in the context
     /// - Parameters:
     ///   - target: Retrieve, all values, the first one, the first nth ones...
     ///   - predicate: The comparison expression to use
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
-    /// - Throws: If the context fails to use the fetch request
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
+    /// - Throws: If the context fails to use the fetch request. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Returns: The result of the fetch, depending on the given target
     ///
     /// For a given `People` model or CoreData managed object, here are some examples
@@ -312,6 +334,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.all(), where: \.age > 10,
     ///              sortedBy: .ascending(\.name),
     ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // type: [People]
+    /// People.fetch(.all(), in: context)
     /// ```
     static func fetch<V: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
@@ -325,13 +351,15 @@ public extension DatabaseModel where Entity: FetchableEntity {
         return Output(results: results)
     }
 
+    // MARK: OperatorPredicate
+
     /// Feth the model entity in the context
     /// - Parameters:
     ///   - target: Specify to retrieve all values, the first one, the first nth ones...
     ///   - keyPath: The property to use in the expression
     ///   - predOperator: An operator to apply to the property
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -362,10 +390,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult, RightOperand>(
+    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand>,
-        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand>,
         sortedBy sorts: Sort<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -375,7 +403,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
         return Output(results: results)
     }
 
-    // MARK: Optional Left Operand
+    // MARK: OperatorPredicate optional left operand
 
     /// Feth the model entity in the context
     /// - Parameters:
@@ -383,7 +411,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
     ///   - keyPath: The property to use in the expression
     ///   - predOperator: An operator to apply to the property
     ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
-    ///   - context: The context where to fetch
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
     /// - Throws: If the context fails to use the fetch request
     /// - Returns: The result of the fetch, depending on the given target
     ///
@@ -414,10 +442,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult, RightOperand>(
+    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand?>,
-        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand>,
         sortedBy sorts: Sort<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output

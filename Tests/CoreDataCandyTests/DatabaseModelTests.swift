@@ -95,7 +95,7 @@ extension DatabaseModelTests {
         }
 
         @objc var flag = false
-        @objc var property = ""
+        @objc var property: String? = ""
     }
 
     struct StubModel: DatabaseModel {

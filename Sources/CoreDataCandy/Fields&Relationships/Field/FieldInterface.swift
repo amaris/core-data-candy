@@ -3,7 +3,6 @@
 //
 
 import CoreData
-import Combine
 
 /// Holds a CoreData field/attribute with custom validation and conversion logic
 public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, OutputError: ConversionError, StoreError: Error> {
