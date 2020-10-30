@@ -5,74 +5,63 @@
 import CoreData
 import Combine
 
-/// Holds a CoreData field/attribute with custom validation and conversion logic
-public class FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, OutputError: ConversionError, StoreError: Error> {
+/// Protocol to hold the logic of a Field interface
+public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
 
     // MARK: - Constants
 
+    associatedtype FieldValue: DatabaseFieldValue
+    associatedtype StoreError: Error
     typealias OutputConversion = (FieldValue) -> Result<Value, OutputError>
     typealias StoreConversion = (Value) -> Result<FieldValue, StoreError>
 
     // MARK: - Properties
 
     /// Key path to the entity property
-    let keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
+    var keyPath: ReferenceWritableKeyPath<Entity, FieldValue> { get }
 
     /// The data base model can optionally define a default value to use when `outputConversion` returns a failure
-    private var defaultValue: Value?
+    var defaultValue: Value? { get }
 
-    /// Transform the data base field value into the value
-    let outputConversion: OutputConversion
+    /// Transform the database field value into the value
+    var outputConversion: OutputConversion { get }
 
-    /// Transform the value into the data base field value
-    let storeConversion: StoreConversion
+    /// Transform the value into the database field value
+    var storeConversion: StoreConversion { get }
 
-    public var projectedValue: FieldInterface { self }
-
-    /// Validation to run before setting a value
-    public private(set) var validation: Validation<Value>
+    /// Allow to validate a value before assigning it to the entity attribute
+    var validation: Validation<Value> { get }
 
     // MARK: - Initialisation
 
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
-         validations: [Validation<Value>] = []) {
-        self.keyPath = keyPath
-        self.defaultValue = defaultValue
-        self.outputConversion = outputConversion
-        self.storeConversion = storeConversion
-        self.validation = Validation<Value> { value in
-            try validations.forEach {
-                try $0.validate(value)
-            }
-        }
-    }
+         validations: [Validation<Value>])
+}
 
-    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value? = nil,
+public extension FieldInterfaceProtocol {
+
+    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
-         validations: [Validation<U>] = [])
+         validations: [Validation<U>])
     where Value == U? {
-        self.keyPath = keyPath
-        self.defaultValue = defaultValue
-        self.outputConversion = outputConversion
-        self.storeConversion = storeConversion
-        self.validation = Validation<Value> { value in
+        let unwrappedValidations = Validation<Value> { value in
             try validations.forEach {
                 guard let value = value else { return }
                 try $0.validate(value)
             }
         }
-    }
 
-    public func validate(_ value: Value) throws {
-        try validation.validate(value)
+        self.init(keyPath, defaultValue: defaultValue, outputConversion: outputConversion, storeConversion: storeConversion, validations: [unwrappedValidations])
     }
 }
 
-extension FieldInterface: FieldPublisher {
+// MARK: - FieldPublisher
 
-    public func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
-        entity.attributePublisher(for: keyPath)
+public extension FieldInterfaceProtocol where Entity: NSManagedObject {
+
+    func publisher(for entity: Entity) -> AnyPublisher<Value, OutputError> {
+        entity.publisher(for: keyPath)
             .tryMap { [outputConversion, defaultValue] dbValue in
                 let outputValue = outputConversion(dbValue)
 
@@ -92,9 +81,11 @@ extension FieldInterface: FieldPublisher {
     }
 }
 
-extension FieldInterface: FieldModifier {
+// MARK: - FieldModifier
 
-    public func currentValue(in entity: Entity) throws -> Value {
+public extension FieldInterfaceProtocol {
+
+    func currentValue(in entity: Entity) throws -> Value {
         let fieldValue = entity[keyPath: keyPath]
         let outputConverted = outputConversion(fieldValue)
         switch outputConverted {
@@ -103,7 +94,7 @@ extension FieldInterface: FieldModifier {
         }
     }
 
-    public func set(_ value: Value, on entity: Entity) throws {
+    func set(_ value: Value, on entity: Entity) throws {
         try validate(value)
         let storeConverted = storeConversion(value)
 
@@ -111,5 +102,9 @@ extension FieldInterface: FieldModifier {
         case .success(let storableValue): entity[keyPath: keyPath] = storableValue
         case .failure(let error): throw error
         }
+    }
+
+    func validate(_ value: Value) throws {
+        try validation.validate(value)
     }
 }

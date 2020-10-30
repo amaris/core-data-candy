@@ -6,15 +6,16 @@ import Foundation
 
 // MARK: - Identity
 
-public extension FieldInterface where FieldValue == Value,
-                                      OutputError == Never,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value,
+                                              OutputError == Never,
+                                              StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -24,16 +25,17 @@ public extension FieldInterface where FieldValue == Value,
 
 // MARK: - ExpressibleByNilLiteral
 
-public extension FieldInterface where FieldValue == Value,
-                                      FieldValue: ExpressibleByNilLiteral,
-                                      OutputError == Never,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value,
+                                              Value: ExpressibleByNilLiteral,
+                                              OutputError == Never,
+                                              StoreError == Never {
 
-    convenience init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+    init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -41,16 +43,17 @@ public extension FieldInterface where FieldValue == Value,
     }
 }
 
-public extension FieldInterface where FieldValue == Value?,
-                                      OutputError == CoreDataCandyError,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value?,
+                                              OutputError == CoreDataCandyError,
+                                              StoreError == Never {
 
     /// Try to unwrap the optional field value when publishing
-    convenience init(unwrapped keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+    init(unwrapped keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { fieldValue in
                 guard let value = fieldValue else {
                     return .failure(.outputConversion)
@@ -65,17 +68,18 @@ public extension FieldInterface where FieldValue == Value?,
 
 // MARK: - Int
 
-public extension FieldInterface where FieldValue == Int16,
-                                      Value == Int,
-                                      OutputError == Never,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int16,
+                                              Value == Int,
+                                              OutputError == Never,
+                                              StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int16($0)) },
             validations: validations
@@ -83,17 +87,18 @@ public extension FieldInterface where FieldValue == Int16,
     }
 }
 
-public extension FieldInterface where FieldValue == Int32,
-                                      Value == Int,
-                                      OutputError == Never,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int32,
+                                              Value == Int,
+                                              OutputError == Never,
+                                              StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type = Int.self,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         output: Value.Type = Int.self,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int32($0)) },
             validations: validations
@@ -101,17 +106,18 @@ public extension FieldInterface where FieldValue == Int32,
     }
 }
 
-public extension FieldInterface where FieldValue == Int64,
-                                      Value == Int,
-                                      OutputError == Never,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int64,
+                                              Value == Int,
+                                              OutputError == Never,
+                                              StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type = Int.self,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         output: Value.Type = Int.self,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int64($0)) },
             validations: validations
@@ -123,18 +129,19 @@ public extension FieldInterface where FieldValue == Int64,
 
 // MARK: Default value
 
-public extension FieldInterface where FieldValue == Data,
-                                      Value: DataConvertible,
-                                      OutputError == Never,
-                                      StoreError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data,
+                                              Value: DataConvertible,
+                                              OutputError == Never,
+                                              StoreError == CoreDataCandyError {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      output: Value.Type,
                      default defaultValue: Value,
                      validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: defaultValue,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -154,13 +161,14 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     default defaultValue: Value,
-                     storeAs storeFunction: @escaping ((Value) -> Data?),
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         default defaultValue: Value,
+         storeAs storeFunction: @escaping ((Value) -> Data?),
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: defaultValue,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -180,13 +188,14 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     storeAs storeKeyPath: KeyPath<Value, Data?>,
-                     default defaultValue: Value,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         storeAs storeKeyPath: KeyPath<Value, Data?>,
+         default defaultValue: Value,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: defaultValue,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -208,16 +217,18 @@ public extension FieldInterface where FieldValue == Data,
 
 // MARK: Error (no default)
 
-public extension FieldInterface where FieldValue == Data,
-                                      Value: DataConvertible,
-                                      OutputError == CoreDataCandyError,
-                                      StoreError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data,
+                                              Value: DataConvertible,
+                                              OutputError == CoreDataCandyError,
+                                              StoreError == CoreDataCandyError {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         output: Value.Type,
+         validations: Validation<Value>...) {
+
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -237,12 +248,13 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     storeAs storeFunction: @escaping ((Value) -> Data?),
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         storeAs storeFunction: @escaping ((Value) -> Data?),
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -262,12 +274,13 @@ public extension FieldInterface where FieldValue == Data,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     storeAs storeKeyPath: KeyPath<Value, Data?>,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         storeAs storeKeyPath: KeyPath<Value, Data?>,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: {
                 if let value = Value(data: $0) {
                     return .success(value)
@@ -291,17 +304,18 @@ public extension FieldInterface where FieldValue == Data,
 
 // MARK: Error (no default)
 
-public extension FieldInterface where FieldValue == Data?,
-                                      Value: ExpressibleByNilLiteral,
-                                      OutputError == CoreDataCandyError,
-                                      StoreError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data?,
+                                              Value: ExpressibleByNilLiteral,
+                                              OutputError == CoreDataCandyError,
+                                              StoreError == CoreDataCandyError {
 
-    convenience init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                                         output: Value.Type,
-                                         validations: Validation<Value>...) where Value == D? {
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                             output: Value.Type,
+                             validations: Validation<Value>...) where Value == D? {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -322,13 +336,14 @@ public extension FieldInterface where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    convenience init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                                         output: Value.Type,
-                                         storeAs storeFunction: @escaping ((D) -> Data?),
-                                         validations: Validation<Value>...) where Value == D? {
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                             output: Value.Type,
+                             storeAs storeFunction: @escaping ((D) -> Data?),
+                             validations: Validation<Value>...) where Value == D? {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -352,13 +367,14 @@ public extension FieldInterface where FieldValue == Data?,
     }
 
     /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    convenience init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                                         output: Value.Type,
-                                         storeAs storeKeyPath: KeyPath<D, Data?>,
-                                         validations: Validation<Value>...) where Value == D? {
+    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                             output: Value.Type,
+                             storeAs storeKeyPath: KeyPath<D, Data?>,
+                             validations: Validation<Value>...) where Value == D? {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -386,18 +402,19 @@ public extension FieldInterface where FieldValue == Data?,
 
 // MARK: Default
 
-extension FieldInterface where FieldValue == NSObject,
-                               Value: NSObject,
-                               OutputError == Never,
-                               StoreError == Never {
+extension FieldInterfaceProtocol where FieldValue == NSObject,
+                                       Value: NSObject,
+                                       OutputError == Never,
+                                       StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type,
-                     default defaultValue: Value,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         output: Value.Type,
+         default defaultValue: Value,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: defaultValue,
             outputConversion: { .success($0 as? Value ?? defaultValue) },
             storeConversion: { .success($0) },
             validations: validations
@@ -407,17 +424,18 @@ extension FieldInterface where FieldValue == NSObject,
 
 // MARK: Error (no default)
 
-public extension FieldInterface where FieldValue == NSObject,
-                                      Value: NSObject,
-                                      OutputError == CoreDataCandyError,
-                                      StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == NSObject,
+                                              Value: NSObject,
+                                              OutputError == CoreDataCandyError,
+                                              StoreError == Never {
 
-    convenience init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: Value.Type,
-                     validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+         output: Value.Type,
+         validations: Validation<Value>...) {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: {
                 guard let outputValue = $0 as? Value else {
                     return .failure(.outputConversion)
@@ -433,17 +451,18 @@ public extension FieldInterface where FieldValue == NSObject,
 
 // MARK: Optional NSObject
 
-public extension FieldInterface where FieldValue == NSObject?,
-                             Value: ExpressibleByNilLiteral,
-                             OutputError == CoreDataCandyError,
-                             StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == NSObject?,
+                                              Value: ExpressibleByNilLiteral,
+                                              OutputError == CoreDataCandyError,
+                                              StoreError == Never {
 
-    convenience init<O: NSObject>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                                  output: Value.Type,
-                                  validations: Validation<Value>...) where Value == O? {
+    init<O: NSObject>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                      output: Value.Type,
+                      validations: Validation<Value>...) where Value == O? {
 
         self.init(
             keyPath,
+            defaultValue: nil,
             outputConversion: { object in
                 if let object = object as? Value {
                     return .success(object)
