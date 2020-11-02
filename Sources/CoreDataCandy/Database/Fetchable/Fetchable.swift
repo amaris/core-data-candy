@@ -5,7 +5,10 @@
 import CoreData
 
 /// Can be fetched from the CoreData context. Add simple to use fetch functions on a CoreData entity or `DatabaseModel`.
-public protocol Fetchable {}
+public protocol Fetchable {
+
+    static var context: NSManagedObjectContext? { get }
+}
 
 public extension Fetchable {
 

@@ -17,12 +17,13 @@ public protocol DatabaseModel: Fetchable, Hashable {
 extension DatabaseModel {
 
     func saveEntityContext() throws {
-        guard entity.managedObjectContext?.hasChanges ?? false else {
+
+        guard let context = entity.managedObjectContext else {
             return
         }
 
         do {
-            try entity.managedObjectContext?.save()
+            try context.save()
         } catch {
             throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
         }
@@ -56,18 +57,5 @@ public extension DatabaseModel {
     /// The current value of the given field
     func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
         try self[keyPath: keyPath].currentValue(in: entity)
-    }
-}
-
-// MARK: - Validation
-
-public extension DatabaseModel where Entity: NSManagedObject {
-
-    static func validate<Value, F: FieldModifier>(value: Value, for keyPath: KeyPath<Self, F>)
-    throws
-    where Value == F.Value {
-        let entity = Entity(context: .init(concurrencyType: .mainQueueConcurrencyType))
-        let model = Self(entity: entity)
-        try model[keyPath: keyPath].validate(value)
     }
 }
