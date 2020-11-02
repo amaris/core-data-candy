@@ -15,7 +15,7 @@ extension DatabaseModel where Entity: FetchableEntity {
     }
 
     /// Publisher for the entity table updates in CoreData
-    public static func updatePublisher(sortingBy sort: Sort<Entity>, in context: NSManagedObjectContext?  = Self.context) -> AnyPublisher<[Self], Never> {
+    public static func updatePublisher(sortingBy sort: Sort<Entity>, in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +
                 "Consider passing it as a parameter or changing the default 'nil' value of 'Fetchable.context'")
@@ -28,7 +28,7 @@ extension DatabaseModel where Entity: FetchableEntity {
     }
 
     /// Publisher for the entity table updates in CoreData
-    public static func updatePublisher(sortingBy sorts: [Sort<Entity>], in context: NSManagedObjectContext?  = Self.context) -> AnyPublisher<[Self], Never> {
+    public static func updatePublisher(sortingBy sorts: [Sort<Entity>], in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +
                              "Consider passing it as a parameter or changing the default 'nil' value of 'Fetchable.context'")

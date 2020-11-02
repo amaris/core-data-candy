@@ -2,7 +2,7 @@
 // Copyright © 2018-present Amaris Software.
 //
 
-import Foundation
+import CoreData
 
 /// A field that has to be is unique in the entity table
 public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error>: FieldInterfaceProtocol {
@@ -38,21 +38,34 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
 
     // MARK: - Functions
 
-    public func validate(_ value: Value) throws {
-        try validation.validate(value)
+    public func set(_ value: Value, on entity: Entity) throws {
+        try validate(value)
 
+        guard let context = entity.managedObjectContext else {
+            assertionFailure("No context accessible for entity \(Entity.self) when setting its value")
+            return
+        }
+
+        entity[keyPath: keyPath] = try uniqueStoredValue(for: value, in: context)
+    }
+
+    /// Returns the given value as a stored `FieldValue` while ensuring its unicity
+    @discardableResult
+    func uniqueStoredValue(for value: Value, in context: NSManagedObjectContext) throws -> FieldValue {
         let storeConverted = storeConversion(value)
-        let testValue: FieldValue
+        let storedValue: FieldValue
 
         switch storeConverted {
-        case .success(let value): testValue = value
+        case .success(let value): storedValue = value
         case .failure(let error): throw error
         }
 
-        if try Entity.fetch(.first(), where: keyPath == testValue) != nil {
+        if try Entity.fetch(.first(), where: keyPath == storedValue, in: context) != nil {
             let field = keyPath.label.components(separatedBy: ".").last ?? ""
             throw CoreDataCandyError.existingUnique(field: field, value: String(describing: value), model: Entity.modelName)
         }
+
+        return storedValue
     }
 }
 
