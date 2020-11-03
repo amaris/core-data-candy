@@ -8,7 +8,7 @@ public extension DatabaseModel {
 
     /// Publisher for the given field
     func publisher<Value, E, F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<Value, E>
-    where Value == F.Value, E == F.OutputError, F.Entity == Entity {
+    where Value == F.Output, E == F.OutputError, F.Entity == Entity {
         self[keyPath: keyPath].publisher(for: entity)
     }
 }

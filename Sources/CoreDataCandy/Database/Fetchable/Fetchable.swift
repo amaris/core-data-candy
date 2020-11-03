@@ -51,7 +51,7 @@ extension FetchableEntity {
         predicate: NSPredicate?,
         in context: NSManagedObjectContext?,
         limit: Int? = nil,
-        sorts: [Sort<Self>])
+        sorts: [SortDescriptor<Self>])
     throws -> [Self] {
 
         let request = fetch
@@ -108,7 +108,7 @@ public extension FetchableEntity {
     /// ```
     static func fetch<Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
-        sortedBy sorts: Sort<Self>...,
+        sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -151,7 +151,7 @@ public extension FetchableEntity {
     static func fetch<V: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where predicate: ComparisonPredicate<Self, V>,
-        sortedBy sorts: Sort<Self>...,
+        sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -203,7 +203,7 @@ public extension FetchableEntity {
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand>,
         _ predOperator: OperatorPredicate<LeftOperand>,
-        sortedBy sorts: Sort<Self>...,
+        sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -255,7 +255,7 @@ public extension FetchableEntity {
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand?>,
         _ predOperator: OperatorPredicate<LeftOperand>,
-        sortedBy sorts: Sort<Self>...,
+        sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -302,7 +302,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// ```
     static func fetch<Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
-        sortedBy sorts: Sort<Entity>...,
+        sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -345,7 +345,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
     static func fetch<V: DatabaseFieldValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where predicate: ComparisonPredicate<Entity, V>,
-        sortedBy sorts: Sort<Entity>...,
+        sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -397,7 +397,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand>,
         _ predOperator: OperatorPredicate<LeftOperand>,
-        sortedBy sorts: Sort<Entity>...,
+        sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
@@ -449,7 +449,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand?>,
         _ predOperator: OperatorPredicate<LeftOperand>,
-        sortedBy sorts: Sort<Entity>...,
+        sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
