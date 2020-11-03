@@ -7,7 +7,7 @@ import CoreData
 
 extension DatabaseModel where Entity: FetchableEntity {
 
-    static func fetchController(context: NSManagedObjectContext, sorts: [Sort<Entity>]) -> NSFetchedResultsController<Entity> {
+    static func fetchController(context: NSManagedObjectContext, sorts: [SortDescriptor<Entity>]) -> NSFetchedResultsController<Entity> {
         let request = Entity.fetch
         request.sortDescriptors = sorts.map { $0.descriptor }
         return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context,
@@ -15,7 +15,7 @@ extension DatabaseModel where Entity: FetchableEntity {
     }
 
     /// Publisher for the entity table updates in CoreData
-    public static func updatePublisher(sortingBy sort: Sort<Entity>, in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
+    public static func updatePublisher(sortingBy sort: SortDescriptor<Entity>, in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +
                 "Consider passing it as a parameter or changing the default 'nil' value of 'Fetchable.context'")
@@ -28,7 +28,7 @@ extension DatabaseModel where Entity: FetchableEntity {
     }
 
     /// Publisher for the entity table updates in CoreData
-    public static func updatePublisher(sortingBy sorts: [Sort<Entity>], in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
+    public static func updatePublisher(sortingBy sorts: [SortDescriptor<Entity>], in context: NSManagedObjectContext? = Self.context) -> AnyPublisher<[Self], Never> {
         guard let context = context else {
             assertionFailure("No context was provided to fetch the request. " +
                              "Consider passing it as a parameter or changing the default 'nil' value of 'Fetchable.context'")

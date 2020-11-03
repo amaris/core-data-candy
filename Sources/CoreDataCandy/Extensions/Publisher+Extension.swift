@@ -33,3 +33,10 @@ public extension Publisher {
         .eraseToAnyPublisher()
     }
 }
+
+public extension Publisher where Output: Collection, Output.Element: DatabaseModel, Output.Element.Entity: FetchableEntity {
+
+    func sorted<Value>(with sort: Sort<Output.Element.Entity, Value>) -> AnyPublisher<[Output.Element], Failure> {
+        map { $0.sorted(with: sort) }.eraseToAnyPublisher()
+    }
+}
