@@ -17,10 +17,10 @@ public protocol DatabaseModel: Fetchable, Hashable {
 extension DatabaseModel {
 
     func saveEntityContext() throws {
-
-        guard let context = entity.managedObjectContext else {
-            return
-        }
+        guard
+            let context = entity.managedObjectContext,
+            context.hasChanges
+        else { return }
 
         do {
             try context.save()

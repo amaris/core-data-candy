@@ -36,15 +36,20 @@ public struct ChildrenInterface<Entity: DatabaseEntity, ChildModel: DatabaseMode
     }
 }
 
-extension ChildrenInterface: FieldPublisher where Entity: NSManagedObject {
+extension ChildrenInterface: FieldPublisher where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
     public typealias Value = Set<ChildModel>
     public typealias OutputError = Never
 
     public func publisher(for entity: Entity) -> AnyPublisher<Value, Never> {
         entity.publisher(for: keyPath)
-            .map { $0 as? Value ?? [] }
+            .replaceNil(with: .init())
+            .map(childModels)
             .eraseToAnyPublisher()
+    }
+
+    func childModels(from entities: NSSet) -> Value {
+        Set(entities.map(childModel))
     }
 }
 

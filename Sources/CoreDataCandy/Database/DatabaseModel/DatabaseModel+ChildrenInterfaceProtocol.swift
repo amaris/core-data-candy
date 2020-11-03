@@ -2,6 +2,9 @@
 // Copyright © 2018-present Amaris Software.
 //
 
+import Combine
+import CoreData
+
 public extension DatabaseModel {
 
     func add<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, in childrenKeyPath: KeyPath<Self, Children>)

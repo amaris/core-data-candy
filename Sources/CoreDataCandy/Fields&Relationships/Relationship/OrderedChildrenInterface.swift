@@ -47,18 +47,23 @@ public struct OrderedChildrenInterface<Entity: DatabaseEntity, ChildModel: Datab
     }
 }
 
-extension OrderedChildrenInterface: FieldPublisher where Entity: NSManagedObject {
+extension OrderedChildrenInterface: FieldPublisher where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
     public typealias Value = [ChildModel]
     public typealias OutputError = Never
 
     public func publisher(for entity: Entity) -> AnyPublisher<Value, Never> {
         entity.publisher(for: keyPath)
-            .map { $0?.array as? Value ?? [] }
+            .replaceNil(with: .init())
+            .map(\.array)
+            .map(childModels)
             .eraseToAnyPublisher()
     }
-}
 
+    func childModels(from entities: [Any]) -> Value {
+        entities.map(childModel)
+    }
+}
 public extension DatabaseModel {
     typealias OrderedChildren<ChildModel: DatabaseModel> = OrderedChildrenInterface<Entity, ChildModel>
 }
