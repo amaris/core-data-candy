@@ -16,8 +16,8 @@ public protocol DataConvertible {
 
 #if canImport(UIKit)
 extension UIImage: DataConvertible {
-    public  var data: Data? { pngData() }
-    public  var png: Data? { pngData() }
-    public  var jpeg: Data? { jpegData(compressionQuality: 0.8) }
+    public var data: Data? { pngData() }
+    public var png: Data? { pngData() }
+    public var jpeg: Data? { jpegData(compressionQuality: 0.8) }
 }
 #endif
