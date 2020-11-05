@@ -6,7 +6,7 @@ import Foundation
 import CoreData
 
 /// A predicate operator and its right operand to be speficied when fetching in CoreData
-public struct OperatorPredicate<RightValue> {
+public struct OperatorPredicate<LeftValue, RightValue> {
 
     // MARK: - Constants
 

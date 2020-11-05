@@ -199,10 +199,10 @@ public extension FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
+    static func fetch<LeftOperand: DatabaseFieldValue, RightOperand, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand>,
-        _ predOperator: OperatorPredicate<LeftOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
         sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -251,10 +251,10 @@ public extension FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
+    static func fetch<LeftOperand: DatabaseFieldValue, RightOperand, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Self, LeftOperand?>,
-        _ predOperator: OperatorPredicate<LeftOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
         sortedBy sorts: SortDescriptor<Self>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -393,10 +393,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
+    static func fetch<LeftOperand: DatabaseFieldValue, RightOperand, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand>,
-        _ predOperator: OperatorPredicate<LeftOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
         sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output
@@ -445,10 +445,10 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// People.fetch(.first(nth: 5), where: \.surname, .contains("Wood"),
     ///               in: context)
     /// ```
-    static func fetch<LeftOperand: DatabaseFieldValue, Output: FetchResult>(
+    static func fetch<LeftOperand: DatabaseFieldValue, RightOperand, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
         where keyPath: KeyPath<Entity, LeftOperand?>,
-        _ predOperator: OperatorPredicate<LeftOperand>,
+        _ predOperator: OperatorPredicate<LeftOperand, RightOperand>,
         sortedBy sorts: SortDescriptor<Entity>...,
         in context: NSManagedObjectContext? = context)
     throws -> Output

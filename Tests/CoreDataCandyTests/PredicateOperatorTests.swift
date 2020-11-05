@@ -9,14 +9,14 @@ import CoreDataCandy
 final class PredicateOperatorTests: XCTestCase {
 
     func testFormat() {
-        let predOperator = OperatorPredicate<Int>(operatorString: ">", value: 10)
+        let predOperator = OperatorPredicate<Int, Int>(operatorString: ">", value: 10)
         let predicate = predOperator.predicate(for: \StubEntity.property)
 
         XCTAssertEqual(predicate.predicateFormat, "property > 10")
     }
 
     func testFormatInverted() {
-        let predOperator = OperatorPredicate<Int>(operatorString: ">", value: 10, isInverted: true)
+        let predOperator = OperatorPredicate<Int, Int>(operatorString: ">", value: 10, isInverted: true)
         let predicate = predOperator.predicate(for: \StubEntity.property)
 
         XCTAssertEqual(predicate.predicateFormat, "NOT property > 10")
