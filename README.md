@@ -13,12 +13,11 @@ Given an entity in a CoreData model:
 
 ```swift
 class PlayerEntity: NSManagedObject {
-
-	@NSManaged var name: String?
-	@NSManaged var score: Int32
-	@NSManaged var age: Int16
-	@NSManaged var lastGame: Date?
-	@NSManaged var avatar: Data?
+    @NSManaged var name: String?
+    @NSManaged var score: Int32
+    @NSManaged var age: Int16
+    @NSManaged var lastGame: Date?
+    @NSManaged var avatar: Data?
 }
 ```
 It's possible to declare a mapping model `Player` to interface the entity with more friendly types, after having declared the conformance of `PlayerEntity` to `DatabaseEntity`.
@@ -27,11 +26,11 @@ It's possible to declare a mapping model `Player` to interface the entity with m
 extension PlayerEntity: DatabaseEntity {}
 
 struct Player: DatabaseModel {
-	let name = UniqueField(\.name, validations: .notEmpty) // ensure the unicity of the 'name' attribute
-	let score = Field(\.score) // output type: Int
-	let age = Field(\.age, validations: .range(18...24)
-	let lastGame = Field(unwrapped: \.lastGame) // output type: Date
-	let avatar = Field(\.avatar, output: UIImage.self) // output type: UIImage?
+    let name = UniqueField(\.name, validations: .notEmpty) // ensure the unicity of the 'name' attribute
+    let score = Field(\.score) // output type: Int
+    let age = Field(\.age, validations: .range(18...24)
+    let lastGame = Field(unwrapped: \.lastGame) // output type: Date
+    let avatar = Field(\.avatar, output: UIImage.self) // output type: UIImage?
 }
 ```
 
@@ -43,12 +42,12 @@ To use this model, you can subscribed to its publisher. When an optional as to b
 let player = Player()
 
 func setupSubscriptions() {
-	player.publisher(for: \.name)
-		.assign(to: name.label.text, on self)
-		
-	player.publisher(for: \.avatar)
-		.replaceError(with: .placeholder)
-		.assign(to: avatarView.image, on: self)
+    player.publisher(for: \.name)
+        .assign(to: name.label.text, on self)
+        
+    player.publisher(for: \.avatar)
+        .replaceError(with: .placeholder)
+        .assign(to: avatarView.image, on: self)
 }
 ```
 
@@ -63,11 +62,11 @@ To set the `Player` value, you can either use the `assign` function or the publi
 
 ```swift
 try player.assign(newName, to: \.name)
-	.sink(receiveCompletion:  { completion in // can throw when the name is empty
-		if case let .failure(error) = completion {
-			// show an alert to the user
-		}
-	}, receiveValue: { _ in })
+    .sink(receiveCompletion:  { completion in // can throw when the name is empty
+        if case let .failure(error) = completion {
+            // show an alert to the user
+        }
+    }, receiveValue: { _ in })
 ```
 
 ### Relationships
@@ -87,13 +86,24 @@ It's then possible to use the publisher `player.publisher(for: \.games)` which w
 
 ```swift
 // Subscribe to the player games, sorted by their date
-player.publisher(for: \.games, sorted: .ascending(\.date))
+player.publisher(for: \.games, sortedBy: .ascending(\.date))
 
+// Add a `Game` model to the player `games` relationship
 let game = Game(...)
-player.add(game, to: \.games)
+try player.add(game, to: \.games)
 ```
 
 Also, as the context saving can throw, you have the handle this `CoreDataCandyError.unableToSaveContext` error if you want to perform a relevant action.
+
+### NSFetchedResultsController
+
+Once a `DatabaseModel` is declared to map an entity, you can subscribe to its fetched results updates with the static `updatePublisher(sortingBy:)`. The subscription will hold a `NSFetchedResultsController` and the emitted values will be an array of `DatabaseModel`.
+
+```swift
+Player.updatePublisher(sortedBy: \.ascending(.name)) // emits [Player]
+```
+
+When working with a [diffable data source](https://developer.apple.com/wwdc19/220), this can be really useful, especially as a `DatabaseModel` is hashable.
 
 ### Advanced mapping
 #### Optionals
@@ -115,12 +125,12 @@ let image = Field(\.image, output: UIImage.self)
 Behind the scenes, the library will use the functions declared in the convertible protocol to convert the value to store or output it. Optionally, you can declare other conversion functions than the default provided one when you declare the field. For instance with `UIImage`, which uses the default `pngData()` to be converted into data, you can prefer to use the jpeg conversion.
 
 ```swift
-let image = Field(\.image, output: UIImage.self, storedAs: { jpegData(compressionQuality: 0.8) })
+let image = Field(\.image, output: UIImage.self, storedAs: { $0.jpegData(compressionQuality: 0.8) })
 
 // optionally
 
 extension UIImage {
-	var jpeg: Data? { jpegData(compressionQuality: 0.8) }
+    var jpeg: Data? { jpegData(compressionQuality: 0.8) }
 }
 
 let image = Field(\.image, output: UIImage.self, storedAs: \.jpeg)
@@ -164,8 +174,7 @@ Here is the exhaustive list of currently available validations:
 - Numeric & Comparable: `range`
 - ExpressibleByNilLiteral: `notNil`
 
-
-<br />
+---
 ## Fetchable
 
 This library also offers simple way to fetch objects. The only requirement to use those fetch functions is to declare the conformance of your Core Data entity to `FetchableEntity`:
@@ -178,7 +187,7 @@ Then, you can either fetch the entity directly, or fetch its mapping database mo
 
 ```swift
 let context: NSManagedObjectContext
-	
+    
 PlayerEntity.fetch(..., in: context: context)
 Player.fetch(..., in: context)
 ```
@@ -187,7 +196,7 @@ To not pass a `context` parameter when fetching, you can optionally specify a de
 
 ```swift
 extension Fetchable {
-	var context: NSManagedObjectContext? { /** return your app view context */ }
+    var context: NSManagedObjectContext? { /** return your app view context */ }
 }
 ```
 
@@ -227,8 +236,8 @@ Pass one or several sorts when fetching.
 ```swift
 Player.fetch(.all(), where: \.age >= 20, sortedBy: .ascending(\.score))
 Player.fetch(.all(),
-	where: \.name, .isIn(["Zerator", "Mister MV", "Maghla"],
-	sortedBy: .descending(\.age), .ascending(\.name))
+         where: \.name, .isIn(["Zerator", "Mister MV", "Maghla"],
+         sortedBy: .descending(\.age), .ascending(\.name))
 ```
 
 ## Exhaustive lists
