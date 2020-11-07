@@ -15,11 +15,23 @@ public protocol ParentInterfaceProtocol {
 public extension ParentInterfaceProtocol where ParentModel.Entity: NSManagedObject {
 
     /// The current value of the given parent model's field
-    func currentValue<Value>(for keyPath: KeyPath<ParentModel.Entity, Value>, on entity: Entity) -> Value? {
+    func current<Value>(for keyPath: KeyPath<ParentModel.Entity, Value>, on entity: Entity) -> Value? {
         guard let parent = entity[keyPath: self.keyPath] else {
             return nil
         }
 
         return parent[keyPath: keyPath]
+    }
+
+    /// The current value of the given parent model's field
+    func current<Value>(_ keyPath: KeyPath<ParentModel.Entity, Value?>, on entity: Entity) -> Value? {
+        guard
+            let parent = entity[keyPath: self.keyPath],
+            let value = parent[keyPath: keyPath]
+        else {
+            return nil
+        }
+
+        return value
     }
 }

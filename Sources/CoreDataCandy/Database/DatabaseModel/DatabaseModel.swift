@@ -55,7 +55,23 @@ public extension DatabaseModel {
 public extension DatabaseModel {
 
     /// The current value of the given field
-    func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
+    func current<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
         try self[keyPath: keyPath].currentValue(in: entity)
+    }
+}
+
+// MARK: - Description
+
+public extension DatabaseModel where Entity: NSManagedObject {
+
+    /// Textual representation of the entity attributes
+    var description: String {
+        let entityDescription = entity.description
+
+        guard let range = entityDescription.range(of: #"\{(.|\s)+\}"#, options: .regularExpression) else {
+            return "Fault data"
+        }
+
+        return String(describing: Self.self) + " " + entityDescription[range]
     }
 }

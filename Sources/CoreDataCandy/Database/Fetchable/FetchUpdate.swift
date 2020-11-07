@@ -65,11 +65,10 @@ where S.Input == [M], M.Entity: FetchableEntity {
     }
 
     private func sendFetchedObjectsUpdate() {
-        guard let objects = fetchController.fetchedObjects else {
-            return
-        }
-
-        guard requested > .none else { return }
+        guard
+            let objects = fetchController.fetchedObjects,
+            requested > .none
+        else { return }
 
         requested -= .max(1)
         _ = subscriber?.receive(objects.map(M.init))
