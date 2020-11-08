@@ -53,9 +53,7 @@ extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.En
             .eraseToAnyPublisher()
     }
 
-    func childModels(from entities: [Any]) -> Output {
-        entities.map(childModel)
-    }
+    func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
 
     func childModel(from entity: Any) -> ChildModel {
         guard let entity = entity as? ChildModel.Entity else {
@@ -67,7 +65,7 @@ extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.En
 
 public extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity {
 
-    func publisher<Value: Comparable>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, OutputError> {
+    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, OutputError> {
         publisher(for: entity)
             .sorted(with: sort)
             .eraseToAnyPublisher()

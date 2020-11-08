@@ -75,7 +75,48 @@ extension FetchableEntity {
 
 public extension FetchableEntity {
 
-    /// Feth the model entity in the context
+    /// Fetch the entity in the context
+    /// - Parameters:
+    ///   - target: Retrieve, all values, the first one, the first nth ones...
+    ///   - predicate: The comparison expression to use
+    ///   - sortBuilder: The sorts to apply to the returned data, in the order they are specified.
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
+    /// - Throws: If the context fails to use the fetch request
+    /// - Returns: The result of the fetch request, depending on the given target
+    ///
+    /// For a given `People` model or CoreData managed object, here are some examples
+    /// ```
+    /// // fetch all the People older than 10
+    /// // output: [People]
+    /// People.fetch(.all(), .where(\.age > 10), in: context)
+    ///
+    /// // fetch the first person with the name "Mickey" or "Donald"
+    /// // output: People?
+    /// People.fetch(.first(), .where(\.name, isIn: "Mickey", "Donald"),
+    ///              in: context)
+    ///
+    /// /// fetch all the People older than 10, sorted by their name
+    /// // type: [People]
+    /// People.fetch(.all(), .where(\.age > 10),
+    ///              sortedBy: .ascending(\.name),
+    ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // output: [People]
+    /// People.fetch(.all(), in: context)
+    /// ```
+    static func fetch<Value: DatabaseFieldValue, TestValue, Output: FetchResult>(
+        _ target: FetchTarget<Self, Output>,
+        _ predicate: Predicate<Self, Value, TestValue>,
+        _ sortBuilder: SortDescriptorsBuilder<Self> = .init(),
+        in context: NSManagedObjectContext? = context)
+    throws -> Output
+    where Output.Fetched == Self {
+        let results = try fetch(predicate: predicate.ns, in: context, limit: target.limit, sorts: sortBuilder.descriptors)
+        return Output(results: results)
+    }
+
+    /// Fetch the entity in the context
     /// - Parameters:
     ///   - target: Retrieve, all values, the first one, the first nth ones...
     ///   - predicate: The comparison expression to use
@@ -105,21 +146,20 @@ public extension FetchableEntity {
     /// // output: [People]
     /// People.fetch(.all(), in: context)
     /// ```
-    static func fetch<Value: DatabaseFieldValue, RightOperand, Output: FetchResult>(
+    static func fetch<Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
-        _ predicate: Predicate<Self, Value, RightOperand>? = nil,
-        sortedBy sorts: SortDescriptor<Self>...,
+        _ sortBuilder: SortDescriptorsBuilder<Self> = .init(),
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
-        let results = try fetch(predicate: predicate?.ns, in: context, limit: target.limit, sorts: sorts)
+        let results = try fetch(predicate: nil, in: context, limit: target.limit, sorts: sortBuilder.descriptors)
         return Output(results: results)
     }
 }
 
 public extension DatabaseModel where Entity: FetchableEntity {
 
-    /// Feth the model entity in the context
+    /// Fetch the model entity in the context
     /// - Parameters:
     ///   - target: Retrieve, all values, the first one, the first nth ones...
     ///   - predicate: The comparison expression to use
@@ -149,14 +189,54 @@ public extension DatabaseModel where Entity: FetchableEntity {
     /// // output: [People]
     /// People.fetch(.all(), in: context)
     /// ```
-    static func fetch<Value: DatabaseFieldValue, RightOperand, Output: FetchResult>(
+    static func fetch<Value: DatabaseFieldValue, TestValue, Output: FetchResult>(
         _ target: FetchTarget<Self, Output>,
-        _ predicate: Predicate<Entity, Value, RightOperand>? = nil,
-        sortedBy sorts: SortDescriptor<Entity>...,
+        _ predicate: Predicate<Entity, Value, TestValue>,
+        _ sortBuilder: SortDescriptorsBuilder<Entity> = .init(),
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
-        let results = try Entity.fetch(predicate: predicate?.ns, in: context, limit: target.limit, sorts: sorts).map(Self.init)
+        let results = try Entity.fetch(predicate: predicate.ns, in: context, limit: target.limit, sorts: sortBuilder.descriptors).map(Self.init)
+        return Output(results: results)
+    }
+
+    /// Fetch the model entity in the context
+    /// - Parameters:
+    ///   - target: Retrieve, all values, the first one, the first nth ones...
+    ///   - predicate: The comparison expression to use
+    ///   - sorts: The sorts to apply to the returned data, in the order they are specified.
+    ///   - context: The context where to fetch. Can be ignored if `Fetchable.context` is set with a non-nil value.
+    /// - Throws: If the context fails to use the fetch request
+    /// - Returns: The result of the fetch request, depending on the given target
+    ///
+    /// For a given `People` model or CoreData managed object, here are some examples
+    /// ```
+    /// // fetch all the People older than 10
+    /// // output: [People]
+    /// People.fetch(.all(), .where(\.age > 10), in: context)
+    ///
+    /// // fetch the first person with the name "Mickey" or "Donald"
+    /// // output: People?
+    /// People.fetch(.first(), .where(\.name, isIn: "Mickey", "Donald"),
+    ///              in: context)
+    ///
+    /// /// fetch all the People older than 10, sorted by their name
+    /// // type: [People]
+    /// People.fetch(.all(), .where(\.age > 10),
+    ///              sortedBy: .ascending(\.name),
+    ///              in: context)
+    ///
+    /// // fetch all the People
+    /// // output: [People]
+    /// People.fetch(.all(), in: context)
+    /// ```
+    static func fetch<Output: FetchResult>(
+        _ target: FetchTarget<Self, Output>,
+        _ sortBuilder: SortDescriptorsBuilder<Entity> = .init(),
+        in context: NSManagedObjectContext? = context)
+    throws -> Output
+    where Output.Fetched == Self {
+        let results = try Entity.fetch(predicate: nil, in: context, limit: target.limit, sorts: sortBuilder.descriptors).map(Self.init)
         return Output(results: results)
     }
 }

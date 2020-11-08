@@ -6,7 +6,7 @@ import CoreData
 import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel: Fetchable, Hashable {
+public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible {
     associatedtype Entity: DatabaseEntity
 
     var entity: Entity { get }
@@ -55,17 +55,17 @@ public extension DatabaseModel {
 public extension DatabaseModel {
 
     /// The current value of the given field
-    func current<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
+    func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
         try self[keyPath: keyPath].currentValue(in: entity)
     }
 }
 
 // MARK: - Description
 
-public extension DatabaseModel where Entity: NSManagedObject {
+extension DatabaseModel where Entity: NSManagedObject {
 
     /// Textual representation of the entity attributes
-    var description: String {
+    public var debugDescription: String {
         let entityDescription = entity.description
 
         guard let range = entityDescription.range(of: #"\{(.|\s)+\}"#, options: .regularExpression) else {
