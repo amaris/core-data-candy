@@ -30,9 +30,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
         self.validation = Validation<Value> { value in
-            try validations.forEach {
-                try $0.validate(value)
-            }
+            try validations.forEach { try $0.validate(value) }
         }
     }
 
@@ -60,7 +58,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
         case .failure(let error): throw error
         }
 
-        if try Entity.fetch(.first(), where: keyPath == storedValue, in: context) != nil {
+        if try Entity.fetch(.first(), .where(keyPath == storedValue), in: context) != nil {
             let field = keyPath.label.components(separatedBy: ".").last ?? ""
             throw CoreDataCandyError.existingUnique(field: field, value: String(describing: value), model: Entity.modelName)
         }

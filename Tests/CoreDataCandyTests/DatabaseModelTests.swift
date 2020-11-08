@@ -94,7 +94,6 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        @objc let score = 0.0
         @objc var flag = false
         @objc var property: String = ""
     }

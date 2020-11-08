@@ -9,7 +9,7 @@ extension DatabaseModel where Entity: FetchableEntity {
 
     static func fetchController(context: NSManagedObjectContext, sorts: [SortDescriptor<Entity>]) -> NSFetchedResultsController<Entity> {
         let request = Entity.fetch
-        request.sortDescriptors = sorts.map { $0.descriptor }
+        request.sortDescriptors = sorts.map(\.descriptor)
         return NSFetchedResultsController(fetchRequest: request, managedObjectContext: context,
                                           sectionNameKeyPath: nil, cacheName: nil)
     }

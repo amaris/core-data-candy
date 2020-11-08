@@ -222,11 +222,11 @@ Player.fetch(.first(nth: 10)) // output: [Player]
 You can specify a predicate on a single attribute when fetching. When comparing the value, you can use the comparison operator with no comma. For advanced operators, a comma between the KeyPath and the operator is required.
 
 ```swift
-Player.fetch(.first(), where: \.name == "Zerator")
-Player.fetch(.first(), where: \.name, .hasPrefix("Z"))
-Player.fetch(.all(), where: \.age >= 20)
-Player.fetch(.all(), where: \.score, .isIn(1000...5000))
-Player.fetch(.first(nth: 10), where: \.name, .isIn("Zerator", "Mister MV", "Maghla")
+Player.fetch(.first(), .where(\.name == "Zerator"))
+Player.fetch(.first(), .where(\.name, hasPrefix: "Z"))
+Player.fetch(.all(), .where(\.age >= 20))
+Player.fetch(.all(), .where(\.score, isIn: 1000...5000))
+Player.fetch(.first(nth: 10), .where(\.name, isIn: "Zerator", "Mister MV", "Maghla"))
 ```
 
 ### Sorting
@@ -234,9 +234,9 @@ Player.fetch(.first(nth: 10), where: \.name, .isIn("Zerator", "Mister MV", "Magh
 Pass one or several sorts when fetching.
 
 ```swift
-Player.fetch(.all(), where: \.age >= 20, sortedBy: .ascending(\.score))
+Player.fetch(.all(), .where(\.age >= 20), sortedBy: .ascending(\.score))
 Player.fetch(.all(),
-         where: \.name, .isIn(["Zerator", "Mister MV", "Maghla"],
+         .where(\.name, isIn: ["Zerator", "Mister MV", "Maghla"]),
          sortedBy: .descending(\.age), .ascending(\.name))
 ```
 
@@ -247,11 +247,13 @@ Player.fetch(.all(),
 `==`, `<`,`<=`, `>`, `>=`
 
 #### Specific operator predicates
-##### Comparable
+##### Equatable
 `isIn(:)`, `isNot(in:)` to filter the value if contained in the given array or variadic values
 
 ##### String
 `hasPrefix`, `hasSuffix`, `contains`, and `matches`(a regular expression)
+and their opposites:
+`hasNoPrefix`, `hasNoSuffix`, `doesNotContain`, and `doesNotMatch`
 
-##### Numeric and Comparable
-`isIn` to filter the value if contained in a range (closed or half-open)
+##### Comparable
+`isIn` to filter the value if contained in a range (closed or half-open) and `isNotIn`

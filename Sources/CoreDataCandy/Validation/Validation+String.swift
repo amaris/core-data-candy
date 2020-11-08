@@ -51,5 +51,4 @@ public extension Validation where Value == String {
             }
         }
     }
-
 }
