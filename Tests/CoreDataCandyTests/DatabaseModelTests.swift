@@ -66,20 +66,18 @@ final class DatabaseModelTests: XCTestCase {
 
         Just(())
             .tryToggle(\.flag, on: model)
-            .sink { (_) in
-                XCTAssertEqual(model.entity.flag, true)
-            } receiveValue: { (_) in }
+            .sink { (_) in XCTAssertEqual(model.entity.flag, true) }
+                receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
 
-    func testPublisherToggl_SeveralTimes() throws {
+    func testPublisherToggle_SeveralTimes() throws {
         let model = StubModel()
 
         [1, 2, 3, 4].publisher
             .tryToggle(\.flag, on: model)
-            .sink { (_) in
-                XCTAssertEqual(model.entity.flag, false)
-            } receiveValue: { (_) in }
+            .sink { (_) in XCTAssertEqual(model.entity.flag, false) }
+                receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
 }
@@ -88,15 +86,12 @@ extension DatabaseModelTests {
 
     final class StubEntity: NSManagedObject, FetchableEntity {
 
-        static var modelName = "Sutbentity"
-
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        @objc let score = 0.0
         @objc var flag = false
-        @objc var property: String = ""
+        @objc var property: String? = ""
     }
 
     struct StubModel: DatabaseModel {

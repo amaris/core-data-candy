@@ -39,7 +39,6 @@ final class FetchUpdateTests: XCTestCase {
 extension FetchUpdateTests {
 
     final class StubEntity: NSManagedObject, FetchableEntity {
-        static var modelName = "SutbEntity"
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
