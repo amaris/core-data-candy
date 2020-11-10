@@ -112,7 +112,7 @@ public extension FetchableEntity {
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
-        let results = try fetch(predicate: predicate.ns, in: context, limit: target.limit, sorts: sortBuilder.descriptors)
+        let results = try fetch(predicate: predicate.nsValue, in: context, limit: target.limit, sorts: sortBuilder.descriptors)
         return Output(results: results)
     }
 
@@ -196,7 +196,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
         in context: NSManagedObjectContext? = context)
     throws -> Output
     where Output.Fetched == Self {
-        let results = try Entity.fetch(predicate: predicate.ns, in: context, limit: target.limit, sorts: sortBuilder.descriptors).map(Self.init)
+        let results = try Entity.fetch(predicate: predicate.nsValue, in: context, limit: target.limit, sorts: sortBuilder.descriptors).map(Self.init)
         return Output(results: results)
     }
 

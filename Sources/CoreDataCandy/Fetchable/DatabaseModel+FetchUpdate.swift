@@ -23,6 +23,7 @@ extension DatabaseModel where Entity: FetchableEntity {
         }
 
         let fetchController = Self.fetchController(context: context, sorts: [sort])
+
         return Publishers.fetchUpdate(for: Self.self, fetchController: fetchController)
             .eraseToAnyPublisher()
     }
@@ -36,6 +37,7 @@ extension DatabaseModel where Entity: FetchableEntity {
         }
 
         let fetchController = Self.fetchController(context: context, sorts: sorts)
+
         return Publishers.fetchUpdate(for: Self.self, fetchController: fetchController)
             .eraseToAnyPublisher()
     }

@@ -21,7 +21,7 @@ public struct Predicate<E: FetchableEntity, Value: DatabaseFieldValue, TestValue
     let argumentsOrder: ArgumentsOrder
     var keyPath: KeyPath<E, Value>
 
-    public var ns: NSPredicate {
+    public var nsValue: NSPredicate {
         let arguments = argumentsOrder(keyPath.label)
         let format = formatter("%K")
 

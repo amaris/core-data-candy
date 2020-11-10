@@ -12,7 +12,6 @@ public extension DatabaseModel {
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.add(child, on: entity)
-        try saveEntityContext()
     }
 
     func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, in childrenKeyPath: KeyPath<Self, Children>)
@@ -20,7 +19,6 @@ public extension DatabaseModel {
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.remove(child, on: entity)
-        try saveEntityContext()
     }
 }
 
