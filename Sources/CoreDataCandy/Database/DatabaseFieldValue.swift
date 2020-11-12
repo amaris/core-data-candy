@@ -19,6 +19,7 @@ extension URL: DatabaseFieldValue {}
 extension UUID: DatabaseFieldValue {}
 extension NSObject: DatabaseFieldValue {}
 extension Optional: DatabaseFieldValue where Wrapped: DatabaseFieldValue {}
+extension Array: DatabaseFieldValue where Element: DatabaseFieldValue {}
 
 /** Int cannot be stored a Core Data type but we make it implement the DatabaseFieldValue
  protocol for fetching. Anyway, it will not be possible to target a Int property of a

@@ -6,7 +6,7 @@ import Foundation
 import CoreData
 
 /// Allows to easily specify a predicate to fetch a Core Data entity
-public struct Predicate<E: FetchableEntity, Value: DatabaseFieldValue, TestValue> {
+public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue> {
 
     // MARK: - Constants
 
@@ -21,7 +21,7 @@ public struct Predicate<E: FetchableEntity, Value: DatabaseFieldValue, TestValue
     let argumentsOrder: ArgumentsOrder
     var keyPath: KeyPath<E, Value>
 
-    public var ns: NSPredicate {
+    public var nsValue: NSPredicate {
         let arguments = argumentsOrder(keyPath.label)
         let format = formatter("%K")
 
