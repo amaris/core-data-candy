@@ -8,10 +8,13 @@ import CoreData
 /// A step in the fetch request building process
 public protocol FetchRequestStep {}
 
+/// Identify a step where a sort step can be applied
+public protocol SortableStep {}
+
 // Fetch → Target → Predicate → Sort
 public enum FetchStep: FetchRequestStep {}
-public enum TargetStep: FetchRequestStep {}
-public enum PredicateStep: FetchRequestStep {}
+public enum TargetStep: FetchRequestStep, SortableStep {}
+public enum PredicateStep: FetchRequestStep, SortableStep {}
 public enum SortStep: FetchRequestStep {}
 
 /// `RequestBuilder` with no target
@@ -189,7 +192,7 @@ public extension RequestBuilder {
     }
 }
 
-public extension RequestBuilder where Step == PredicateStep {
+public extension RequestBuilder where Step: SortableStep {
 
     func sorted<Value: DatabaseFieldValue & Comparable>(by direction: SortDirection, _ keyPath: KeyPath<Entity, Value>) -> RequestBuilder<Entity, SortStep, Output> {
         let descriptor = NSSortDescriptor(key: keyPath.label, ascending: direction == .ascending)
