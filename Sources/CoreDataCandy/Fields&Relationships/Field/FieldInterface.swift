@@ -29,11 +29,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Data
         self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
-        self.validation = Validation<Value> { value in
-            try validations.forEach {
-                try $0.validate(value)
-            }
-        }
+        self.validation = Validation<Value> { value in try validations.forEach { try $0.validate(value) }}
     }
 }
 
