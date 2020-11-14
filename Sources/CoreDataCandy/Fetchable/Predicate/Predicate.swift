@@ -14,6 +14,9 @@ public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue
     public typealias ArgumentsOrder = (Any) -> [Any]
     typealias EntityKeyPath = KeyPath<E, Value>
 
+    static var keyPathSymbol: String { "%K" }
+    static var attributeSymbol: String { "%@" }
+
     // MARK: - Properties
 
     let value: TestValue
@@ -23,7 +26,7 @@ public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue
 
     public var nsValue: NSPredicate {
         let arguments = argumentsOrder(keyPath.label)
-        let format = formatter("%K")
+        let format = formatter(Self.keyPathSymbol)
 
         return NSPredicate(format: format, argumentArray: arguments)
     }
@@ -33,7 +36,7 @@ public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue
     public init(keyPath: KeyPath<E, Value>, operatorString: String, value: TestValue, isInverted: Bool = false) {
         self.keyPath = keyPath
         self.value = value
-        self.formatter = { isInverted ? "NOT \($0) \(operatorString) %@" : "\($0) \(operatorString) %@" }
+        self.formatter = { isInverted ? "NOT \($0) \(operatorString) \(Self.attributeSymbol)" : "\($0) \(operatorString) \(Self.attributeSymbol)" }
         self.argumentsOrder = { [$0, value] }
     }
 

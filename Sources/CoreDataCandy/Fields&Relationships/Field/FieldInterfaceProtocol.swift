@@ -107,6 +107,7 @@ public extension FieldInterfaceProtocol where OutputError == Never {
     func currentValue(in entity: Entity) -> Value {
         let fieldValue = entity[keyPath: keyPath]
         let outputConverted = outputConversion(fieldValue)
+
         switch outputConverted {
         case .success(let value): return value
         case .failure: fatalError("Failure although the error type is 'Never'")
@@ -120,6 +121,7 @@ public extension FieldInterfaceProtocol where OutputError: Error {
     func currentValue(in entity: Entity) throws -> Value {
         let fieldValue = entity[keyPath: keyPath]
         let outputConverted = outputConversion(fieldValue)
+
         switch outputConverted {
         case .success(let value): return value
         case .failure(let error): throw error

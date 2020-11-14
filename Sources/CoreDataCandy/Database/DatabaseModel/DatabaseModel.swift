@@ -3,15 +3,6 @@
 //
 
 import CoreData
-import Combine
-
-public struct EntityWrapper<Entity: DatabaseEntity> {
-    internal let entity: Entity
-
-    public init(entity: Entity) {
-        self.entity = entity
-    }
-}
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
 public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible {
@@ -20,13 +11,18 @@ public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible
     var _entityWrapper: EntityWrapper<Entity> { get }
 
     init<E: NSManagedObject>(entity: E) where E == Entity
+ }
+
+extension DatabaseModel {
+
+    var entity: Entity { _entityWrapper.entity }
 }
 
 public extension DatabaseModel where Entity: NSManagedObject {
 
     func remove() throws {
-        let context = _entityWrapper.entity.managedObjectContext
-        context?.delete(_entityWrapper.entity)
+        let context = entity.managedObjectContext
+        context?.delete(entity)
     }
 }
 
@@ -35,11 +31,11 @@ public extension DatabaseModel where Entity: NSManagedObject {
 public extension DatabaseModel {
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(_entityWrapper.entity)
+        hasher.combine(entity)
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs._entityWrapper.entity == rhs._entityWrapper.entity
+        lhs.entity == rhs.entity
     }
 }
 
@@ -49,7 +45,7 @@ extension DatabaseModel where Entity: NSManagedObject {
 
     /// Textual representation of the entity attributes
     public var debugDescription: String {
-        let entityDescription = _entityWrapper.entity.description
+        let entityDescription = entity.description
 
         guard let range = entityDescription.range(of: #"\{(.|\s)+\}"#, options: .regularExpression) else {
             return "Fault data"

@@ -40,12 +40,12 @@ extension ChildrenInterfaceProtocol {
     }
 }
 
-extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
+public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
-    public typealias Output = [ChildModel]
-    public typealias OutputError = Never
+    typealias Output = [ChildModel]
+    typealias OutputError = Never
 
-    public func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
+    func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
         entity.publisher(for: keyPath)
             .replaceNil(with: .init())
             .map(\.array)
@@ -53,13 +53,17 @@ extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.En
             .eraseToAnyPublisher()
     }
 
-    func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
+    private func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
 
-    func childModel(from entity: Any) -> ChildModel {
+    private func childModel(from entity: Any) -> ChildModel {
         guard let entity = entity as? ChildModel.Entity else {
             preconditionFailure("The children are not of type \(ChildModel.Entity.self)")
         }
         return ChildModel(entity: entity)
+    }
+
+    func currentValue(on entity: Entity) -> Output {
+        entity[keyPath: keyPath]?.array.map(childModel) ?? []
     }
 }
 

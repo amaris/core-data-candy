@@ -4,6 +4,7 @@
 
 import Foundation
 
+/// Specify how children in a relationship should be sorted
 public struct Sort<Entity: FetchableEntity, Value> {
     let keyPath: KeyPath<Entity, Value>
     let comparison: (Value, Value) -> Bool
@@ -41,6 +42,6 @@ public extension Sort {
 extension Collection where Element: DatabaseModel, Element.Entity: FetchableEntity {
 
     func sorted<Value>(with sort: Sort<Element.Entity, Value>) -> [Element] {
-        sorted { sort.comparison($0._entityWrapper.entity[keyPath: sort.keyPath], $1._entityWrapper.entity[keyPath: sort.keyPath]) }
+        sorted { sort.comparison($0.entity[keyPath: sort.keyPath], $1.entity[keyPath: sort.keyPath]) }
     }
 }

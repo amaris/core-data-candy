@@ -15,23 +15,26 @@ public protocol ParentInterfaceProtocol {
 public extension ParentInterfaceProtocol where ParentModel.Entity: NSManagedObject {
 
     /// The current value of the given parent model's field
-    func current<Value>(_ keyPath: KeyPath<ParentModel.Entity, Value>, on entity: Entity) -> Value? {
-        guard let parent = entity[keyPath: self.keyPath] else {
-            return nil
-        }
+    func current<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<ParentModel, F>, on entity: Entity)
+    -> F.Value?
+    where ParentModel.Entity == F.Entity, F.OutputError == Never {
+        guard let parentEntity = entity[keyPath: self.keyPath] else { return nil }
 
-        return parent[keyPath: keyPath]
+        let parent = ParentModel(entity: parentEntity)
+        let field = parent[keyPath: keyPath]
+
+        return field.currentValue(in: parentEntity)
     }
 
     /// The current value of the given parent model's field
-    func current<Value>(_ keyPath: KeyPath<ParentModel.Entity, Value?>, on entity: Entity) -> Value? {
-        guard
-            let parent = entity[keyPath: self.keyPath],
-            let value = parent[keyPath: keyPath]
-        else {
-            return nil
-        }
+    func current<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<ParentModel, F>, on entity: Entity)
+    -> F.Value
+    where ParentModel.Entity == F.Entity, F.OutputError == Never, F.Value: ExpressibleByNilLiteral {
+        guard let parentEntity = entity[keyPath: self.keyPath] else { return nil }
 
-        return value
+        let parent = ParentModel(entity: parentEntity)
+        let field = parent[keyPath: keyPath]
+
+        return field.currentValue(in: parentEntity)
     }
 }

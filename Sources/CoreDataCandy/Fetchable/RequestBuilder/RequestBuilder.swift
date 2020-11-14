@@ -5,17 +5,28 @@
 import Foundation
 import CoreData
 
+// MARK: - Steps definition
+
 /// A step in the fetch request building process
 public protocol FetchRequestStep {}
 
 /// Identify a step where a sort step can be applied
 public protocol SortableStep {}
 
-// Fetch → Target → Predicate → Sort
-public enum FetchStep: FetchRequestStep {}
-public enum TargetStep: FetchRequestStep, SortableStep {}
-public enum PredicateStep: FetchRequestStep, SortableStep {}
-public enum SortStep: FetchRequestStep {}
+/// Identify a step where a sort step can be applied
+public protocol SettingsStep {}
+
+// Creation → Target → Predicate → Sort
+/// The request has been created
+public enum CreationStep: FetchRequestStep {}
+/// The request has a target
+public enum TargetStep: FetchRequestStep, SortableStep, SettingsStep {}
+/// The request has a predicate
+public enum PredicateStep: FetchRequestStep, SortableStep, SettingsStep {}
+/// The request have one or more sorts
+public enum SortStep: FetchRequestStep, SettingsStep {}
+
+// MARK: - Request builder
 
 /// `RequestBuilder` with no target
 public struct PreRequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Fetched: Fetchable> {
@@ -32,6 +43,9 @@ public struct RequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Ou
     init(request: FetchRequest) {
         self.request = request
     }
+}
+
+extension RequestBuilder where Step: SettingsStep {
 
     public func setting<Value>(_ keyPath: ReferenceWritableKeyPath<FetchRequest, Value>, to value: Value) -> Self {
         request[keyPath: keyPath] = value
@@ -39,7 +53,7 @@ public struct RequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Ou
     }
 }
 
-// MARK: - Output
+// MARK: Output
 
 extension RequestBuilder where Output.Fetched == Entity {
 
@@ -54,9 +68,9 @@ extension RequestBuilder where Output.Fetched == Entity {
 
 public extension FetchableEntity {
 
-    static func request() -> PreRequestBuilder<Self, FetchStep, Self> {
+    static func request() -> PreRequestBuilder<Self, CreationStep, Self> {
         let request = Self.fetch
-        return PreRequestBuilder<Self, FetchStep, Self>(request: request)
+        return PreRequestBuilder<Self, CreationStep, Self>(request: request)
     }
 }
 
@@ -74,9 +88,9 @@ extension RequestBuilder where Output.Fetched: DatabaseModel, Output.Fetched.Ent
 
 public extension DatabaseModel where Entity: FetchableEntity {
 
-    static func request() -> PreRequestBuilder<Entity, FetchStep, Self> {
+    static func request() -> PreRequestBuilder<Entity, CreationStep, Self> {
         let request = Entity.fetch
-        return PreRequestBuilder<Entity, FetchStep, Self>(request: request)
+        return PreRequestBuilder<Entity, CreationStep, Self>(request: request)
     }
 }
 
@@ -84,7 +98,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
 
 // MARK: Fetch step
 
-public extension PreRequestBuilder where Step == FetchStep {
+public extension PreRequestBuilder where Step == CreationStep {
 
     func assign<Value>(_ value: Value?, ifNotNilTo keyPath: ReferenceWritableKeyPath<NSFetchRequest<Entity>, Value>) {
         if let value = value {
