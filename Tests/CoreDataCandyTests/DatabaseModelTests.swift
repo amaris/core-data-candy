@@ -20,7 +20,7 @@ final class DatabaseModelTests: XCTestCase {
 
         try model.assign("Hello", to: \.property)
 
-        XCTAssertEqual(model.entity.property, "Hello")
+        XCTAssertEqual(model.current(\.property), "Hello")
     }
 
     func testValidateAssign_ValidateWrongValueThrows() throws {
@@ -34,7 +34,7 @@ final class DatabaseModelTests: XCTestCase {
 
         try model.toggle(\.flag)
 
-        XCTAssertEqual(model.entity.flag, true)
+        XCTAssertEqual(model.current(\.flag), true)
     }
 
     func testValidateAssignWithPublisher() throws {
@@ -43,7 +43,7 @@ final class DatabaseModelTests: XCTestCase {
         Just("Hello")
             .tryAssign(to: \.property, on: model)
             .sink { _ in  }
-                receiveValue: { (_) in XCTAssertEqual(model.entity.property, "Hello") }
+                receiveValue: { (_) in XCTAssertEqual(model.current(\.property), "Hello") }
             .store(in: &subscriptions)
     }
 
@@ -66,7 +66,7 @@ final class DatabaseModelTests: XCTestCase {
 
         Just(())
             .tryToggle(\.flag, on: model)
-            .sink { (_) in XCTAssertEqual(model.entity.flag, true) }
+            .sink { (_) in XCTAssertEqual(model.current(\.flag), true) }
                 receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
@@ -76,7 +76,7 @@ final class DatabaseModelTests: XCTestCase {
 
         [1, 2, 3, 4].publisher
             .tryToggle(\.flag, on: model)
-            .sink { (_) in XCTAssertEqual(model.entity.flag, false) }
+            .sink { (_) in XCTAssertEqual(model.current(\.flag), false) }
                 receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
@@ -95,7 +95,8 @@ extension DatabaseModelTests {
     }
 
     struct StubModel: DatabaseModel {
-        var entity = StubEntity()
+
+        let _entityWrapper = EntityWrapper(entity: StubEntity())
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)

@@ -12,16 +12,13 @@ public protocol FieldModifier {
     /// Store the value in the entity after validating it
     func set(_ value: Value, on entity: Entity) throws
 
-    /// Try to get the current stored value in the entity
-    func currentValue(in entity: Entity) throws -> Value
-
     func validate(_ value: Value) throws
 }
 
-public extension FieldModifier where Value == Bool {
+public extension FieldModifier where Self: FieldInterfaceProtocol, Self.OutputError == Never, Value == Bool {
 
     func toggle(on entity: Entity) throws {
-        let flag = try currentValue(in: entity)
+        let flag = currentValue(in: entity)
         try set(!flag, on: entity)
     }
 }

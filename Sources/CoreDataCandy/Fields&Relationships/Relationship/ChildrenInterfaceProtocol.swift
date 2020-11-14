@@ -29,13 +29,13 @@ extension ChildrenInterfaceProtocol {
 
     public func add(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.add(child.entity)
+        children.add(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 
     public func remove(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.remove(child.entity)
+        children.remove(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 }

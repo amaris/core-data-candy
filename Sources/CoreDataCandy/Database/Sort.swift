@@ -41,6 +41,6 @@ public extension Sort {
 extension Collection where Element: DatabaseModel, Element.Entity: FetchableEntity {
 
     func sorted<Value>(with sort: Sort<Element.Entity, Value>) -> [Element] {
-        sorted { sort.comparison($0.entity[keyPath: sort.keyPath], $1.entity[keyPath: sort.keyPath]) }
+        sorted { sort.comparison($0._entityWrapper.entity[keyPath: sort.keyPath], $1._entityWrapper.entity[keyPath: sort.keyPath]) }
     }
 }

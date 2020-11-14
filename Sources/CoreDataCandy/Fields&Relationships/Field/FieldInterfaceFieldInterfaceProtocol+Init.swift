@@ -133,7 +133,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                                               StoreError == CoreDataCandyError {
 
     init<D: Codable>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     output: D.Type,
+                     as: D.Type,
                      validations: Validation<Value>...) where Value == D? {
 
         self.init(

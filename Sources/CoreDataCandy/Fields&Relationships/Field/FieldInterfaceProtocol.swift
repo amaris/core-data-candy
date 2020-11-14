@@ -68,6 +68,7 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
                 switch outputValue {
                 case .success(let value):
                     return value
+
                 case .failure(let error):
                     if let value = defaultValue {
                         return value
@@ -85,15 +86,6 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 
 public extension FieldInterfaceProtocol {
 
-    func currentValue(in entity: Entity) throws -> Value {
-        let fieldValue = entity[keyPath: keyPath]
-        let outputConverted = outputConversion(fieldValue)
-        switch outputConverted {
-        case .success(let value): return value
-        case .failure(let error): throw error
-        }
-    }
-
     func set(_ value: Value, on entity: Entity) throws {
         try validate(value)
         let storeConverted = storeConversion(value)
@@ -106,5 +98,31 @@ public extension FieldInterfaceProtocol {
 
     func validate(_ value: Value) throws {
         try validation.validate(value)
+    }
+}
+
+public extension FieldInterfaceProtocol where OutputError == Never {
+
+    /// Get the current stored value in the entity
+    func currentValue(in entity: Entity) -> Value {
+        let fieldValue = entity[keyPath: keyPath]
+        let outputConverted = outputConversion(fieldValue)
+        switch outputConverted {
+        case .success(let value): return value
+        case .failure: fatalError("Failure although the error type is 'Never'")
+        }
+    }
+}
+
+public extension FieldInterfaceProtocol where OutputError: Error {
+
+    /// Try to get the current stored value in the entity, which conversion from the stored type can throw
+    func currentValue(in entity: Entity) throws -> Value {
+        let fieldValue = entity[keyPath: keyPath]
+        let outputConverted = outputConversion(fieldValue)
+        switch outputConverted {
+        case .success(let value): return value
+        case .failure(let error): throw error
+        }
     }
 }

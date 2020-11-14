@@ -23,8 +23,8 @@ public extension Publisher {
     }
 
     /// Try to toggle the boolean at the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
-    func tryToggle<Model: DatabaseModel, F: FieldModifier>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
-    where F.Value == Bool, F.Entity == Model.Entity {
+    func tryToggle<Model: DatabaseModel, F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
+    where F.Value == Bool, F.Entity == Model.Entity, F.OutputError == Never {
 
         return tryMap { _ in
             try model.toggle(keyPath)
