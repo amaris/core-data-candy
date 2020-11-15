@@ -56,7 +56,7 @@ public extension Validation where Value == String {
 
     static let isEmail: Self = {
         let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegex)
+        let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegex)
 
         return Validation {
             if !emailPred.evaluate(with: $0) {

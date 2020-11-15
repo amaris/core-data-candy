@@ -7,15 +7,13 @@ import Foundation
 // MARK: - Identity
 
 public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -27,15 +25,13 @@ public extension FieldInterfaceProtocol where FieldValue == Value,
 
 public extension FieldInterfaceProtocol where FieldValue == Value,
                                               Value: ExpressibleByNilLiteral,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
     init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { .success($0) },
             storeConversion: { .success($0) },
             validations: validations
@@ -44,22 +40,15 @@ public extension FieldInterfaceProtocol where FieldValue == Value,
 }
 
 public extension FieldInterfaceProtocol where FieldValue == Value?,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
-    /// Try to unwrap the optional field value when publishing
-    init(unwrapped keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+            default defaultValue: Value,
+            validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { fieldValue in
-                guard let value = fieldValue else {
-                    return .failure(.outputConversion)
-                }
-                return .success(value)
-            },
+            outputConversion: { .success($0 ?? defaultValue) },
             storeConversion: { .success($0) },
             validations: validations
         )
@@ -70,8 +59,7 @@ public extension FieldInterfaceProtocol where FieldValue == Value?,
 
 public extension FieldInterfaceProtocol where FieldValue == Int16,
                                               Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -79,7 +67,6 @@ public extension FieldInterfaceProtocol where FieldValue == Int16,
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int16($0)) },
             validations: validations
@@ -89,8 +76,7 @@ public extension FieldInterfaceProtocol where FieldValue == Int16,
 
 public extension FieldInterfaceProtocol where FieldValue == Int32,
                                               Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -98,7 +84,6 @@ public extension FieldInterfaceProtocol where FieldValue == Int32,
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int32($0)) },
             validations: validations
@@ -108,8 +93,7 @@ public extension FieldInterfaceProtocol where FieldValue == Int32,
 
 public extension FieldInterfaceProtocol where FieldValue == Int64,
                                               Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              StoreConversionError == Never {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -117,7 +101,6 @@ public extension FieldInterfaceProtocol where FieldValue == Int64,
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { .success(Int($0)) },
             storeConversion: { .success(Int64($0)) },
             validations: validations
@@ -129,8 +112,7 @@ public extension FieldInterfaceProtocol where FieldValue == Int64,
 
 public extension FieldInterfaceProtocol where FieldValue == Data?,
                                               Value: ExpressibleByNilLiteral,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == CoreDataCandyError {
+                                              StoreConversionError == CoreDataCandyError {
 
     init<D: Codable>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      as: D.Type,
@@ -138,7 +120,6 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
 
         self.init(
             keyPath,
-            defaultValue: nil,
             outputConversion: { data in
                 guard let data = data else {
                     return .success(nil)
@@ -148,7 +129,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let value = try JSONDecoder().decode(D.self, from: data)
                     return .success(value)
                 } catch {
-                    return .failure(.outputConversion)
+                    preconditionFailure("Error while converting \(FieldValue.self) as \(Value.self). \(error.localizedDescription)")
                 }
             },
             storeConversion: { value in
@@ -156,7 +137,43 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let data = try JSONEncoder().encode(value)
                     return .success(data)
                 } catch {
-                    return .failure(.storeConversion)
+                    preconditionFailure(error.localizedDescription)
+                }
+            },
+            validations: validations
+        )
+    }
+}
+
+public extension FieldInterfaceProtocol where FieldValue == Data?,
+                                              Value: Codable,
+                                              StoreConversionError == Never {
+
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                     as: Value.Type,
+                     default defaultValue: Value,
+                     validations: Validation<Value>...) {
+
+        self.init(
+            keyPath,
+            outputConversion: { data in
+                guard let data = data else {
+                    return .success(defaultValue)
+                }
+
+                do {
+                    let value = try JSONDecoder().decode(Value.self, from: data)
+                    return .success(value)
+                } catch {
+                    preconditionFailure("Error while converting \(FieldValue.self) as \(Value.self). \(error.localizedDescription)")
+                }
+            },
+            storeConversion: { value in
+                do {
+                    let data = try JSONEncoder().encode(value)
+                    return .success(data)
+                } catch {
+                    fatalError("A 'Never' error has been thrown")
                 }
             },
             validations: validations

@@ -9,8 +9,8 @@ import CoreData
 public protocol FieldPublisher {
     associatedtype Entity: DatabaseEntity
     associatedtype Output
-    associatedtype OutputError: ConversionError
+    associatedtype StoreConversionError: ConversionError
 
     /// A publisher for the given entity property with an ouput conversion
-    func publisher(for entity: Entity) -> AnyPublisher<Output, OutputError>
+    func publisher(for entity: Entity) -> AnyPublisher<Output, Never>
 }

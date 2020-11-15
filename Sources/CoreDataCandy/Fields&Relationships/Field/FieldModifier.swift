@@ -15,7 +15,7 @@ public protocol FieldModifier {
     func validate(_ value: Value) throws
 }
 
-public extension FieldModifier where Self: FieldInterfaceProtocol, Self.OutputError == Never, Value == Bool {
+public extension FieldModifier where Self: FieldInterfaceProtocol, Self.StoreConversionError == Never, Value == Bool {
 
     func toggle(on entity: Entity) throws {
         let flag = currentValue(in: entity)

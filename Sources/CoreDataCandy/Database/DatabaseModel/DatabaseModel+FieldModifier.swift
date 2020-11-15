@@ -15,7 +15,7 @@ public extension DatabaseModel {
     /// Try to toggle the boolean at the given key path
     func toggle<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Self, F>)
     throws
-    where F.Value == Bool, F.Entity == Entity, F.OutputError == Never {
+    where F.Value == Bool, F.Entity == Entity, F.StoreConversionError == Never {
         let field = self[keyPath: keyPath]
         try field.toggle(on: entity)
     }

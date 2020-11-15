@@ -43,7 +43,7 @@ extension ChildrenInterfaceProtocol {
 public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
     typealias Output = [ChildModel]
-    typealias OutputError = Never
+    typealias StoreConversionError = Never
 
     func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
         entity.publisher(for: keyPath)
@@ -69,7 +69,7 @@ public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildM
 
 public extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity {
 
-    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, OutputError> {
+    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, Never> {
         publisher(for: entity)
             .sorted(with: sort)
             .eraseToAnyPublisher()

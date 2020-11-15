@@ -90,6 +90,8 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
+        @objc var parent: StubEntity?
+        @objc var children: NSSet?
         @objc var flag = false
         @objc var property: String? = ""
     }
@@ -100,6 +102,9 @@ extension DatabaseModelTests {
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
+
+        let parent = Parent(\.parent, as: StubModel.self)
+        let children = Children(\.children, as: StubModel.self)
 
         init(entity: StubEntity) {}
 
