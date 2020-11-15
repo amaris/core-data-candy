@@ -29,5 +29,7 @@ extension ChildrenInterface: FieldPublisher where
     ChildModel.Entity: NSManagedObject {}
 
 public extension DatabaseModel {
+    
+    /// Relationship one to many
     typealias Children<ChildModel: DatabaseModel> = ChildrenInterface<Entity, ChildModel>
 }

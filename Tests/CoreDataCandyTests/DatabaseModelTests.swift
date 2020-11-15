@@ -18,30 +18,30 @@ final class DatabaseModelTests: XCTestCase {
     func testAssign() throws {
         let model = StubModel()
 
-        try model.assign("Hello", to: \.property)
+        model.assign("Hello", to: \.property)
 
         XCTAssertEqual(model.current(\.property), "Hello")
     }
 
-    func testValidateAssign_ValidateWrongValueThrows() throws {
+    func testValidate_ValidateWrongValueThrows() throws {
         let model = StubModel()
 
-        XCTAssertThrowsError(try model.assign("Yo", to: \.property))
+        XCTAssertThrowsError(try model.validate("Yo", for: \.property))
     }
 
     func testToggle() throws {
         let model = StubModel()
 
-        try model.toggle(\.flag)
+        model.toggle(\.flag)
 
         XCTAssertEqual(model.current(\.flag), true)
     }
 
-    func testValidateAssignWithPublisher() throws {
+    func testValidateAndAssignWithPublisher() throws {
         let model = StubModel()
 
         Just("Hello")
-            .tryAssign(to: \.property, on: model)
+            .tryValidateAndAssign(to: \.property, on: model)
             .sink { _ in  }
                 receiveValue: { (_) in XCTAssertEqual(model.current(\.property), "Hello") }
             .store(in: &subscriptions)
@@ -51,7 +51,7 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just("Yo")
-            .tryAssign(to: \.property, on: model)
+            .tryValidateAndAssign(to: \.property, on: model)
             .sink { completion in
                 guard case .failure = completion else {
                     XCTFail()
@@ -65,7 +65,7 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just(())
-            .tryToggle(\.flag, on: model)
+            .toggle(\.flag, on: model)
             .sink { (_) in XCTAssertEqual(model.current(\.flag), true) }
                 receiveValue: { (_) in }
             .store(in: &subscriptions)
@@ -75,7 +75,7 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         [1, 2, 3, 4].publisher
-            .tryToggle(\.flag, on: model)
+            .toggle(\.flag, on: model)
             .sink { (_) in XCTAssertEqual(model.current(\.flag), false) }
                 receiveValue: { (_) in }
             .store(in: &subscriptions)
@@ -90,8 +90,6 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        @objc var parent: StubEntity?
-        @objc var children: NSSet?
         @objc var flag = false
         @objc var property: String? = ""
     }
@@ -102,9 +100,6 @@ extension DatabaseModelTests {
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
-
-        let parent = Parent(\.parent, as: StubModel.self)
-        let children = Children(\.children, as: StubModel.self)
 
         init(entity: StubEntity) {}
 

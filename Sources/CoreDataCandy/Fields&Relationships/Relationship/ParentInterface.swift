@@ -13,5 +13,7 @@ public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel
 }
 
 public extension DatabaseModel {
+    
+    /// Relationship many to one
     typealias Parent<ParentModel: DatabaseModel> = ParentInterface<Entity, ParentModel>
 }

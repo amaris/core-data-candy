@@ -129,7 +129,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let value = try JSONDecoder().decode(D.self, from: data)
                     return .success(value)
                 } catch {
-                    preconditionFailure("Error while converting \(FieldValue.self) as \(Value.self). \(error.localizedDescription)")
+                    preconditionFailure("Error while converting Data as \(Value.self). \(error.localizedDescription)")
                 }
             },
             storeConversion: { value in
@@ -137,7 +137,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let data = try JSONEncoder().encode(value)
                     return .success(data)
                 } catch {
-                    preconditionFailure(error.localizedDescription)
+                    preconditionFailure("Error while converting \(Value.self) as Data. \(error.localizedDescription)")
                 }
             },
             validations: validations
@@ -165,7 +165,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let value = try JSONDecoder().decode(Value.self, from: data)
                     return .success(value)
                 } catch {
-                    preconditionFailure("Error while converting \(FieldValue.self) as \(Value.self). \(error.localizedDescription)")
+                    preconditionFailure("Error while converting Data as \(Value.self). \(error.localizedDescription)")
                 }
             },
             storeConversion: { value in
@@ -173,7 +173,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
                     let data = try JSONEncoder().encode(value)
                     return .success(data)
                 } catch {
-                    fatalError("A 'Never' error has been thrown")
+                    preconditionFailure("Error while converting \(Value.self) as Data. \(error.localizedDescription)")
                 }
             },
             validations: validations

@@ -10,26 +10,48 @@ public extension Publisher {
         compactMap { $0 }
     }
 
-    /// Try to assign the value to the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
-    func tryAssign<Model: DatabaseModel, F: FieldModifier>(to keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
+    /// Try to assign the value to the given field
+    func tryValidate<Model: DatabaseModel, F: FieldModifier>(for keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
     where F.Value == Output, F.Entity == Model.Entity {
 
         return tryMap { value in
-            try model.assign(value, to: keyPath)
+            try model.validate(value, for: keyPath)
             return value
         }
         .mapError { $0 as? CoreDataCandyError ?? .unknown }
         .eraseToAnyPublisher()
     }
 
-    /// Try to toggle the boolean at the given field, returning a publisher with an error if the value is not validated or if the context cannot be saved
-    func tryToggle<Model: DatabaseModel, F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, CoreDataCandyError>
-    where F.Value == Bool, F.Entity == Model.Entity, F.StoreConversionError == Never {
+    /// Try to validate then assign the value to the given field, returning a publisher with an error if the value is not validated
+    func tryValidateAndAssign<Model: DatabaseModel, F: FieldModifier>(to keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
+    where F.Value == Output, F.Entity == Model.Entity {
 
-        return tryMap { _ in
-            try model.toggle(keyPath)
+        return tryMap { value in
+            try model.validateAndAssign(value, to: keyPath)
+            return value
         }
         .mapError { $0 as? CoreDataCandyError ?? .unknown }
+        .eraseToAnyPublisher()
+    }
+
+    /// Assign the value to the field of the model
+    func assign<Model: DatabaseModel, F: FieldModifier>(to keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, Never>
+    where F.Value == Output, F.Entity == Model.Entity, Failure == Never {
+
+        return map { value in
+            model.assign(value, to: keyPath)
+            return value
+        }
+        .eraseToAnyPublisher()
+    }
+
+    /// Toggle the boolean at the given field
+    func toggle<Model: DatabaseModel, F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Void, Never>
+    where F.Value == Bool, F.Entity == Model.Entity, F.StoreConversionError == Never, Failure == Never {
+
+        return map { _ in
+            model.toggle(keyPath)
+        }
         .eraseToAnyPublisher()
     }
 }

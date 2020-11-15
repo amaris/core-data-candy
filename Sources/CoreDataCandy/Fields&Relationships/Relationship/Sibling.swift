@@ -14,5 +14,7 @@ public struct SiblingInterface<Entity: DatabaseEntity, SiblingModel: DatabaseMod
 }
 
 public extension DatabaseModel {
-    typealias Interface<SiblingModel: DatabaseModel> = SiblingInterface<Entity, SiblingModel>
+    
+    /// Relationship one to one
+    typealias Sibling<SiblingModel: DatabaseModel> = SiblingInterface<Entity, SiblingModel>
 }

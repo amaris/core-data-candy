@@ -77,8 +77,7 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 
 public extension FieldInterfaceProtocol {
 
-    func set(_ value: Value, on entity: Entity) throws {
-        try validate(value)
+    func set(_ value: Value, on entity: Entity) {
         let storeConverted = storeConversion(value)
 
         switch storeConverted {
