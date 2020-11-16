@@ -29,23 +29,23 @@ extension ChildrenInterfaceProtocol {
 
     public func add(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.add(child.entity)
+        children.add(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 
     public func remove(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.remove(child.entity)
+        children.remove(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 }
 
-extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
+public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
-    public typealias Output = [ChildModel]
-    public typealias OutputError = Never
+    typealias Output = [ChildModel]
+    typealias StoreConversionError = Never
 
-    public func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
+    func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
         entity.publisher(for: keyPath)
             .replaceNil(with: .init())
             .map(\.array)
@@ -53,19 +53,23 @@ extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.En
             .eraseToAnyPublisher()
     }
 
-    func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
+    private func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
 
-    func childModel(from entity: Any) -> ChildModel {
+    private func childModel(from entity: Any) -> ChildModel {
         guard let entity = entity as? ChildModel.Entity else {
             preconditionFailure("The children are not of type \(ChildModel.Entity.self)")
         }
         return ChildModel(entity: entity)
     }
+
+    func currentValue(on entity: Entity) -> Output {
+        entity[keyPath: keyPath]?.array.map(childModel) ?? []
+    }
 }
 
 public extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity {
 
-    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, OutputError> {
+    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, Never> {
         publisher(for: entity)
             .sorted(with: sort)
             .eraseToAnyPublisher()

@@ -4,25 +4,28 @@
 
 public extension DatabaseModel {
 
-    /// The current value of the given field
-    func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
-        try self[keyPath: keyPath].currentValue(in: entity)
+    /// Validate the value for the given field property, throwing a relevant error if the value is invalidated
+    func validate<F: FieldModifier, Value>(_ value: Value, for keyPath: KeyPath<Self, F>) throws
+    where F.Value == Value, F.Entity == Entity {
+        try self[keyPath: keyPath].validate(value)
     }
 
-    /// Assign the output of the upstream to the given field property
+    /// Assign the value to the given field property
     func assign<F: FieldModifier, Value>(_ value: Value, to keyPath: KeyPath<Self, F>)
-    throws
     where F.Value == Value, F.Entity == Entity {
-        let field = self[keyPath: keyPath]
-        try field.set(value, on: entity)
+        self[keyPath: keyPath].set(value, on: entity)
+    }
+
+    /// Validate the value for the given field property then assign it, throwing a relevant error if the value is invalidated
+    func validateAndAssign<F: FieldModifier, Value>(_ value: Value, to keyPath: KeyPath<Self, F>) throws
+    where F.Value == Value, F.Entity == Entity {
+        try validate(value, for: keyPath)
+        assign(value, to: keyPath)
     }
 
     /// Try to toggle the boolean at the given key path
-    func toggle<F: FieldModifier>(_ keyPath: KeyPath<Self, F>)
-    throws
-    where F.Value == Bool, F.Entity == Entity {
-        let field = self[keyPath: keyPath]
-        try field.toggle(on: entity)
-
+    func toggle<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Self, F>)
+    where F.Value == Bool, F.Entity == Entity, F.StoreConversionError == Never {
+        self[keyPath: keyPath].toggle(on: entity)
     }
 }

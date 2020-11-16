@@ -4,6 +4,7 @@
 
 import Foundation
 
+/// Specify how children in a relationship should be sorted
 public struct Sort<Entity: FetchableEntity, Value> {
     let keyPath: KeyPath<Entity, Value>
     let comparison: (Value, Value) -> Bool

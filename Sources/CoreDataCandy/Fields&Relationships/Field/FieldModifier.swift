@@ -10,18 +10,16 @@ public protocol FieldModifier {
     associatedtype Value
 
     /// Store the value in the entity after validating it
-    func set(_ value: Value, on entity: Entity) throws
+    func set(_ value: Value, on entity: Entity)
 
-    /// Try to get the current stored value in the entity
-    func currentValue(in entity: Entity) throws -> Value
-
+    /// Validate the value for the field
     func validate(_ value: Value) throws
 }
 
-public extension FieldModifier where Value == Bool {
+public extension FieldModifier where Self: FieldInterfaceProtocol, Self.StoreConversionError == Never, Value == Bool {
 
-    func toggle(on entity: Entity) throws {
-        let flag = try currentValue(in: entity)
-        try set(!flag, on: entity)
+    func toggle(on entity: Entity) {
+        let flag = currentValue(in: entity)
+        set(!flag, on: entity)
     }
 }

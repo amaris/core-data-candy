@@ -9,7 +9,7 @@ public struct PredicateRightValue<Entity: NSManagedObject, Value: DatabaseFieldV
     public let predicate: (KeyPath<Entity, Value>) -> Predicate<Entity, Value, TestValue>
 }
 
-// MARK: Values set
+// MARK: - Values set
 
 public extension PredicateRightValue where Value: Equatable {
 
@@ -32,7 +32,7 @@ public extension PredicateRightValue where Value: Equatable {
     }
 }
 
-// MARK: Range
+// MARK: - Range
 
 public extension PredicateRightValue where Value: Numeric & Comparable {
 
@@ -59,7 +59,7 @@ public extension PredicateRightValue where Value: Numeric & Comparable {
     }
 }
 
-// MARK: String
+// MARK: - String
 
 public extension PredicateRightValue where Value == String? {
 

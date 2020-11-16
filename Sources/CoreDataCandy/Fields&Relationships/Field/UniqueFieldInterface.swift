@@ -5,28 +5,26 @@
 import CoreData
 
 /// A field that has to be is unique in the entity table
-public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error>: FieldInterfaceProtocol {
+public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, StoreConversionError: ConversionError>: FieldInterfaceProtocol {
 
     // MARK: - Constants
 
-    public typealias OutputConversion = (FieldValue) -> Result<Value, OutputError>
-    public typealias StoreConversion = (Value) -> Result<FieldValue, StoreError>
+    public typealias OutputConversion = (FieldValue) -> Result<Value, StoreConversionError>
+    public typealias StoreConversion = (Value) -> Result<FieldValue, StoreConversionError>
 
     // MARK: - Properties
 
     public let keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
-    public let defaultValue: Value?
     public let outputConversion: OutputConversion
     public let storeConversion: StoreConversion
     public let validation: Validation<Value>
 
     // MARK: - Initialisation
 
-    public init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
+    public init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<Value>]) {
         self.keyPath = keyPath
-        self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
         self.validation = Validation<Value> { value in
@@ -71,7 +69,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
 
     /// A field that has to be unique in the entity when compared to others
     typealias
-        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError>
         =
-        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+        UniqueFieldInterface<FieldValue, Value, Entity, OutputError>
 }

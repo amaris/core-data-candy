@@ -4,9 +4,13 @@
 
 import CoreData
 
-/// Can be fetched from the CoreData context. Add simple to use fetch functions on a CoreData entity or `DatabaseModel`.
+/// Can be fetched from the Core Data context. Adds simple to use fetch functions on a Core Data entity or `DatabaseModel`.
 public protocol Fetchable {
 
+    /// If a non `nil` value is provided, all fetch requests will use this context
+    /// when no other context is provided.
+    /// This is an opportunity to pass the application main `viewContext` to not
+    /// have to pass it as a parameter each time a fetch request is executed.
     static var context: NSManagedObjectContext? { get }
 }
 
@@ -18,13 +22,16 @@ public extension Fetchable {
 /// A CoreData entity with augmented fetch requests
 public protocol FetchableEntity: NSManagedObject, DatabaseEntity, Fetchable {
 
-    /// The associated Database model name for fetching when throwing a detailled error
+    /// The associated Database model name for fetching to be used when throwing a detailed error.
+    /// A default implementation is provided, which is useful when the entity is name accordingly
+    /// to its `DatabaseModel` counterpart with an 'Entity' suffix (e.g. 'PlayerEntity')
     static var modelName: String { get }
 }
 
 public extension FetchableEntity where Self: NSManagedObject {
 
-    static var fetch: NSFetchRequest<Self> { NSFetchRequest<Self>(entityName: String(describing: Self.self)) }
+    /// `NSFetchRequest` to fetch the entity
+    static func newFetchRequest() -> NSFetchRequest<Self> { NSFetchRequest<Self>(entityName: String(describing: Self.self)) }
 }
 
 public extension FetchableEntity {
