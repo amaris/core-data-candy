@@ -63,7 +63,7 @@ public extension FetchableEntity {
 
     /// Starts the request building process with a new request
     static func request() -> PreRequestBuilder<Self, CreationStep, Self> {
-        let request = Self.selfFetchRequest()
+        let request = Self.newFetchRequest()
         return PreRequestBuilder<Self, CreationStep, Self>(request: request)
     }
 }
@@ -86,7 +86,7 @@ extension RequestBuilder where Output.Fetched: DatabaseModel, Output.Fetched.Ent
 public extension DatabaseModel where Entity: FetchableEntity {
 
     static func request() -> PreRequestBuilder<Entity, CreationStep, Self> {
-        let request = Entity.selfFetchRequest()
+        let request = Entity.newFetchRequest()
         return PreRequestBuilder<Entity, CreationStep, Self>(request: request)
     }
 }

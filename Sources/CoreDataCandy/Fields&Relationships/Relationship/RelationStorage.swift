@@ -4,7 +4,7 @@
 
 import Foundation
 
-/// Abstract protocol for `NSSet` and `NSOredredSet` when working with managed object relationships
+/// Abstract protocol for `NSSet` and `NSOrderedSet` when working with managed object relationships
 public protocol RelationStorage {
     init()
     var array: [Any] { get }

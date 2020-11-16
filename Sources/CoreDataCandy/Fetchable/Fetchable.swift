@@ -31,7 +31,7 @@ public protocol FetchableEntity: NSManagedObject, DatabaseEntity, Fetchable {
 public extension FetchableEntity where Self: NSManagedObject {
 
     /// `NSFetchRequest` to fetch the entity
-    static func selfFetchRequest() -> NSFetchRequest<Self> { NSFetchRequest<Self>(entityName: String(describing: Self.self)) }
+    static func newFetchRequest() -> NSFetchRequest<Self> { NSFetchRequest<Self>(entityName: String(describing: Self.self)) }
 }
 
 public extension FetchableEntity {

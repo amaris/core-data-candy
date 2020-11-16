@@ -80,17 +80,32 @@ public extension RequestBuilder where Step == TargetStep {
 
 public extension RequestBuilder where Step == PredicateStep {
 
+    private enum CompoundOperator {
+        case and, or
+
+        func newPredicateFormat(from predicateFormat: String, with otherPredicateFormat: String) -> String {
+            switch self {
+            case .and: return "(\(predicateFormat)) AND \(otherPredicateFormat)"
+            case .or: return "\(predicateFormat) OR \(otherPredicateFormat)"
+            }
+        }
+    }
+
+    private func compound<Value: DatabaseFieldValue, TestValue>(operator compoundOperator: CompoundOperator, predicate: Predicate<Entity, Value, TestValue>)
+    -> RequestBuilder<Entity, PredicateStep, Output> {
+        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
+
+        let newPredicateFormat = compoundOperator.newPredicateFormat(from: predicateFormat, with: predicate.nsValue.predicateFormat)
+        request.predicate = NSPredicate(format: newPredicateFormat)
+        return self
+    }
+
     /// Basic comparison predicate
     /// ### Examples
     ///  - `.or(\.keyPath == "Value")`
     ///  - `.or(\.keyPath >= 20)`
     func or<Value: DatabaseFieldValue, TestValue>(_ predicate: Predicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
-
-        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
-
-        let newPredicateFormat = "\(predicateFormat) OR \(predicate.nsValue.predicateFormat)"
-        request.predicate = NSPredicate(format: newPredicateFormat)
-        return self
+        compound(operator: .or, predicate: predicate)
     }
 
     /// Advanced comparison predicate
@@ -101,12 +116,7 @@ public extension RequestBuilder where Step == PredicateStep {
         _ keyPath: KeyPath<Entity, Value>,
         _ predicateRightValue: PredicateRightValue<Entity, Value, TestValue>)
     -> RequestBuilder<Entity, PredicateStep, Output> {
-
-        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
-
-        let newPredicateFormat = "\(predicateFormat) OR \(predicateRightValue.predicate(keyPath).nsValue)"
-        request.predicate = NSPredicate(format: newPredicateFormat)
-        return self
+        compound(operator: .or, predicate: predicateRightValue.predicate(keyPath))
     }
 
     /// Basic comparison predicate
@@ -114,12 +124,7 @@ public extension RequestBuilder where Step == PredicateStep {
     ///  - `.and(\.keyPath == "Value")`
     ///  - `.and(\.keyPath >= 20)`
     func and<Value: DatabaseFieldValue, TestValue>(_ predicate: Predicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
-
-        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
-
-        let newPredicateFormat = "(\(predicateFormat)) AND \(predicate.nsValue.predicateFormat)"
-        request.predicate = NSPredicate(format: newPredicateFormat)
-        return self
+        compound(operator: .and, predicate: predicate)
     }
 
     /// Advanced comparison predicate
@@ -130,12 +135,7 @@ public extension RequestBuilder where Step == PredicateStep {
         _ keyPath: KeyPath<Entity, Value>,
         _ predicateRightValue: PredicateRightValue<Entity, Value, TestValue>)
     -> RequestBuilder<Entity, PredicateStep, Output> {
-
-        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
-
-        let newPredicateFormat = "(\(predicateFormat)) AND \(predicateRightValue.predicate(keyPath).nsValue)"
-        request.predicate = NSPredicate(format: newPredicateFormat)
-        return self
+        compound(operator: .or, predicate: predicateRightValue.predicate(keyPath))
     }
 }
 

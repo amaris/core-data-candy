@@ -377,7 +377,16 @@ Player.request
 ```
 
 ### Additional settings
-To be written
+Because you might want to set additional properties of the request, you can use the. `setting(:to:)` function. Also, we think it's a simpler solution rather than writing a function for each property of the request.
+
+```swift
+Player.request()
+    .all()
+    .where(\.age >= 20)
+    .sorted(by: .ascending, \.score)
+    .setting(\.returnsDistinctResults, to: true)
+```
+
 
 ## Exhaustive lists
 

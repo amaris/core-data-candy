@@ -36,7 +36,7 @@ public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue
     public init(keyPath: KeyPath<E, Value>, operatorString: String, value: TestValue, isInverted: Bool = false) {
         self.keyPath = keyPath
         self.value = value
-        self.formatter = { isInverted ? "NOT \($0) \(operatorString) \(Self.attributeSymbol)" : "\($0) \(operatorString) \(Self.attributeSymbol)" }
+        self.formatter = { "\(isInverted ? "NOT" : "") \($0) \(operatorString) \(Self.attributeSymbol)" }
         self.argumentsOrder = { [$0, value] }
     }
 

@@ -10,7 +10,7 @@ public extension Publisher {
         compactMap { $0 }
     }
 
-    /// Try to assign the value to the given field
+    /// Try to validate the value to the given field
     func tryValidate<Model: DatabaseModel, F: FieldModifier>(for keyPath: KeyPath<Model, F>, on model: Model) -> AnyPublisher<Output, CoreDataCandyError>
     where F.Value == Output, F.Entity == Model.Entity {
 
