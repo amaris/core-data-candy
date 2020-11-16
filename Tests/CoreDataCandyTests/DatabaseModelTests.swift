@@ -41,9 +41,8 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just("Hello")
-            .tryValidateAndAssign(to: \.property, on: model)
-            .sink { _ in  }
-                receiveValue: { (_) in XCTAssertEqual(model.current(\.property), "Hello") }
+            .tryValidate(for: \.property, on: model)
+            .assign(to: \.property, on: model) { _ in }
             .store(in: &subscriptions)
     }
 
@@ -51,7 +50,7 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just("Yo")
-            .tryValidateAndAssign(to: \.property, on: model)
+            .tryValidate(for: \.property, on: model)
             .sink { completion in
                 guard case .failure = completion else {
                     XCTFail()
@@ -65,19 +64,21 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just(())
+            .handleEvents(receiveCompletion: { _ in
+                XCTAssertEqual(model.current(\.flag), true)
+            })
             .toggle(\.flag, on: model)
-            .sink { (_) in XCTAssertEqual(model.current(\.flag), true) }
-                receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
 
     func testPublisherToggle_SeveralTimes() throws {
         let model = StubModel()
 
-        [1, 2, 3, 4].publisher
+        [(), (), (), ()].publisher
+            .handleEvents(receiveCompletion: { _ in
+                XCTAssertEqual(model.current(\.flag), false)
+            })
             .toggle(\.flag, on: model)
-            .sink { (_) in XCTAssertEqual(model.current(\.flag), false) }
-                receiveValue: { (_) in }
             .store(in: &subscriptions)
     }
 }
