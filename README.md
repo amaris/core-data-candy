@@ -89,7 +89,7 @@ class GameEntity: NSManagedObject {
 
 ```swift
 let player: Player
-let gameEntity: Game
+let game: Game
 
 player.current(\.name) // String?
 player.current(\.score) // Double
@@ -110,9 +110,11 @@ let player: Player
 func setupSubscriptions() {
     player.publisher(for: \.name)
         .assign(to: name.label.text, on self)
+        .store(in: &subscriptions)
         
     player.publisher(for: \.avatar)
         .assign(to: avatarView.image, on: self)
+        .store(in: &subscriptions)
 }
 ```
 
@@ -124,9 +126,7 @@ player.assign(newName, to: \.name)
 
 Just(newName)
     .assign(to: \.name, on: player)
-    .sink(receiveCompletion:  { completion in
-    //...
-    }, receiveValue: { _ in })
+    .store(in: &subscriptions)
 ```
 
 #### Validating
@@ -137,22 +137,26 @@ Before assigning a value, you can validate it with the `validate(:for:)` functio
 try player.validate(newName, for: \.name)
 
 Just(newName)
-    .validate(for: \.name, on: player)
+    .tryValidate(for: \.name, on: player)
     .sink(receiveCompletion:  { completion in // can finish with a failure
     //...
     }, receiveValue: { _ in })
+    .store(in: &subscriptions)
 ```
 
-Optionally, you can use the `validateAndAssign(:to:)`function or the `tryValidateAndAssign(to:on:)` publisher.
+Optionally, it's possible to use `validateAndAssign(to:)` and to chain both `tryValidate(for:on:)` and `assign(to:on:receiveCompletion:)` publishers.
 
 ```swift
-try player.validateAndassign(newName, to: \.name)
+try player.validateAndAssign(newName, to: \.name)
 
 Just(newName)
-    .tryValidateAndAssign(to: \.name, on: player)
-    .sink(receiveCompletion:  { completion in // can finish with a failure
-    //...
-    }, receiveValue: { _ in })
+    .tryValidate(for: \.name, on: player)
+    .assign(to: \.name, on: player) { completion in
+        if case let .failure(error) = completion {
+            // display a relevant error message to the user
+    }
+    .store(in: &subscriptions)
+        
 ```
 
 
@@ -200,7 +204,7 @@ It's possible to declare default values that should be used if the stored value 
 
 ```swift
 let name = Field(\.name, default: "John") // output: String
-let avatager = Field(\.avatar, as: UIImage, default: .placeholder) // output: UIImage
+let avatar = Field(\.avatar, as: UIImage, default: .placeholder) // output: UIImage
 ```
 
 #### Unique field
@@ -359,6 +363,10 @@ Player.request()
     .all()
     .where(\.age >= 20).and(\.name, .hasSuffix("ra")).or(\.score < 20)
 ```
+
+**Note about compound nested predicates**
+
+It is not possible for now to specify nested predicates. Thus, the evaluation is flat. An [issue](https://github.com/amaris/core-data-candy/issues/5) is open to deal with this feature. 
 
 ### Sorting
 

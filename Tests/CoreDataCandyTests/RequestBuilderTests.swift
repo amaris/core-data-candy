@@ -25,7 +25,7 @@ final class RequestBuilderTests: XCTestCase {
                      expecting: #"(property == "Donald" OR name BEGINSWITH "Jo") AND score == 20"#)
 
         testNSFormat(builder: request.where(\.property == "Donald").or(\.name, .hasPrefix("Jo")).or(\.score == 20.0),
-                     expecting: #"property == "Donald" OR name BEGINSWITH "Jo" OR score == 20"#)
+                     expecting: #"(property == "Donald" OR name BEGINSWITH "Jo") OR score == 20"#)
     }
 }
 

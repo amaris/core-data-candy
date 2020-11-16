@@ -80,23 +80,10 @@ public extension RequestBuilder where Step == TargetStep {
 
 public extension RequestBuilder where Step == PredicateStep {
 
-    private enum CompoundOperator {
-        case and, or
-
-        func newPredicateFormat(from predicateFormat: String, with otherPredicateFormat: String) -> String {
-            switch self {
-            case .and: return "(\(predicateFormat)) AND \(otherPredicateFormat)"
-            case .or: return "\(predicateFormat) OR \(otherPredicateFormat)"
-            }
-        }
-    }
-
-    private func compound<Value: DatabaseFieldValue, TestValue>(operator compoundOperator: CompoundOperator, predicate: Predicate<Entity, Value, TestValue>)
+    private func compound<Value: DatabaseFieldValue, TestValue>(operator compoundOperator: NSCompoundPredicate.LogicalType, predicate: Predicate<Entity, Value, TestValue>)
     -> RequestBuilder<Entity, PredicateStep, Output> {
-        guard let predicateFormat = request.predicate?.predicateFormat else { return .init(request: request) }
-
-        let newPredicateFormat = compoundOperator.newPredicateFormat(from: predicateFormat, with: predicate.nsValue.predicateFormat)
-        request.predicate = NSPredicate(format: newPredicateFormat)
+        guard let requestPredicate = request.predicate else { return .init(request: request) }
+        request.predicate = NSCompoundPredicate(type: compoundOperator, subpredicates: [requestPredicate, predicate.nsValue])
         return self
     }
 
