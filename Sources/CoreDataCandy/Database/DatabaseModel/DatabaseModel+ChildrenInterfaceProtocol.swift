@@ -13,14 +13,14 @@ public extension DatabaseModel {
         self[keyPath: keyPath].currentValue(on: entity)
     }
 
-    func add<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, in childrenKeyPath: KeyPath<Self, Children>)
+    func add<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
     throws
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.add(child, on: entity)
     }
 
-    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, in childrenKeyPath: KeyPath<Self, Children>)
+    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
     throws
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
@@ -31,11 +31,15 @@ public extension DatabaseModel {
 public extension DatabaseModel where Entity: FetchableEntity {
 
     /// Publisher for the given relationship
-    func publisher<F: FieldPublisher & ChildrenInterfaceProtocol, Criteria>(
+    /// - Parameters:
+    ///   - keyPath: The children to observe
+    ///   - sorts: Sorts to be applied to the emitted array
+    /// - Returns: An array of the children
+    func publisher<F: FieldPublisher & ChildrenInterfaceProtocol>(
         for keyPath: KeyPath<Self, F>,
-        sortedBy sort: Sort<F.ChildModel.Entity, Criteria>)
+        sortedBy sorts: Sort<F.ChildModel.Entity>...)
     -> AnyPublisher<F.Output, Never>
-    where F.Entity == Entity, F.Output == [F.ChildModel] {
-        self[keyPath: keyPath].publisher(for: entity, sortedBy: sort)
+    where F.Entity == Entity, F.Output == [F.ChildModel], F.ChildModel.Entity: FetchableEntity {
+        self[keyPath: keyPath].publisher(for: entity, sortedBy: sorts)
     }
 }

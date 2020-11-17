@@ -128,43 +128,15 @@ public extension RequestBuilder where Step == PredicateStep {
 
 // MARK: Sort
 
-public extension RequestBuilder {
-
-    enum SortDirection {
-        case ascending, descending
-    }
-}
-
 public extension RequestBuilder where Step: SortableStep {
 
-    /// Add a sort descriptor to the request for the given direction and key path
-    func sorted<Value: DatabaseFieldValue & Comparable>(by direction: SortDirection, _ keyPath: KeyPath<Entity, Value>) -> RequestBuilder<Entity, SortStep, Output> {
-        let descriptor = NSSortDescriptor(key: keyPath.label, ascending: direction == .ascending)
-        request.sortDescriptors = [descriptor]
+    /// Add a sort descriptor and additional ones to the request
+    /// ### Examples
+    /// - `.sorted(by: .ascending(\.name))`
+    /// - `.sorted(by: .ascending(\.name), .descending(\.age))`
+    /// - `.sorted(by: .ascending(\.name, using: String.localizedStandardCompare))`
+    func sorted(by sort: SortDescriptor<Entity>, _ additionalSorts: SortDescriptor<Entity>...) -> RequestBuilder<Entity, SortStep, Output> {
+        request.sortDescriptors = ([sort] + additionalSorts).map(\.descriptor)
         return .init(request: request)
-    }
-
-    /// Add a sort descriptor to the request for the given direction and key path
-    func sorted<Value: DatabaseFieldValue & Comparable>(by direction: SortDirection, _ keyPath: KeyPath<Entity, Value?>) -> RequestBuilder<Entity, SortStep, Output> {
-        let descriptor = NSSortDescriptor(key: keyPath.label, ascending: direction == .ascending)
-        request.sortDescriptors = [descriptor]
-        return .init(request: request)
-    }
-}
-
-public extension RequestBuilder where Step == SortStep {
-
-    /// Add an additional sort descriptor to the request for the given direction and key path
-    func then<Value: DatabaseFieldValue & Comparable>(by direction: SortDirection, _ keyPath: KeyPath<Entity, Value>) -> RequestBuilder<Entity, SortStep, Output> {
-        let descriptor = NSSortDescriptor(key: keyPath.label, ascending: direction == .ascending)
-        request.sortDescriptors = (request.sortDescriptors ?? []) + [descriptor]
-        return self
-    }
-
-    /// Add an additional sort descriptor to the request for the given direction and key path
-    func then<Value: DatabaseFieldValue & Comparable>(by direction: SortDirection, _ keyPath: KeyPath<Entity, Value?>) -> RequestBuilder<Entity, SortStep, Output> {
-        let descriptor = NSSortDescriptor(key: keyPath.label, ascending: direction == .ascending)
-        request.sortDescriptors = (request.sortDescriptors ?? []) + [descriptor]
-        return self
     }
 }

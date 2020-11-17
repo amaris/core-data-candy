@@ -53,10 +53,16 @@ public extension Publisher {
     }
 }
 
-public extension Publisher where Output: Collection, Output.Element: DatabaseModel, Output.Element.Entity: FetchableEntity {
+extension Publisher where Output: Collection, Output.Element: DatabaseModel, Output.Element.Entity: FetchableEntity {
 
-    func sorted<Value>(with sort: Sort<Output.Element.Entity, Value>) -> AnyPublisher<[Output.Element], Failure> {
-        map { $0.sorted(with: sort) }.eraseToAnyPublisher()
+    /// Sort the children by the first criteria, then by the additional ones
+    func sorted(by sort: Sort<Output.Element.Entity>, _ additionalSorts: Sort<Output.Element.Entity>...) -> AnyPublisher<[Output.Element], Failure> {
+        map { $0.sorted(by: [sort] + additionalSorts) }.eraseToAnyPublisher()
+    }
+
+    /// Sort the children by the first criteria, then by the additional ones
+    func sorted(by sorts: [Sort<Output.Element.Entity>]) -> AnyPublisher<[Output.Element], Failure> {
+        map { $0.sorted(by: sorts) }.eraseToAnyPublisher()
     }
 }
 
