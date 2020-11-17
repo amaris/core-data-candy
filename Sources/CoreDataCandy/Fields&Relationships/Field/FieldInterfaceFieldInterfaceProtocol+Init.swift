@@ -180,3 +180,38 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
         )
     }
 }
+
+public extension FieldInterfaceProtocol where FieldValue == Data?,
+                                              Value: ExpressibleByNilLiteral,
+                                              StoreConversionError == CoreDataCandyError {
+
+    init<Convertible: CodableConvertible>(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: Convertible.Type,
+        validations: Validation<Value>...) where Value == Convertible? {
+
+        self.init(
+            keyPath,
+            outputConversion: { data in
+                guard let data = data else { return .success(nil) }
+
+                do {
+                    let value = try JSONDecoder().decode(Convertible.CodableModel.self, from: data)
+                    return .success(value.converted)
+                } catch {
+                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+                }
+            },
+            storeConversion: { value in
+                guard let value = value else { return .success(nil) }
+                do {
+                    let data = try JSONEncoder().encode(value.codableModel)
+                    return .success(data)
+                } catch {
+                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                }
+            },
+            validations: validations
+        )
+    }
+}
