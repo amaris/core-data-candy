@@ -4,15 +4,15 @@
 
 import Foundation
 
-/// Specify how children in a relationship should be sorted
-public struct Sort<Entity: FetchableEntity, Value> {
-    let keyPath: KeyPath<Entity, Value>
-    let comparison: (Value, Value) -> Bool
+/// Holds a comparison function on a root object
+public struct Sort<Root> {
+    let comparison: (Root, Root) -> Bool
 }
 
-public extension Sort {
+extension Sort {
 
-    static func optionalCompare<V>(with comparison: @escaping (V, V) -> Bool) -> ((V?, V?) -> Bool) { { valueA, valueB in
+    /// Take a comparison function and transforms it into a comparison funcrion which works on optionals
+    static func optional<V>(_ comparison: @escaping (V, V) -> Bool) -> ((V?, V?) -> Bool) { { valueA, valueB in
             switch (valueA, valueB) {
             case (.some(let a), .some(let b)): return comparison(a, b)
             case (.some, .none): return true
@@ -22,26 +22,80 @@ public extension Sort {
         }
     }
 
-    static func ascending<E: FetchableEntity, V: Comparable>(_ keyPath: KeyPath<E, V>) -> Sort<E, V> {
-        Sort<E, V>(keyPath: keyPath, comparison: <)
-    }
-
-    static func ascending<Entity: FetchableEntity, V: Comparable>(_ keyPath: KeyPath<Entity, V?>) -> Sort<Entity, V?> {
-        Sort<Entity, V?>(keyPath: keyPath, comparison: optionalCompare(with: <))
-    }
-
-    static func descending<Entity: FetchableEntity, V: Comparable>(_ keyPath: KeyPath<Entity, V>) -> Sort<Entity, V> {
-        Sort<Entity, V>(keyPath: keyPath, comparison: >)
-    }
-
-    static func descending<Entity: FetchableEntity, V: Comparable>(_ keyPath: KeyPath<Entity, V?>) -> Sort<Entity, V?> {
-        Sort<Entity, V?>(keyPath: keyPath, comparison: optionalCompare(with: >))
+    /// Builds a sort function by combining the given sort functions.
+    ///
+    /// The built sort function will compare two values, and if the two values are equal,
+    /// will use the next sort function to decide, until all sort functions have been used.
+    /// - note: Idea from [Advanced Swift - objc.io](https://www.objc.io/books/advanced-swift/)
+    static func combine(sorts: [Sort<Root>]) -> Sort<Root> {
+        Sort<Root> { (lhs, rhs) in
+            for comparison in sorts.map(\.comparison) {
+                if comparison(lhs, rhs) { return true }
+                if comparison(rhs, lhs) { return false }
+            }
+            return false
+        }
     }
 }
 
-extension Collection where Element: DatabaseModel, Element.Entity: FetchableEntity {
+public extension Sort {
 
-    func sorted<Value>(with sort: Sort<Element.Entity, Value>) -> [Element] {
-        sorted { sort.comparison($0.entity[keyPath: sort.keyPath], $1.entity[keyPath: sort.keyPath]) }
+    private static func sort<R, V>(on keyPah: KeyPath<R, V>, by comparison: @escaping (V, V) -> Bool) -> Sort<R> {
+        Sort<R> { comparison($0[keyPath: keyPah], $1[keyPath: keyPah]) }
+    }
+
+    static func custom<R, V>(on keyPath: KeyPath<R, V>, using comparison: @escaping (V, V) -> Bool) -> Sort<R> {
+        sort(on: keyPath, by: comparison)
+    }
+
+    static func custom<R, V>(on keyPath: KeyPath<R, V?>, using comparison: @escaping (V, V) -> Bool) -> Sort<R> {
+        sort(on: keyPath, by: optional(comparison))
+    }
+
+    /// Default `<` comparison on two comparables
+    static func ascending<R, V: Comparable>(_ keyPath: KeyPath<R, V>) -> Sort<R> {
+        sort(on: keyPath, by: <)
+    }
+
+    /// Default `<` comparison on two comparables
+    static func ascending<R, V: Comparable>(_ keyPath: KeyPath<R, V?>) -> Sort<R> {
+        sort(on: keyPath, by: optional(<))
+    }
+
+    /// Default `>` comparison on two comparables
+    static func descending<R, V: Comparable>(_ keyPath: KeyPath<R, V>) -> Sort<R> {
+        sort(on: keyPath, by: >)
+    }
+
+    /// Default `>` comparison on two comparables
+    static func descending<R, V: Comparable>(_ keyPath: KeyPath<R, V?>) -> Sort<R> {
+        sort(on: keyPath, by: optional(>))
+    }
+}
+
+// MARK: Sort integration
+
+extension Collection {
+    func sorted(by sorts: [Sort<Element>]) -> [Element] {
+        sorted {
+            let sort = Sort<Element>.combine(sorts: sorts)
+            return sort.comparison($0, $1) }
+    }
+
+    func sorted(by sorts: Sort<Element>...) -> [Element] {
+        sorted(by: sorts)
+    }
+}
+
+public extension Collection where Element: DatabaseModel, Element.Entity: FetchableEntity {
+
+    func sorted(by sorts: Sort<Element.Entity>...) -> [Element] {
+        sorted(by: sorts)
+    }
+
+    func sorted(by sorts: [Sort<Element.Entity>]) -> [Element] {
+        sorted {
+            let sort = Sort<Element.Entity>.combine(sorts: sorts)
+            return sort.comparison($0.entity, $1.entity) }
     }
 }

@@ -67,11 +67,11 @@ public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildM
     }
 }
 
-public extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity {
+extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity, Entity: NSManagedObject {
 
-    func publisher<Value>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, Never> {
+    func publisher(for entity: Entity, sortedBy sorts: [Sort<ChildModel.Entity>]) -> AnyPublisher<Output, Never> {
         publisher(for: entity)
-            .sorted(with: sort)
+            .sorted(by: sorts)
             .eraseToAnyPublisher()
     }
 }

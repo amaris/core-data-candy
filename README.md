@@ -40,7 +40,7 @@ struct Player: DatabaseModel {
 }
 ```
 
-Also, it's possible to use advanced fetching.
+Also, it's possible to use advanced fetching on both a Core Data `NSManagedObject` class or its associated `DatabaseModel` (here on the model).
 
 ```swift
 Player.request()
@@ -51,20 +51,18 @@ Player.request()
 Player.request()
     .all(after: 10)
     .where(\.age, .isIn(18...70))
-    .sorted(by: \.age)
-    .then(by: \.name)
+    .sorted(by: .ascending(\.age), .descending\.name))
     .fetch(in: context) // output: [Player]
     
 Player.request()
     .first(nth: 3)
-    .where(\.name, .isIn("Zerator", "Mister MV", "Maghla"))
-        .or(\.age == 20)
+    .where(\.name, .isIn("Zerator", "Mister MV", "Maghla")).or(\.age == 20)
     .setting(\.returnsDistinctResults, to: true) // set additional properties
     .fetch(in: context) // output: [Player]
 ```
 
 **Notes**
-- Storing a `UIImage` is done by making `UIImage` conform to `Codable`. You can learn more in  the [advanced mapping section](#advanced-mapping).
+- Storing a `UIImage` is done by making `UIImage` conform to `CodableConvertible`. You can learn more in  the [advanced mapping section](#advanced-mapping).
 - The `_entityrapper` property is a protocol requirement and is used to hide the entity once set, making it visible only internally in the API. That said, you are free to capture the `entity` reference in the initaliser to perform additional code.
 
 ## Core Data entity mapping
@@ -176,8 +174,8 @@ let games = Children(\.games, as: Game.self)
 It's then possible to use the publisher `player.publisher(for: \.games)` which will emit a `Game` array, or to call relevant modifications CRUD functions.
 
 ```swift
-// Subscribe to the player games, sorted by their date
-player.publisher(for: \.games, sortedBy: .ascending(\.date))
+// Subscribe to the player games, sorted by their date then by their duration
+player.publisher(for: \.games, sortedBy: .ascending(\.date), .descending(\.duration))
 
 // Add a `Game` model to the player `games` relationship
 let game = Game(...)
@@ -217,38 +215,55 @@ let name = UniqueField(\.name)
 
 #### Codable
 
-You can store a `Codable` object as data. to do so, set the value type of the attribute as data, then declare the type with the field.
+You can specify a `Codable` object when storing an attribute as "Binary Data". To do so, set the value type of the attribute as "Binary Data", then declare the type with the field. The library will automatically try to encode and decode the value to store it as binary data.
+
+```swift
+struct Controller: Codable {
+    var color: String
+    var accuracy: Double
+}
+//...
+let field = Field(\.controller, as: Controller.self)
+```
+
+#### Codable convertible
+
+Some `Foundation` classes are hardly made  `Codable`, like the `NSObject` subclasses. If it's possible to store them as `Transformable` and to specify a transformer name in the model editor or even to write one, the library offers another way to do so. Which we think is clearer and easier to use.
+
+For example to store a `NSObject`, let's say a `UIColor`, you first have to declare an object that will act as the `Codable` version of the `NSObject`:
+
+```swift
+struct CodableColor: CodableConvertibleModel {
+    var red: CGFloat
+    var green: CGFloat
+    var blue: CGFloat
+    
+    public var converted: UIColor { UIColor(red: red, green: green, blue: blue) }
+}   
+```
+
+Then you can wire up with the `NSObject`:
+
+```swift
+extension UIColor: CodableConvertible {
+
+    public var codableModel: CodableColor {
+        guard let components = cgColor.components, components.count >= 3 else {
+            preconditionFailure("UIColor with invalid components")
+        }
+        return CodableColor( red: red, green: green, blue: blue)
+    }
+}
+```
+
+Then, you can set the color attribute as "BinaryData" and declare it.
 
 ```swift
 let avatar = Field(\.avatar, as: UIImage.self)
 ```
-The library will automatically try to encode and decode the value to store it as binary data. You can then choose how to encode and decode your custom type. for example with `UIColor` by storing its red, green , and blue component in a struct (it's already quite an example to show you how it's possible to work with `NSObject`. It goes without saying that storing simple `Codable` struct would be easier) :
 
-```swift
-struct StoreColor: Codable {
-    let red: Double
-    let green: Double
-    let blue: Double
-}
+We find this approach especially useful when working with a remote API that will send JSON or any other data structures that `Codable` can work with. When that's the case, a `CodableConvertibleModel` can easily be reused when communicating with the API.
 
-extension UIImage: Codable {
-
-    enum StoreCodingKeys: CodingKey {
-        case storeColor
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.contained(keyedBy: StoreCodingKeys.self)
-        let storeColor = try container.decode(StoreColor.Self, for: .storeColor)
-        self.init(with: storeColor)
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        let container = try encoder.container(keyedBy: StoreCodingKeys.self)
-        try container.encode(storeColor, for: .storeColor)
-    }
-}       
-```
 **⚠️ Coding error**
 
 If an error is encountered when encoding or decoding, a `preconditionFailure` will be used to terminate immediately. This is an implementation design choice. We consider than storing a value which cannot be converted to a desired type should be resolved in the development stage, and is not relevant for the end-user.

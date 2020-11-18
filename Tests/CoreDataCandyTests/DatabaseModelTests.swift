@@ -91,6 +91,7 @@ extension DatabaseModelTests {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
+        @objc var children: NSSet?
         @objc var flag = false
         @objc var property: String? = ""
     }
@@ -99,6 +100,7 @@ extension DatabaseModelTests {
 
         let _entityWrapper = EntityWrapper(entity: StubEntity())
 
+        let children = Children(\.children, as: StubModel.self)
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
 
