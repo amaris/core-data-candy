@@ -181,6 +181,8 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
     }
 }
 
+// MARK: Codable convertible
+
 public extension FieldInterfaceProtocol where FieldValue == Data?,
                                               Value: ExpressibleByNilLiteral,
                                               StoreConversionError == CoreDataCandyError {
