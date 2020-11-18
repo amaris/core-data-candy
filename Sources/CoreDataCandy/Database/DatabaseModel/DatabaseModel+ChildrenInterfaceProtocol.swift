@@ -7,21 +7,19 @@ import CoreData
 
 public extension DatabaseModel {
 
-    func current <Children: ChildrenInterfaceProtocol>(_ keyPath: KeyPath<Self, Children>)
+    func current<Children: ChildrenInterfaceProtocol>(_ keyPath: KeyPath<Self, Children>)
     -> [Children.ChildModel]
     where Children.Entity == Entity, Children.Entity: NSManagedObject, Children.ChildModel.Entity: NSManagedObject {
         self[keyPath: keyPath].currentValue(on: entity)
     }
 
     func add<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
-    throws
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.add(child, on: entity)
     }
 
     func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
-    throws
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.remove(child, on: entity)
