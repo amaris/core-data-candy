@@ -51,7 +51,7 @@ extension PredicateTests {
         XCTAssertEqual(predicateFormat, format)
     }
 
-    final class StubEntity: NSManagedObject, FetchableEntity {
+    final class StubEntity: NSManagedObject, DatabaseEntity {
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> { NSFetchRequest<StubEntity>(entityName: "Stub") }
 

@@ -5,7 +5,7 @@
 import Foundation
 
 /// Wrapper around `NSSortDescriptor`
-public struct SortDescriptor<Entity: FetchableEntity> {
+public struct SortDescriptor<Entity: DatabaseEntity> {
     public let descriptor: NSSortDescriptor
 }
 

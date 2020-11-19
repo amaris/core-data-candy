@@ -5,7 +5,7 @@
 import Combine
 import CoreData
 
-extension DatabaseModel where Entity: FetchableEntity {
+extension DatabaseModel where Entity: DatabaseEntity {
 
     /// Publisher for the entity table updates in Core Data
     /// - Parameters:

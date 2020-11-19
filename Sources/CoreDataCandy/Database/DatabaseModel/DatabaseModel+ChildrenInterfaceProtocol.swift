@@ -26,7 +26,7 @@ public extension DatabaseModel {
     }
 }
 
-public extension DatabaseModel where Entity: FetchableEntity {
+public extension DatabaseModel where Entity: DatabaseEntity {
 
     /// Publisher for the given relationship
     /// - Parameters:

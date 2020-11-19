@@ -6,7 +6,7 @@ import CoreData
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
 public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible {
-    associatedtype Entity: FetchableEntity
+    associatedtype Entity: DatabaseEntity
 
     /// This wrapper will be used internally by the API and cannot be used outside.
     /// Its purpose is to hide the `entity` from the rest of the app.

@@ -8,6 +8,7 @@ import CoreData
 
 extension RequestBuilder where Step: SettingsStep {
 
+    /// Set a property of the request
     public func setting<Value>(_ keyPath: ReferenceWritableKeyPath<FetchRequest, Value>, to value: Value) -> Self {
         request[keyPath: keyPath] = value
         return self

@@ -4,8 +4,6 @@
 
 import Foundation
 
-// MARK: - Implementation
-
 public struct NSObjectCodableModel<Object: NSObject>: CodableConvertibleModel where Object: CodableConvertible {
 
     public var converted: Object
