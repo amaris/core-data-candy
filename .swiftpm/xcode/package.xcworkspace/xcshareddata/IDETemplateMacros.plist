@@ -4,7 +4,8 @@
 <dict>
 	<key>FILEHEADER</key>
 	<string>
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//</string>
+// MIT license, see LICENSE file for details</string>
 </dict>
 </plist>

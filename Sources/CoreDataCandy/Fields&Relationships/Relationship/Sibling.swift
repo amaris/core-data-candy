@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 /// Relationship one to one
 public struct SiblingInterface<Entity: DatabaseEntity, SiblingModel: DatabaseModel>: ParentInterfaceProtocol {
