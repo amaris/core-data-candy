@@ -8,7 +8,7 @@ import Combine
 extension Publishers {
 
     /// Tranforms a fetch controller delegate functions to a publisher
-    struct FetchUpdate<Model: DatabaseModel>: Publisher where Model.Entity: FetchableEntity {
+    struct FetchUpdate<Model: DatabaseModel>: Publisher {
 
         typealias Output = [Model]
         typealias Failure = Never
@@ -31,7 +31,7 @@ extension Publishers {
 }
 
 final class FetchUpdateSubscription<S: Subscriber, M: DatabaseModel>: NSObject, NSFetchedResultsControllerDelegate, Subscription
-where S.Input == [M], M.Entity: FetchableEntity {
+where S.Input == [M] {
 
     var subscriber: S?
     var requested: Subscribers.Demand = .none
