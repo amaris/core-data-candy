@@ -9,7 +9,7 @@ public extension DatabaseModel {
 
     func current<Children: ChildrenInterfaceProtocol>(_ keyPath: KeyPath<Self, Children>)
     -> [Children.ChildModel]
-    where Children.Entity == Entity, Children.Entity: NSManagedObject, Children.ChildModel.Entity: NSManagedObject {
+    where Children.Entity == Entity {
         self[keyPath: keyPath].currentValue(on: entity)
     }
 
@@ -37,7 +37,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
         for keyPath: KeyPath<Self, F>,
         sortedBy sorts: Sort<F.ChildModel.Entity>...)
     -> AnyPublisher<F.Output, Never>
-    where F.Entity == Entity, F.Output == [F.ChildModel], F.ChildModel.Entity: FetchableEntity {
+    where F.Entity == Entity, F.Output == [F.ChildModel] {
         self[keyPath: keyPath].publisher(for: entity, sortedBy: sorts)
     }
 }

@@ -87,7 +87,7 @@ extension Collection {
     }
 }
 
-public extension Collection where Element: DatabaseModel, Element.Entity: FetchableEntity {
+public extension Collection where Element: DatabaseModel {
 
     func sorted(by sorts: Sort<Element.Entity>...) -> [Element] {
         sorted(by: sorts)

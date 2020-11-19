@@ -53,7 +53,7 @@ public extension Publisher {
     }
 }
 
-extension Publisher where Output: Collection, Output.Element: DatabaseModel, Output.Element.Entity: FetchableEntity {
+extension Publisher where Output: Collection, Output.Element: DatabaseModel {
 
     /// Sort the children by the first criteria, then by the additional ones
     func sorted(by sort: Sort<Output.Element.Entity>, _ additionalSorts: Sort<Output.Element.Entity>...) -> AnyPublisher<[Output.Element], Failure> {
