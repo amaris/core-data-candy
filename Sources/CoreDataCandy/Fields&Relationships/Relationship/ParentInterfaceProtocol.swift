@@ -17,7 +17,7 @@ public extension ParentInterfaceProtocol where ParentModel.Entity: NSManagedObje
     /// The current value of the given parent model's field
     func current<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<ParentModel, F>, on entity: Entity)
     -> F.Value?
-    where ParentModel.Entity == F.Entity, F.StoreConversionError == Never {
+    where ParentModel.Entity == F.Entity {
         guard let parentEntity = entity[keyPath: self.keyPath] else { return nil }
 
         let parent = ParentModel(entity: parentEntity)
@@ -29,7 +29,7 @@ public extension ParentInterfaceProtocol where ParentModel.Entity: NSManagedObje
     /// The current value of the given parent model's field
     func current<F: FieldInterfaceProtocol>(_ keyPath: KeyPath<ParentModel, F>, on entity: Entity)
     -> F.Value
-    where ParentModel.Entity == F.Entity, F.StoreConversionError == Never, F.Value: ExpressibleByNilLiteral { // prevent the optional optional
+    where ParentModel.Entity == F.Entity, F.Value: ExpressibleByNilLiteral { // prevent the optional optional
         guard let parentEntity = entity[keyPath: self.keyPath] else { return nil }
 
         let parent = ParentModel(entity: parentEntity)

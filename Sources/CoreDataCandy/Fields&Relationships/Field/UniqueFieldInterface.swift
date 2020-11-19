@@ -5,12 +5,12 @@
 import CoreData
 
 /// A field that has to be is unique in the entity table
-public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, StoreConversionError: ConversionError>: FieldInterfaceProtocol {
+public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity>: FieldInterfaceProtocol {
 
     // MARK: - Constants
 
-    public typealias OutputConversion = (FieldValue) -> Result<Value, StoreConversionError>
-    public typealias StoreConversion = (Value) -> Result<FieldValue, StoreConversionError>
+    public typealias OutputConversion = (FieldValue) -> Value
+    public typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
@@ -48,13 +48,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     /// Returns the given value as a stored `FieldValue` while ensuring its unicity
     @discardableResult
     func uniqueStoredValue(for value: Value, in context: NSManagedObjectContext) throws -> FieldValue {
-        let storeConverted = storeConversion(value)
-        let storedValue: FieldValue
-
-        switch storeConverted {
-        case .success(let value): storedValue = value
-        case .failure(let error): throw error
-        }
+        let storedValue = storeConversion(value)
 
         if try Entity.request().first().where(keyPath == storedValue).fetch(in: context) != nil {
             let field = keyPath.label.components(separatedBy: ".").last ?? ""
@@ -69,7 +63,7 @@ public extension DatabaseModel where Entity: FetchableEntity {
 
     /// A field that has to be unique in the entity when compared to others
     typealias
-        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError>
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value>
         =
-        UniqueFieldInterface<FieldValue, Value, Entity, OutputError>
+        UniqueFieldInterface<FieldValue, Value, Entity>
 }

@@ -4,7 +4,7 @@
 
 import Foundation
 
-public enum CoreDataCandyError: LocalizedError, ConversionError {
+public enum CoreDataCandyError: LocalizedError {
 
     case outputConversion
     case storeConversion

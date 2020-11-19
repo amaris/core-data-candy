@@ -45,7 +45,7 @@ public extension Publisher {
 
     /// Toggle the boolean at the given field
     func toggle<Model: DatabaseModel, F: FieldInterfaceProtocol>(_ keyPath: KeyPath<Model, F>, on model: Model) -> AnyCancellable
-    where Output == Void, F.Value == Bool, F.Entity == Model.Entity, F.StoreConversionError == Never, Failure == Never {
+    where Output == Void, F.Value == Bool, F.Entity == Model.Entity, Failure == Never {
 
         let subscriber = Subscribers.DatabaseModelToggle(keyPath: keyPath, model: model)
         self.subscribe(subscriber)
@@ -135,7 +135,7 @@ extension Subscribers {
     }
 
     final class DatabaseModelToggle<Model: DatabaseModel, F: FieldInterfaceProtocol>: Subscriber, Cancellable
-    where F.Value == Bool, F.Entity == Model.Entity, F.StoreConversionError == Never {
+    where F.Value == Bool, F.Entity == Model.Entity {
         typealias Input = Void
         typealias Failure = Never
 

@@ -11,8 +11,8 @@ public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
     // MARK: - Constants
 
     associatedtype FieldValue: DatabaseFieldValue
-    typealias OutputConversion = (FieldValue) -> Result<Value, StoreConversionError>
-    typealias StoreConversion = (Value) -> Result<FieldValue, StoreConversionError>
+    typealias OutputConversion = (FieldValue) -> Value
+    typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
@@ -58,17 +58,7 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 
     func publisher(for entity: Entity) -> AnyPublisher<Value, Never> {
         entity.publisher(for: keyPath)
-            .map { [outputConversion] dbValue in
-                let outputValue = outputConversion(dbValue)
-
-                switch outputValue {
-                case .success(let value):
-                    return value
-
-                case .failure(let error):
-                    preconditionFailure("Error while converting \(FieldValue.self) as \(Value.self). \(error.localizedDescription)")
-                }
-            }
+            .map { [outputConversion] dbValue in outputConversion(dbValue) }
             .eraseToAnyPublisher()
     }
 }
@@ -78,12 +68,7 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 public extension FieldInterfaceProtocol {
 
     func set(_ value: Value, on entity: Entity) {
-        let storeConverted = storeConversion(value)
-
-        switch storeConverted {
-        case .success(let storableValue): entity[keyPath: keyPath] = storableValue
-        case .failure: assertionFailure("Unable to convert the value \(value) to a storable type \(FieldValue.self)")
-        }
+        entity[keyPath: keyPath] = storeConversion(value)
     }
 
     func validate(_ value: Value) throws {
@@ -91,31 +76,25 @@ public extension FieldInterfaceProtocol {
     }
 }
 
-public extension FieldInterfaceProtocol where StoreConversionError == Never {
+public extension FieldInterfaceProtocol {
 
     /// Get the current stored value in the entity
     func currentValue(in entity: Entity) -> Value {
         let fieldValue = entity[keyPath: keyPath]
-        let outputConverted = outputConversion(fieldValue)
-
-        switch outputConverted {
-        case .success(let value): return value
-        case .failure: preconditionFailure("Failure although the error type is 'Never'")
-        }
+        return outputConversion(fieldValue)
     }
 }
 
 // avoid the optional optional
-public extension FieldInterfaceProtocol where StoreConversionError == CoreDataCandyError, FieldValue: ExpressibleByNilLiteral, Value: ExpressibleByNilLiteral {
-
-    /// Try to get the current stored value in the entity, which conversion from the stored type can throw
-    func currentValue(in entity: Entity) -> Value {
-        let fieldValue = entity[keyPath: keyPath]
-        let outputConverted = outputConversion(fieldValue)
-
-        switch outputConverted {
-        case .success(let value): return value
-        case .failure: return nil
-        }
-    }
-}
+//public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLiteral, Value: ExpressibleByNilLiteral {
+//
+//    /// Try to get the current stored value in the entity, which conversion from the stored type can throw
+//    func currentValue(in entity: Entity) -> Value {
+//        let fieldValue = entity[keyPath: keyPath]
+//        if let output = outputConversion(fieldValue) {
+//            return output
+//        } else {
+//            return nil
+//        }
+//    }
+//}
