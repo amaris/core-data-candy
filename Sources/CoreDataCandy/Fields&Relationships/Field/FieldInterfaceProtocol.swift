@@ -84,17 +84,3 @@ public extension FieldInterfaceProtocol {
         return outputConversion(fieldValue)
     }
 }
-
-// avoid the optional optional
-//public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLiteral, Value: ExpressibleByNilLiteral {
-//
-//    /// Try to get the current stored value in the entity, which conversion from the stored type can throw
-//    func currentValue(in entity: Entity) -> Value {
-//        let fieldValue = entity[keyPath: keyPath]
-//        if let output = outputConversion(fieldValue) {
-//            return output
-//        } else {
-//            return nil
-//        }
-//    }
-//}

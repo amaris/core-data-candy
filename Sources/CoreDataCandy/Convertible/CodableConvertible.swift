@@ -6,7 +6,7 @@ import Foundation
 
 /// A `Codable` object used as the codable model of a `CodableConvertible`
 public protocol CodableConvertibleModel: Codable {
-    associatedtype Convertible: CodableConvertible where Convertible.CodableModel == Self
+    associatedtype Convertible: CodableConvertible
 
     var converted: Convertible { get }
 }

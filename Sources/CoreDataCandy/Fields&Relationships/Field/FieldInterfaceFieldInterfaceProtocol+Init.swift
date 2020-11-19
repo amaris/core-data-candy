@@ -134,6 +134,8 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
     }
 }
 
+// MARK: Data with default value
+
 public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codable {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
@@ -168,7 +170,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codabl
     }
 }
 
-// MARK: Codable convertible
+// MARK: - Codable convertible
 
 public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
