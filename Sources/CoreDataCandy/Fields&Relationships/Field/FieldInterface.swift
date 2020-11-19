@@ -5,12 +5,12 @@
 import CoreData
 
 /// Holds a CoreData field/attribute with custom validation and conversion logic
-public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity, StoreConversionError: ConversionError> {
+public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity> {
 
     // MARK: - Constants
 
-    public typealias OutputConversion = (FieldValue) -> Result<Value, StoreConversionError>
-    public typealias StoreConversion = (Value) -> Result<FieldValue, StoreConversionError>
+    public typealias OutputConversion = (FieldValue) -> Value
+    public typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
@@ -35,9 +35,9 @@ public extension DatabaseModel {
 
     /// Holds a CoreData field/attribute with custom validation and conversion logic
     typealias
-        Field<FieldValue: DatabaseFieldValue, Value, OutputError: ConversionError>
+        Field<FieldValue: DatabaseFieldValue, Value>
         =
-        FieldInterface<FieldValue, Value, Entity, OutputError>
+        FieldInterface<FieldValue, Value, Entity>
 }
 
 extension FieldInterface: FieldModifier where Entity: NSManagedObject {}

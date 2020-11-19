@@ -6,16 +6,15 @@ import Foundation
 
 // MARK: - Identity
 
-public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              StoreConversionError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            outputConversion: { .success($0) },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 },
+            storeConversion: { $0 },
             validations: validations
         )
     }
@@ -24,23 +23,21 @@ public extension FieldInterfaceProtocol where FieldValue == Value,
 // MARK: - ExpressibleByNilLiteral
 
 public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              Value: ExpressibleByNilLiteral,
-                                              StoreConversionError == Never {
+                                              Value: ExpressibleByNilLiteral {
 
     init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
 
         self.init(
             keyPath,
-            outputConversion: { .success($0) },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 },
+            storeConversion: { $0 },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Value?,
-                                              StoreConversionError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value? {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             default defaultValue: Value,
@@ -48,8 +45,8 @@ public extension FieldInterfaceProtocol where FieldValue == Value?,
 
         self.init(
             keyPath,
-            outputConversion: { .success($0 ?? defaultValue) },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 ?? defaultValue },
+            storeConversion: { $0 },
             validations: validations
         )
     }
@@ -57,9 +54,7 @@ public extension FieldInterfaceProtocol where FieldValue == Value?,
 
 // MARK: - Int
 
-public extension FieldInterfaceProtocol where FieldValue == Int16,
-                                              Value == Int,
-                                              StoreConversionError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int16, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -67,16 +62,14 @@ public extension FieldInterfaceProtocol where FieldValue == Int16,
 
         self.init(
             keyPath,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int16($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int16($0) },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Int32,
-                                              Value == Int,
-                                              StoreConversionError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int32, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -84,16 +77,14 @@ public extension FieldInterfaceProtocol where FieldValue == Int32,
 
         self.init(
             keyPath,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int32($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int32($0) },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Int64,
-                                              Value == Int,
-                                              StoreConversionError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int64, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -101,8 +92,8 @@ public extension FieldInterfaceProtocol where FieldValue == Int64,
 
         self.init(
             keyPath,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int64($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int64($0) },
             validations: validations
         )
     }
@@ -110,9 +101,7 @@ public extension FieldInterfaceProtocol where FieldValue == Int64,
 
 // MARK: - Data
 
-public extension FieldInterfaceProtocol where FieldValue == Data?,
-                                              Value: ExpressibleByNilLiteral,
-                                              StoreConversionError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
     init<D: Codable>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      as: D.Type,
@@ -122,12 +111,12 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
             keyPath,
             outputConversion: { data in
                 guard let data = data else {
-                    return .success(nil)
+                    return nil
                 }
 
                 do {
                     let value = try JSONDecoder().decode(D.self, from: data)
-                    return .success(value)
+                    return value
                 } catch {
                     preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
                 }
@@ -135,7 +124,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
             storeConversion: { value in
                 do {
                     let data = try JSONEncoder().encode(value)
-                    return .success(data)
+                    return data
                 } catch {
                     preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
                 }
@@ -145,9 +134,9 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Data?,
-                                              Value: Codable,
-                                              StoreConversionError == Never {
+// MARK: Data with default value
+
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codable {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      as: Value.Type,
@@ -158,12 +147,12 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
             keyPath,
             outputConversion: { data in
                 guard let data = data else {
-                    return .success(defaultValue)
+                    return defaultValue
                 }
 
                 do {
                     let value = try JSONDecoder().decode(Value.self, from: data)
-                    return .success(value)
+                    return value
                 } catch {
                     preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
                 }
@@ -171,7 +160,7 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
             storeConversion: { value in
                 do {
                     let data = try JSONEncoder().encode(value)
-                    return .success(data)
+                    return data
                 } catch {
                     preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
                 }
@@ -181,11 +170,9 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
     }
 }
 
-// MARK: Codable convertible
+// MARK: - Codable convertible
 
-public extension FieldInterfaceProtocol where FieldValue == Data?,
-                                              Value: ExpressibleByNilLiteral,
-                                              StoreConversionError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
     init<Convertible: CodableConvertible>(
         _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
@@ -195,20 +182,20 @@ public extension FieldInterfaceProtocol where FieldValue == Data?,
         self.init(
             keyPath,
             outputConversion: { data in
-                guard let data = data else { return .success(nil) }
+                guard let data = data else { return nil }
 
                 do {
                     let value = try JSONDecoder().decode(Convertible.CodableModel.self, from: data)
-                    return .success(value.converted)
+                    return value.converted
                 } catch {
                     preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
                 }
             },
             storeConversion: { value in
-                guard let value = value else { return .success(nil) }
+                guard let value = value else { return nil }
                 do {
                     let data = try JSONEncoder().encode(value.codableModel)
-                    return .success(data)
+                    return data
                 } catch {
                     preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
                 }
