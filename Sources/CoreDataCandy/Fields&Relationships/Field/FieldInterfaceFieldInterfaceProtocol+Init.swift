@@ -205,3 +205,54 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
         )
     }
 }
+
+// MARK: - RawRepresentable
+
+public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLiteral,
+                                              Value: ExpressibleByNilLiteral {
+
+    init<R: RawRepresentable>(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: R.Type,
+        validations: Validation<R>...) where Value == R?, FieldValue == R.RawValue? {
+
+        self.init(
+            keyPath,
+            outputConversion: { rawValue in
+                guard let rawValue = rawValue else { return nil }
+
+                guard let value = R(rawValue: rawValue) else {
+                    preconditionFailure("Instantiation of \(R.self) from the raw value \(rawValue) failed")
+                }
+                return value
+            },
+            storeConversion: { value in
+                guard let value = value else { return nil }
+                return value.rawValue
+            },
+            validations: validations
+        )
+    }
+}
+
+public extension FieldInterfaceProtocol where Value: RawRepresentable,
+                                              Value.RawValue == FieldValue {
+
+    init(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: Value.Type,
+        validations: Validation<Value>...) {
+
+        self.init(
+            keyPath,
+            outputConversion: { rawValue in
+                guard let value = Value(rawValue: rawValue) else {
+                    preconditionFailure("Instantiation of \(Value.self) from the raw value \(rawValue) failed")
+                }
+                return value
+            },
+            storeConversion: { $0.rawValue },
+            validations: validations
+        )
+    }
+}

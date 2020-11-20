@@ -5,7 +5,7 @@
 
 import CoreData
 
-/// A CoreData entity to be interface with a `DatabaseModel`
+/// A CoreData entity to be interfaced by a `DatabaseModel`
 public protocol DatabaseEntity: NSManagedObject, Fetchable {
 
     var managedObjectContext: NSManagedObjectContext? { get }
