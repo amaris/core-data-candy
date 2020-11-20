@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import XCTest
 import CoreData
@@ -51,7 +52,7 @@ extension PredicateTests {
         XCTAssertEqual(predicateFormat, format)
     }
 
-    final class StubEntity: NSManagedObject, FetchableEntity {
+    final class StubEntity: NSManagedObject, DatabaseEntity {
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> { NSFetchRequest<StubEntity>(entityName: "Stub") }
 

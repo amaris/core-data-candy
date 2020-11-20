@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 
@@ -8,6 +9,7 @@ import CoreData
 
 extension RequestBuilder where Step: SettingsStep {
 
+    /// Set a property of the request
     public func setting<Value>(_ keyPath: ReferenceWritableKeyPath<FetchRequest, Value>, to value: Value) -> Self {
         request[keyPath: keyPath] = value
         return self

@@ -1,11 +1,12 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 
 /// A field that has to be is unique in the entity table
-public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity>: FieldInterfaceProtocol {
+public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: DatabaseEntity>: FieldInterfaceProtocol {
 
     // MARK: - Constants
 
@@ -59,7 +60,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     }
 }
 
-public extension DatabaseModel where Entity: FetchableEntity {
+public extension DatabaseModel where Entity: DatabaseEntity {
 
     /// A field that has to be unique in the entity when compared to others
     typealias

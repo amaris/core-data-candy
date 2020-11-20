@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import Foundation
 import CoreData
@@ -29,12 +30,12 @@ public enum SortStep: FetchRequestStep, SettingsStep {}
 // MARK: - Request builder
 
 /// `RequestBuilder` with no target
-public struct PreRequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Fetched: Fetchable> {
+public struct PreRequestBuilder<Entity: DatabaseEntity, Step: FetchRequestStep, Fetched: Fetchable> {
     var request: NSFetchRequest<Entity>
 }
 
 /// Passed from one `RequestBuilder` to another to incrementally build a `NSFetchRequest`
-public struct RequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Output: FetchResult> {
+public struct RequestBuilder<Entity: DatabaseEntity, Step: FetchRequestStep, Output: FetchResult> {
 
     public typealias FetchRequest = NSFetchRequest<Entity>
 
@@ -45,7 +46,7 @@ public struct RequestBuilder<Entity: FetchableEntity, Step: FetchRequestStep, Ou
     }
 }
 
-// MARK: RequestBuilder + FetchableEntity
+// MARK: RequestBuilder + DatabaseEntity
 
 extension RequestBuilder where Output.Fetched == Entity {
 
@@ -59,7 +60,7 @@ extension RequestBuilder where Output.Fetched == Entity {
     }
 }
 
-public extension FetchableEntity {
+public extension DatabaseEntity {
 
     /// Starts the request building process with a new request
     static func request() -> PreRequestBuilder<Self, CreationStep, Self> {
@@ -83,7 +84,7 @@ extension RequestBuilder where Output.Fetched: DatabaseModel, Output.Fetched.Ent
     }
 }
 
-public extension DatabaseModel where Entity: FetchableEntity {
+public extension DatabaseModel where Entity: DatabaseEntity {
 
     static func request() -> PreRequestBuilder<Entity, CreationStep, Self> {
         let request = Entity.newFetchRequest()

@@ -1,10 +1,9 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import Foundation
-
-// MARK: - Implementation
 
 public struct NSObjectCodableModel<Object: NSObject>: CodableConvertibleModel where Object: CodableConvertible {
 

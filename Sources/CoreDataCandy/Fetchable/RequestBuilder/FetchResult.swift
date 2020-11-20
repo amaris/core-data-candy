@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 /// Type that can be used as the result of a fetch request
 public protocol FetchResult {

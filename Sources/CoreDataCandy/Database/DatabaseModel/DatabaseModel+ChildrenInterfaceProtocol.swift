@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import Combine
 import CoreData
@@ -26,7 +27,7 @@ public extension DatabaseModel {
     }
 }
 
-public extension DatabaseModel where Entity: FetchableEntity {
+public extension DatabaseModel where Entity: DatabaseEntity {
 
     /// Publisher for the given relationship
     /// - Parameters:

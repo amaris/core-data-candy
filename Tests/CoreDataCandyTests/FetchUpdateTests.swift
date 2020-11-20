@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import XCTest
 import CoreData
@@ -38,7 +39,7 @@ final class FetchUpdateTests: XCTestCase {
 
 extension FetchUpdateTests {
 
-    final class StubEntity: NSManagedObject, FetchableEntity {
+    final class StubEntity: NSManagedObject, DatabaseEntity {
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")

@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 import Combine
@@ -67,7 +68,7 @@ public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildM
     }
 }
 
-extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity, Entity: NSManagedObject {
+extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: DatabaseEntity, Entity: NSManagedObject {
 
     func publisher(for entity: Entity, sortedBy sorts: [Sort<ChildModel.Entity>]) -> AnyPublisher<Output, Never> {
         publisher(for: entity)
