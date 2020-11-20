@@ -1,23 +1,21 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import Foundation
 
 // MARK: - Identity
 
-public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              OutputError == Never,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { .success($0) },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 },
+            storeConversion: { $0 },
             validations: validations
         )
     }
@@ -26,41 +24,30 @@ public extension FieldInterfaceProtocol where FieldValue == Value,
 // MARK: - ExpressibleByNilLiteral
 
 public extension FieldInterfaceProtocol where FieldValue == Value,
-                                              Value: ExpressibleByNilLiteral,
-                                              OutputError == Never,
-                                              StoreError == Never {
+                                              Value: ExpressibleByNilLiteral {
 
     init<U>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
             validations: Validation<U>...) where Value == U? {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { .success($0) },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 },
+            storeConversion: { $0 },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Value?,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Value? {
 
-    /// Try to unwrap the optional field value when publishing
-    init(unwrapped keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         validations: Validation<Value>...) {
+    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+            default defaultValue: Value,
+            validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { fieldValue in
-                guard let value = fieldValue else {
-                    return .failure(.outputConversion)
-                }
-                return .success(value)
-            },
-            storeConversion: { .success($0) },
+            outputConversion: { $0 ?? defaultValue },
+            storeConversion: { $0 },
             validations: validations
         )
     }
@@ -68,10 +55,7 @@ public extension FieldInterfaceProtocol where FieldValue == Value?,
 
 // MARK: - Int
 
-public extension FieldInterfaceProtocol where FieldValue == Int16,
-                                              Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int16, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -79,18 +63,14 @@ public extension FieldInterfaceProtocol where FieldValue == Int16,
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int16($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int16($0) },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Int32,
-                                              Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int32, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -98,18 +78,14 @@ public extension FieldInterfaceProtocol where FieldValue == Int32,
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int32($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int32($0) },
             validations: validations
         )
     }
 }
 
-public extension FieldInterfaceProtocol where FieldValue == Int64,
-                                              Value == Int,
-                                              OutputError == Never,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Int64, Value == Int {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          output: Value.Type = Int.self,
@@ -117,273 +93,165 @@ public extension FieldInterfaceProtocol where FieldValue == Int64,
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { .success(Int($0)) },
-            storeConversion: { .success(Int64($0)) },
+            outputConversion: { Int($0) },
+            storeConversion: { Int64($0) },
             validations: validations
         )
     }
 }
 
-// MARK: - Data (default value)
+// MARK: - Data
 
-public extension FieldInterfaceProtocol where FieldValue == Data?,
-                                              Value: DataConvertible,
-                                              OutputError == Never,
-                                              StoreError == CoreDataCandyError {
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         output: Value.Type,
-         default defaultValue: Value,
-         validations: Validation<Value>...) {
+    init<D: Codable>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+                     as: D.Type,
+                     validations: Validation<Value>...) where Value == D? {
 
         self.init(
             keyPath,
-            defaultValue: defaultValue,
-            outputConversion: { data in
-                if let data = data, let value = Value(data: data) {
-                    return .success(value)
-                } else {
-                    return .success(defaultValue)
-                }
-            },
-            storeConversion: {
-                if let data = $0.data {
-                    return.success(data)
-                } else {
-                    return .failure(.outputConversion)
-                }
-            },
-            validations: validations
-        )
-    }
-
-    /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         output: Value.Type,
-         default defaultValue: Value,
-         storeAs storeFunction: @escaping ((Value) -> Data?),
-         validations: Validation<Value>...) {
-
-        self.init(
-            keyPath,
-            defaultValue: defaultValue,
-            outputConversion: { data in
-                if let data = data, let value = Value(data: data) {
-                    return .success(value)
-                } else {
-                    return .success(defaultValue)
-                }
-            },
-            storeConversion: {
-                if let data = storeFunction($0) {
-                    return.success(data)
-                } else {
-                    return .failure(.outputConversion)
-                }
-            },
-            validations: validations
-        )
-    }
-
-    /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         output: Value.Type,
-         default defaultValue: Value,
-         storeAs storeKeyPath: KeyPath<Value, Data?>,
-         validations: Validation<Value>...) {
-
-        self.init(
-            keyPath,
-            defaultValue: defaultValue,
-            outputConversion: { data in
-                if let data = data, let value = Value(data: data) {
-                    return .success(value)
-                } else {
-                    return .success(defaultValue)
-                }
-            },
-            storeConversion: {
-                if let data = $0[keyPath: storeKeyPath] {
-                    return.success(data)
-                } else {
-                    return .failure(.outputConversion)
-                }
-            },
-            validations: validations
-        )
-    }
-}
-
-// MARK: - Data (optional)
-
-public extension FieldInterfaceProtocol where FieldValue == Data?,
-                                              Value: ExpressibleByNilLiteral,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == CoreDataCandyError {
-
-    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                             output: D.Type,
-                             validations: Validation<Value>...) where Value == D? {
-
-        self.init(
-            keyPath,
-            defaultValue: nil,
             outputConversion: { data in
                 guard let data = data else {
-                    return .success(nil)
+                    return nil
                 }
-                guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
+
+                do {
+                    let value = try JSONDecoder().decode(D.self, from: data)
+                    return value
+                } catch {
+                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
                 }
-                return .success(value)
             },
             storeConversion: { value in
-                guard let data = value?.data else {
-                    return .failure(.storeConversion)
+                do {
+                    let data = try JSONEncoder().encode(value)
+                    return data
+                } catch {
+                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
                 }
-                return .success(data)
-            },
-            validations: validations
-        )
-    }
-
-    /// - parameter storeAs: Specify here a closure returning `Data` to save the value to the database with a different value than the default `data` one
-    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                             output: D.Type,
-                             storeAs storeFunction: @escaping ((D) -> Data?),
-                             validations: Validation<Value>...) where Value == D? {
-
-        self.init(
-            keyPath,
-            defaultValue: nil,
-            outputConversion: { data in
-                guard let data = data else {
-                    return .success(nil)
-                }
-                guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
-                }
-                return .success(value)
-            },
-            storeConversion: { value in
-                guard let value = value else {
-                    return .success(nil)
-                }
-                guard let data = storeFunction(value) else {
-                    return .failure(.storeConversion)
-                }
-                return .success(data)
-            },
-            validations: validations
-        )
-    }
-
-    /// - parameter storeAs: Specify here a key path to a `Data` property to save the value to the database with a different value than the default `data` one
-    init<D: DataConvertible>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                             output: D.Type,
-                             storeAs storeKeyPath: KeyPath<D, Data?>,
-                             validations: Validation<Value>...) where Value == D? {
-
-        self.init(
-            keyPath,
-            defaultValue: nil,
-            outputConversion: { data in
-                guard let data = data else {
-                    return .success(nil)
-                }
-                guard let value = D(data: data) else {
-                    return .failure(.outputConversion)
-                }
-                return .success(value)
-            },
-            storeConversion: { value in
-                guard let value = value else {
-                    return .success(nil)
-                }
-                guard let data = value[keyPath: storeKeyPath] else {
-                    return .failure(.storeConversion)
-                }
-                return .success(data)
             },
             validations: validations
         )
     }
 }
 
-// MARK: - NSObject
+// MARK: Data with default value
 
-// MARK: Default
-
-extension FieldInterfaceProtocol where FieldValue == NSObject,
-                                       Value: NSObject,
-                                       OutputError == Never,
-                                       StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codable {
 
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         output: Value.Type,
-         default defaultValue: Value,
-         validations: Validation<Value>...) {
+                     as: Value.Type,
+                     default defaultValue: Value,
+                     validations: Validation<Value>...) {
 
         self.init(
             keyPath,
-            defaultValue: defaultValue,
-            outputConversion: { .success($0 as? Value ?? defaultValue) },
-            storeConversion: { .success($0) },
+            outputConversion: { data in
+                guard let data = data else {
+                    return defaultValue
+                }
+
+                do {
+                    let value = try JSONDecoder().decode(Value.self, from: data)
+                    return value
+                } catch {
+                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+                }
+            },
+            storeConversion: { value in
+                do {
+                    let data = try JSONEncoder().encode(value)
+                    return data
+                } catch {
+                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                }
+            },
             validations: validations
         )
     }
 }
 
-// MARK: Error (no default)
+// MARK: - Codable convertible
 
-public extension FieldInterfaceProtocol where FieldValue == NSObject,
-                                              Value: NSObject,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
-    init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-         output: Value.Type,
-         validations: Validation<Value>...) {
+    init<Convertible: CodableConvertible>(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: Convertible.Type,
+        validations: Validation<Value>...) where Value == Convertible? {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: {
-                guard let outputValue = $0 as? Value else {
-                    return .failure(.outputConversion)
-                }
+            outputConversion: { data in
+                guard let data = data else { return nil }
 
-                return .success(outputValue)
+                do {
+                    let value = try JSONDecoder().decode(Convertible.CodableModel.self, from: data)
+                    return value.converted
+                } catch {
+                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+                }
             },
-            storeConversion: { .success($0) },
+            storeConversion: { value in
+                guard let value = value else { return nil }
+                do {
+                    let data = try JSONEncoder().encode(value.codableModel)
+                    return data
+                } catch {
+                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                }
+            },
             validations: validations
         )
     }
 }
 
-// MARK: Optional NSObject
+// MARK: - RawRepresentable
 
-public extension FieldInterfaceProtocol where FieldValue == NSObject?,
-                                              Value: ExpressibleByNilLiteral,
-                                              OutputError == CoreDataCandyError,
-                                              StoreError == Never {
+public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLiteral,
+                                              Value: ExpressibleByNilLiteral {
 
-    init<O: NSObject>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                      output: Value.Type,
-                      validations: Validation<Value>...) where Value == O? {
+    init<R: RawRepresentable>(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: R.Type,
+        validations: Validation<R>...) where Value == R?, FieldValue == R.RawValue? {
 
         self.init(
             keyPath,
-            defaultValue: nil,
-            outputConversion: { object in
-                if let object = object as? Value {
-                    return .success(object)
-                } else {
-                    return .failure(.outputConversion)
+            outputConversion: { rawValue in
+                guard let rawValue = rawValue else { return nil }
+
+                guard let value = R(rawValue: rawValue) else {
+                    preconditionFailure("Instantiation of \(R.self) from the raw value \(rawValue) failed")
                 }
+                return value
             },
-            storeConversion: { .success($0) },
+            storeConversion: { value in
+                guard let value = value else { return nil }
+                return value.rawValue
+            },
+            validations: validations
+        )
+    }
+}
+
+public extension FieldInterfaceProtocol where Value: RawRepresentable,
+                                              Value.RawValue == FieldValue {
+
+    init(
+        _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
+        as: Value.Type,
+        validations: Validation<Value>...) {
+
+        self.init(
+            keyPath,
+            outputConversion: { rawValue in
+                guard let value = Value(rawValue: rawValue) else {
+                    preconditionFailure("Instantiation of \(Value.self) from the raw value \(rawValue) failed")
+                }
+                return value
+            },
+            storeConversion: { $0.rawValue },
             validations: validations
         )
     }

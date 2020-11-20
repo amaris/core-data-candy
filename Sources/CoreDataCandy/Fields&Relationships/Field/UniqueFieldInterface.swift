@@ -1,38 +1,35 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 
 /// A field that has to be is unique in the entity table
-public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: FetchableEntity, OutputError: ConversionError, StoreError: Error>: FieldInterfaceProtocol {
+public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, Value, Entity: DatabaseEntity>: FieldInterfaceProtocol {
 
     // MARK: - Constants
 
-    public typealias OutputConversion = (FieldValue) -> Result<Value, OutputError>
-    public typealias StoreConversion = (Value) -> Result<FieldValue, StoreError>
+    public typealias OutputConversion = (FieldValue) -> Value
+    public typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
     public let keyPath: ReferenceWritableKeyPath<Entity, FieldValue>
-    public let defaultValue: Value?
     public let outputConversion: OutputConversion
     public let storeConversion: StoreConversion
     public let validation: Validation<Value>
 
     // MARK: - Initialisation
 
-    public init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>, defaultValue: Value?,
+    public init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
          outputConversion: @escaping OutputConversion, storeConversion: @escaping StoreConversion,
          validations: [Validation<Value>]) {
         self.keyPath = keyPath
-        self.defaultValue = defaultValue
         self.outputConversion = outputConversion
         self.storeConversion = storeConversion
         self.validation = Validation<Value> { value in
-            try validations.forEach {
-                try $0.validate(value)
-            }
+            try validations.forEach { try $0.validate(value) }
         }
     }
 
@@ -52,15 +49,9 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     /// Returns the given value as a stored `FieldValue` while ensuring its unicity
     @discardableResult
     func uniqueStoredValue(for value: Value, in context: NSManagedObjectContext) throws -> FieldValue {
-        let storeConverted = storeConversion(value)
-        let storedValue: FieldValue
+        let storedValue = storeConversion(value)
 
-        switch storeConverted {
-        case .success(let value): storedValue = value
-        case .failure(let error): throw error
-        }
-
-        if try Entity.fetch(.first(), where: keyPath == storedValue, in: context) != nil {
+        if try Entity.request().first().where(keyPath == storedValue).fetch(in: context) != nil {
             let field = keyPath.label.components(separatedBy: ".").last ?? ""
             throw CoreDataCandyError.existingUnique(field: field, value: String(describing: value), model: Entity.modelName)
         }
@@ -69,11 +60,11 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     }
 }
 
-public extension DatabaseModel where Entity: FetchableEntity {
+public extension DatabaseModel where Entity: DatabaseEntity {
 
     /// A field that has to be unique in the entity when compared to others
     typealias
-        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value, OutputError: ConversionError, StoreError: Error>
+        UniqueField<FieldValue: DatabaseFieldValue & Equatable, Value>
         =
-        UniqueFieldInterface<FieldValue, Value, Entity, OutputError, StoreError>
+        UniqueFieldInterface<FieldValue, Value, Entity>
 }

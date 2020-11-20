@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 import Combine
@@ -29,23 +30,23 @@ extension ChildrenInterfaceProtocol {
 
     public func add(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.add(child.entity)
+        children.add(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 
     public func remove(_ child: ChildModel, on entity: Entity) {
         let children = mutableStorage(from: entity)
-        children.remove(child.entity)
+        children.remove(child._entityWrapper.entity)
         entity[keyPath: keyPath] = children.immutable
     }
 }
 
-extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
+public extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.Entity: NSManagedObject {
 
-    public typealias Output = [ChildModel]
-    public typealias OutputError = Never
+    typealias Output = [ChildModel]
+    typealias StoreConversionError = Never
 
-    public func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
+    func publisher(for entity: Entity) -> AnyPublisher<Output, Never> {
         entity.publisher(for: keyPath)
             .replaceNil(with: .init())
             .map(\.array)
@@ -53,23 +54,25 @@ extension ChildrenInterfaceProtocol where Entity: NSManagedObject, ChildModel.En
             .eraseToAnyPublisher()
     }
 
-    func childModels(from entities: [Any]) -> Output {
-        entities.map(childModel)
-    }
+    private func childModels(from entities: [Any]) -> Output { entities.map(childModel) }
 
-    func childModel(from entity: Any) -> ChildModel {
+    private func childModel(from entity: Any) -> ChildModel {
         guard let entity = entity as? ChildModel.Entity else {
             preconditionFailure("The children are not of type \(ChildModel.Entity.self)")
         }
         return ChildModel(entity: entity)
     }
+
+    func currentValue(on entity: Entity) -> Output {
+        entity[keyPath: keyPath]?.array.map(childModel) ?? []
+    }
 }
 
-public extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: FetchableEntity {
+extension ChildrenInterfaceProtocol where Self: FieldPublisher, Self.Output == [ChildModel], ChildModel.Entity: DatabaseEntity, Entity: NSManagedObject {
 
-    func publisher<Value: Comparable>(for entity: Entity, sortedBy sort: Sort<ChildModel.Entity, Value>) -> AnyPublisher<Output, OutputError> {
+    func publisher(for entity: Entity, sortedBy sorts: [Sort<ChildModel.Entity>]) -> AnyPublisher<Output, Never> {
         publisher(for: entity)
-            .sorted(with: sort)
+            .sorted(by: sorts)
             .eraseToAnyPublisher()
     }
 }

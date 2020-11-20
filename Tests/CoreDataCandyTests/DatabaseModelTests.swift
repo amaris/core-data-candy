@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import XCTest
 import Combine
@@ -18,32 +19,31 @@ final class DatabaseModelTests: XCTestCase {
     func testAssign() throws {
         let model = StubModel()
 
-        try model.assign("Hello", to: \.property)
+        model.assign("Hello", to: \.property)
 
-        XCTAssertEqual(model.entity.property, "Hello")
+        XCTAssertEqual(model.current(\.property), "Hello")
     }
 
-    func testValidateAssign_ValidateWrongValueThrows() throws {
+    func testValidate_ValidateWrongValueThrows() throws {
         let model = StubModel()
 
-        XCTAssertThrowsError(try model.assign("Yo", to: \.property))
+        XCTAssertThrowsError(try model.validate("Yo", for: \.property))
     }
 
     func testToggle() throws {
         let model = StubModel()
 
-        try model.toggle(\.flag)
+        model.toggle(\.flag)
 
-        XCTAssertEqual(model.entity.flag, true)
+        XCTAssertEqual(model.current(\.flag), true)
     }
 
-    func testValidateAssignWithPublisher() throws {
+    func testValidateAndAssignWithPublisher() throws {
         let model = StubModel()
 
         Just("Hello")
-            .tryAssign(to: \.property, on: model)
-            .sink { _ in  }
-                receiveValue: { (_) in XCTAssertEqual(model.entity.property, "Hello") }
+            .tryValidate(for: \.property, on: model)
+            .assign(to: \.property, on: model) { _ in }
             .store(in: &subscriptions)
     }
 
@@ -51,7 +51,7 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just("Yo")
-            .tryAssign(to: \.property, on: model)
+            .tryValidate(for: \.property, on: model)
             .sink { completion in
                 guard case .failure = completion else {
                     XCTFail()
@@ -65,43 +65,43 @@ final class DatabaseModelTests: XCTestCase {
         let model = StubModel()
 
         Just(())
-            .tryToggle(\.flag, on: model)
-            .sink { (_) in
-                XCTAssertEqual(model.entity.flag, true)
-            } receiveValue: { (_) in }
+            .handleEvents(receiveCompletion: { _ in
+                XCTAssertEqual(model.current(\.flag), true)
+            })
+            .toggle(\.flag, on: model)
             .store(in: &subscriptions)
     }
 
-    func testPublisherToggl_SeveralTimes() throws {
+    func testPublisherToggle_SeveralTimes() throws {
         let model = StubModel()
 
-        [1, 2, 3, 4].publisher
-            .tryToggle(\.flag, on: model)
-            .sink { (_) in
-                XCTAssertEqual(model.entity.flag, false)
-            } receiveValue: { (_) in }
+        [(), (), (), ()].publisher
+            .handleEvents(receiveCompletion: { _ in
+                XCTAssertEqual(model.current(\.flag), false)
+            })
+            .toggle(\.flag, on: model)
             .store(in: &subscriptions)
     }
 }
 
 extension DatabaseModelTests {
 
-    final class StubEntity: NSManagedObject, FetchableEntity {
-
-        static var modelName = "Sutbentity"
+    final class StubEntity: NSManagedObject, DatabaseEntity {
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
         }
 
-        @objc let score = 0.0
+        @objc var children: NSSet?
         @objc var flag = false
-        @objc var property: String = ""
+        @objc var property: String? = ""
     }
 
     struct StubModel: DatabaseModel {
-        var entity = StubEntity()
 
+        let _entityWrapper = EntityWrapper(entity: StubEntity())
+
+        let children = Children(\.children, as: StubModel.self)
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
 

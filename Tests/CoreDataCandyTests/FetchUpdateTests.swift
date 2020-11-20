@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import XCTest
 import CoreData
@@ -25,7 +26,7 @@ final class FetchUpdateTests: XCTestCase {
             .sink { (_) in
                 XCTAssertEqual(results.flatMap { $0.map(\.property) }, expectedResults.flatMap { $0.map(\.property) })
             } receiveValue: {
-                results.append($0.map(\.entity))
+                results.append($0.map(\._entityWrapper.entity))
             }
             .store(in: &subscriptions)
 
@@ -38,8 +39,7 @@ final class FetchUpdateTests: XCTestCase {
 
 extension FetchUpdateTests {
 
-    final class StubEntity: NSManagedObject, FetchableEntity {
-        static var modelName = "SutbEntity"
+    final class StubEntity: NSManagedObject, DatabaseEntity {
 
         static func fetchRequest() -> NSFetchRequest<StubEntity> {
             NSFetchRequest<StubEntity>(entityName: "Stub")
@@ -56,16 +56,14 @@ extension FetchUpdateTests {
     }
 
     struct StubModel: DatabaseModel {
-        var entity = StubEntity()
+        let _entityWrapper: EntityWrapper<StubEntity>
 
         let property = Field(\.property, validations: .doesNotContain("Yo"))
         let flag = Field(\.flag)
 
         init(entity: StubEntity) {
-            self.entity = entity
+            _entityWrapper = EntityWrapper(entity: entity)
         }
-
-        init() {}
     }
 
     final class FetchResultsControllerMock: NSFetchedResultsController<StubEntity> {

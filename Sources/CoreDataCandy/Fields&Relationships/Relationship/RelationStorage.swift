@@ -1,9 +1,11 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import Foundation
 
+/// Abstract protocol for `NSSet` and `NSOrderedSet` when working with managed object relationships
 public protocol RelationStorage {
     init()
     var array: [Any] { get }
@@ -16,9 +18,11 @@ extension NSSet: RelationStorage {
 
 extension NSOrderedSet: RelationStorage {}
 
+/// Abstract protocol for `NSMutableSet` and `NSMutableOrderedSet` when working with managed object relationships
 public protocol RelationMutableStorage {
     associatedtype Immutable: RelationStorage
 
+    /// The immutable counterpart of the mutable storage
     var immutable: Immutable { get }
 
     init()

@@ -1,33 +1,28 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
-import Combine
 
 /// Holds a CoreData entity and hide the work with the CoreData context while offering Swift types to work with
-public protocol DatabaseModel: Fetchable, Hashable {
+public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible {
     associatedtype Entity: DatabaseEntity
 
-    var entity: Entity { get }
+    /// This wrapper will be used internally by the API and cannot be used outside.
+    /// Its purpose is to hide the `entity` from the rest of the app.
+    /// The only requirement is to instantiate it in the  `init(entity:)` initializer.
+    var _entityWrapper: EntityWrapper<Entity> { get }
 
-    init<E: NSManagedObject>(entity: E) where E == Entity
-}
+    /// Instantiate the `DatabaseModel`. It's the oppurtinity to perform
+    /// some code on the `entity` if needed, as the `entity` will then be hidden
+    /// behind the `_entityWrapper`
+    init(entity: Entity)
+ }
 
 extension DatabaseModel {
 
-    func saveEntityContext() throws {
-        guard
-            let context = entity.managedObjectContext,
-            context.hasChanges
-        else { return }
-
-        do {
-            try context.save()
-        } catch {
-            throw CoreDataCandyError.unableToSaveContext(reason: error.localizedDescription)
-        }
-    }
+    var entity: Entity { _entityWrapper.entity }
 }
 
 public extension DatabaseModel where Entity: NSManagedObject {
@@ -35,7 +30,6 @@ public extension DatabaseModel where Entity: NSManagedObject {
     func remove() throws {
         let context = entity.managedObjectContext
         context?.delete(entity)
-        try saveEntityContext()
     }
 }
 
@@ -52,10 +46,18 @@ public extension DatabaseModel {
     }
 }
 
-public extension DatabaseModel {
+// MARK: - Description
 
-    /// The current value of the given field
-    func currentValue<F: FieldModifier>(for keyPath: KeyPath<Self, F>) throws -> F.Value where F.Entity == Entity {
-        try self[keyPath: keyPath].currentValue(in: entity)
+extension DatabaseModel where Entity: NSManagedObject {
+
+    /// Textual representation of the entity attributes
+    public var debugDescription: String {
+        let entityDescription = entity.description
+
+        guard let range = entityDescription.range(of: #"\{(.|\s)+\}"#, options: .regularExpression) else {
+            return "Fault data"
+        }
+
+        return String(describing: Self.self) + " " + entityDescription[range]
     }
 }

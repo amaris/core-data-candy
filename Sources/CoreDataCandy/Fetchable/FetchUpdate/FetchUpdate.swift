@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 import Combine
@@ -8,7 +9,7 @@ import Combine
 extension Publishers {
 
     /// Tranforms a fetch controller delegate functions to a publisher
-    struct FetchUpdate<Model: DatabaseModel>: Publisher where Model.Entity: FetchableEntity {
+    struct FetchUpdate<Model: DatabaseModel>: Publisher {
 
         typealias Output = [Model]
         typealias Failure = Never
@@ -31,7 +32,7 @@ extension Publishers {
 }
 
 final class FetchUpdateSubscription<S: Subscriber, M: DatabaseModel>: NSObject, NSFetchedResultsControllerDelegate, Subscription
-where S.Input == [M], M.Entity: FetchableEntity {
+where S.Input == [M] {
 
     var subscriber: S?
     var requested: Subscribers.Demand = .none
@@ -65,11 +66,10 @@ where S.Input == [M], M.Entity: FetchableEntity {
     }
 
     private func sendFetchedObjectsUpdate() {
-        guard let objects = fetchController.fetchedObjects else {
-            return
-        }
-
-        guard requested > .none else { return }
+        guard
+            let objects = fetchController.fetchedObjects,
+            requested > .none
+        else { return }
 
         requested -= .max(1)
         _ = subscriber?.receive(objects.map(M.init))

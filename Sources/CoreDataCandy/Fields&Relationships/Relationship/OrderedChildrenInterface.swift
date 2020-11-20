@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 import CoreData
 import Combine
@@ -42,5 +43,7 @@ extension OrderedChildrenInterface: FieldPublisher where
     ChildModel.Entity: NSManagedObject {}
 
 public extension DatabaseModel {
+
+    /// Relationship one to many (ordered)
     typealias OrderedChildren<ChildModel: DatabaseModel> = OrderedChildrenInterface<Entity, ChildModel>
 }

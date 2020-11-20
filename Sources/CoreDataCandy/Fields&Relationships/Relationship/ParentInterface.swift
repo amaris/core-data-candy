@@ -1,6 +1,7 @@
 //
+// CoreDataCandy
 // Copyright © 2018-present Amaris Software.
-//
+// MIT license, see LICENSE file for details
 
 /// Relationship many to one
 public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel>: ParentInterfaceProtocol {
@@ -13,5 +14,7 @@ public struct ParentInterface<Entity: DatabaseEntity, ParentModel: DatabaseModel
 }
 
 public extension DatabaseModel {
+
+    /// Relationship many to one
     typealias Parent<ParentModel: DatabaseModel> = ParentInterface<Entity, ParentModel>
 }
