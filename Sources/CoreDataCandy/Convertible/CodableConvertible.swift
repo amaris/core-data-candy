@@ -9,6 +9,7 @@ import Foundation
 public protocol CodableConvertibleModel: Codable {
     associatedtype Convertible: CodableConvertible
 
+    /// The  `CodableConvertible` to output
     var converted: Convertible { get }
 }
 
@@ -16,5 +17,6 @@ public protocol CodableConvertibleModel: Codable {
 public protocol CodableConvertible {
     associatedtype CodableModel: CodableConvertibleModel where CodableModel.Convertible == Self
 
+    /// The  `CodableConvertibleModel` to store
     var codableModel: CodableModel { get }
 }

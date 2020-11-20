@@ -11,14 +11,14 @@ Core Data is a great tool. Although, with the years, we felt some features were 
 The first tool is a way to map a Core Data entity class, a `NSManagedObject` into a friendlier object - a `DatabaseModel`.  That' the mapping part. This protocol can be implemented by structures or classes and offers a way to declare the mapping: a field with validation, a relationship one to many with conversion (bye-bye NSSet!) or even publishers for an entity (holding a `NSFetchResultsController`). The goal is really to work with friendly faces, and to use the model editor as little as possible.
 
 #### Fetching
-The second tool this library has to offer is easy fetching. `NSPredicate`s and `NSSortDescriptor`s are very powerful, though not safe. You cannot know whether a request will fail and potentially cause a program exit before executing it. And mistakes happen, especially with strings. That is why the library will make it easier and safer to specify a predicate based on key paths, to specify a target when fetching, to specify a way to sort the data.
+The second tool this library has to offer is easy fetching. `NSPredicate`s and `NSSortDescriptor`s are very powerful, though not safe. You cannot know whether a request will fail and potentially cause a program exit before executing it. And mistakes happen, especially with strings. That is why the library will make it easier and safer to specify a predicate based on key paths, to specify a target when fetching, or to specify a way to sort the data.
 
 In a word, Core Data is powerful yet sometimes complex, so let's make it as sweet as candy.
 
 ## Overview
 Before you dive into the [wiki](https://github.com/amaris/core-data-candy/wiki), you might to know what the words above mean. Here is a short overview.
 
-Given an entity in a CoreData model:
+Given an entity in a Core Data model:
 
 ```swift
 class PlayerEntity: NSManagedObject {
@@ -29,7 +29,7 @@ class PlayerEntity: NSManagedObject {
     @NSManaged var avatar: Data?
 }
 ```
-It's possible to declare a mapping model `Player` to interface the entity with more friendly types, after having declared the conformance of `PlayerEntity` to `DatabaseEntity`.
+It's possible to declare a mapping model `Player` to interface the entity with more friendly types, after having declared the conformance of  `PlayerEntity` to `DatabaseEntity`.
 
 ```swift
 extension PlayerEntity: DatabaseEntity {}
@@ -62,7 +62,7 @@ Player.request()
 Player.request()
     .all(after: 10)
     .where(\.age, .isIn(18...70))
-    .sorted(by: .ascending(\.age), .descending\.name))
+    .sorted(by: .ascending(\.age), .descending(\.name))
     .fetch(in: context) // output: [Player]
     
 Player.request()
