@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [0.2.1](https://github.com/amaris/core-data-candy/tree/0.2.1) (23/11/2020)
+
+### Fixed
+- `Validation.init` now public
+
 ## [0.2.0](https://github.com/amaris/core-data-candy/tree/0.2.0) (20/11/2020)
 
 ### Added
