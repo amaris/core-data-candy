@@ -18,16 +18,16 @@ public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible
     /// some code on the `entity` if needed, as the `entity` will then be hidden
     /// behind the `_entityWrapper`
     init(entity: Entity)
- }
+}
 
 extension DatabaseModel {
 
     var entity: Entity { _entityWrapper.entity }
 }
 
-public extension DatabaseModel where Entity: NSManagedObject {
+public extension DatabaseModel {
 
-    func remove() throws {
+    func remove() {
         let context = entity.managedObjectContext
         context?.delete(entity)
     }
