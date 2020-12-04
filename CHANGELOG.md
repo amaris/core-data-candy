@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [0.2.2](https://github.com/amaris/core-data-candy/tree/0.2.2) (04/12/2020)
+
+### Fixed
+- `DatabaseModel.remove` useless `throws` deleted [#18]
+
 ## [0.2.1](https://github.com/amaris/core-data-candy/tree/0.2.1) (23/11/2020)
 
 ### Fixed
