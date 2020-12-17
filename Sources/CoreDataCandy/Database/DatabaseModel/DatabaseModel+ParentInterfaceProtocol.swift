@@ -20,4 +20,16 @@ public extension DatabaseModel {
     where P.Entity == Entity, F.Entity == P.ParentModel.Entity, F.Value: ExpressibleByNilLiteral {
         self[keyPath: parentKeyPath].current(valueKeyPath, on: entity)
     }
+
+    /// Get the current parent of the model
+    func parent<P: ParentInterfaceProtocol>(_ keyPath: KeyPath<Self, P>)
+    -> P.ParentModel?
+    where P.Entity == Entity {
+
+        let parentKeyPath = self[keyPath: keyPath].keyPath
+        guard let parentEntity = entity[keyPath: parentKeyPath] else {
+            return nil
+        }
+        return P.ParentModel(entity: parentEntity)
+    }
 }
