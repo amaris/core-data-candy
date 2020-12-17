@@ -5,6 +5,10 @@
 
 import Foundation
 
+private func preconditionFailureNoFallback(_ errorMessage: String) -> Never {
+    preconditionFailure("\(errorMessage). No fallback value provided")
+}
+
 // MARK: - Identity
 
 public extension FieldInterfaceProtocol where FieldValue == Value {
@@ -104,22 +108,31 @@ public extension FieldInterfaceProtocol where FieldValue == Int64, Value == Int 
 
 public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
+    /// - parameter fallback: If specified, this value will be used when it's not possible to decode the data as the given type rather than exiting with a `preconditionFailure`
     init<D: Codable>(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
                      as: D.Type,
+                     fallback fallbackValue: Value = nil,
                      validations: Validation<Value>...) where Value == D? {
+
+        var conversionError: ConversionError?
 
         self.init(
             keyPath,
             outputConversion: { data in
-                guard let data = data else {
-                    return nil
-                }
+                guard let data = data else { return nil }
 
                 do {
                     let value = try JSONDecoder().decode(D.self, from: data)
                     return value
                 } catch {
-                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+                    let errorMessage = "Error while decoding Data as \(Value.self). \(error.localizedDescription)"
+
+                    if let fallback = fallbackValue {
+                        conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                        return fallback
+                    } else {
+                        preconditionFailureNoFallback(errorMessage)
+                    }
                 }
             },
             storeConversion: { value in
@@ -127,11 +140,17 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
                     let data = try JSONEncoder().encode(value)
                     return data
                 } catch {
-                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                    let errorMessage = "Error while encoding Data from \(Value.self). \(error.localizedDescription)"
+                    conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                    return nil
                 }
             },
             validations: validations
         )
+
+        if let error = conversionError, let errorConversionObserved = self as? ConversionErrorObservable {
+            errorConversionObserved.errorSubject.send(error)
+        }
     }
 }
 
@@ -139,23 +158,33 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
 
 public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codable {
 
+    /// - parameter fallback: If specified, this value will be used when it's not possible to decode the data as the given type rather than exiting with a `preconditionFailure`
     init(_ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
-                     as: Value.Type,
-                     default defaultValue: Value,
-                     validations: Validation<Value>...) {
+         as: Value.Type,
+         default defaultValue: Value,
+         fallback fallbackValue: Value? = nil,
+         validations: Validation<Value>...) {
+
+        var conversionError: ConversionError?
 
         self.init(
             keyPath,
             outputConversion: { data in
-                guard let data = data else {
-                    return defaultValue
-                }
+                guard let data = data else { return defaultValue }
 
                 do {
                     let value = try JSONDecoder().decode(Value.self, from: data)
                     return value
                 } catch {
-                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+
+                    let errorMessage = "Error while decoding Data as \(Value.self). \(error.localizedDescription)"
+
+                    if let fallback = fallbackValue {
+                        conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                        return fallback
+                    } else {
+                        preconditionFailureNoFallback(errorMessage)
+                    }
                 }
             },
             storeConversion: { value in
@@ -163,11 +192,17 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codabl
                     let data = try JSONEncoder().encode(value)
                     return data
                 } catch {
-                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                    let errorMessage = "Error while encoding Data from \(Value.self). \(error.localizedDescription)"
+                    conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                    return nil
                 }
             },
             validations: validations
         )
+
+        if let error = conversionError, let errorConversionObserved = self as? ConversionErrorObservable {
+            errorConversionObserved.errorSubject.send(error)
+        }
     }
 }
 
@@ -175,10 +210,14 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Codabl
 
 public extension FieldInterfaceProtocol where FieldValue == Data?, Value: ExpressibleByNilLiteral {
 
+    /// - parameter fallback: If specified, this value will be used when it's not possible to decode the data as the given type rather than exiting with a `preconditionFailure`
     init<Convertible: CodableConvertible>(
         _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
         as: Convertible.Type,
+        fallback fallbackValue: Convertible? = nil,
         validations: Validation<Value>...) where Value == Convertible? {
+
+        var conversionError: ConversionError?
 
         self.init(
             keyPath,
@@ -189,7 +228,14 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
                     let value = try JSONDecoder().decode(Convertible.CodableModel.self, from: data)
                     return value.converted
                 } catch {
-                    preconditionFailure("Error while decoding Data as \(Value.self). \(error.localizedDescription)")
+                    let errorMessage = "Error while decoding Data as \(Value.self). \(error.localizedDescription)"
+
+                    if let fallback = fallbackValue {
+                        conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                        return fallback
+                    } else {
+                        preconditionFailureNoFallback(errorMessage)
+                    }
                 }
             },
             storeConversion: { value in
@@ -198,11 +244,17 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
                     let data = try JSONEncoder().encode(value.codableModel)
                     return data
                 } catch {
-                    preconditionFailure("Error while encoding \(Value.self) as Data. \(error.localizedDescription)")
+                    let errorMessage = "Error while encoding Data from \(Value.self). \(error.localizedDescription)"
+                    conversionError = .decodingError(keyPath: keyPath, description: errorMessage)
+                    return nil
                 }
             },
             validations: validations
         )
+
+        if let error = conversionError, let errorConversionObserved = self as? ConversionErrorObservable {
+            errorConversionObserved.errorSubject.send(error)
+        }
     }
 }
 
@@ -211,20 +263,29 @@ public extension FieldInterfaceProtocol where FieldValue == Data?, Value: Expres
 public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLiteral,
                                               Value: ExpressibleByNilLiteral {
 
+    /// - parameter fallback: If specified, this value will be used when it's not possible to decode the data as the given type rather than exiting with a `preconditionFailure`
     init<R: RawRepresentable>(
         _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
         as: R.Type,
+        fallback fallbackValue: Value = nil,
         validations: Validation<R>...) where Value == R?, FieldValue == R.RawValue? {
+
+        var conversionError: ConversionError?
 
         self.init(
             keyPath,
             outputConversion: { rawValue in
                 guard let rawValue = rawValue else { return nil }
+                let errorMessage = "Instantiation of \(R.self) from the raw value \(rawValue) failed"
 
-                guard let value = R(rawValue: rawValue) else {
-                    preconditionFailure("Instantiation of \(R.self) from the raw value \(rawValue) failed")
+                if let value = R(rawValue: rawValue) {
+                    return value
+                } else if let fallback = fallbackValue {
+                    conversionError = .rawRepresentable(keyPath: keyPath, description: errorMessage)
+                    return fallback
+                } else {
+                    preconditionFailureNoFallback(errorMessage)
                 }
-                return value
             },
             storeConversion: { value in
                 guard let value = value else { return nil }
@@ -232,27 +293,46 @@ public extension FieldInterfaceProtocol where FieldValue: ExpressibleByNilLitera
             },
             validations: validations
         )
+
+        if let error = conversionError, let errorConversionObserved = self as? ConversionErrorObservable {
+            errorConversionObserved.errorSubject.send(error)
+        }
     }
 }
 
 public extension FieldInterfaceProtocol where Value: RawRepresentable,
                                               Value.RawValue == FieldValue {
 
+    /// - parameter fallback: If specified, this value will be used when it's not possible to decode the data as the given type rather than exiting with a `preconditionFailure`
     init(
         _ keyPath: ReferenceWritableKeyPath<Entity, FieldValue>,
         as: Value.Type,
+        fallback fallbackValue: Value? = nil,
         validations: Validation<Value>...) {
+
+        var conversionError: ConversionError?
 
         self.init(
             keyPath,
             outputConversion: { rawValue in
-                guard let value = Value(rawValue: rawValue) else {
-                    preconditionFailure("Instantiation of \(Value.self) from the raw value \(rawValue) failed")
+
+                let errorMessage = "Instantiation of \(Value.self) from the raw value \(rawValue) failed"
+
+                if let value = Value(rawValue: rawValue) {
+                    return value
+                } else if let fallback = fallbackValue {
+                    conversionError = .rawRepresentable(keyPath: keyPath, description: errorMessage)
+                    return fallback
+                } else {
+                    preconditionFailureNoFallback(errorMessage)
                 }
-                return value
             },
             storeConversion: { $0.rawValue },
             validations: validations
         )
+
+        if let error = conversionError, let errorConversionObserved = self as? ConversionErrorObservable {
+            errorConversionObserved.errorSubject.send(error)
+        }
     }
 }
