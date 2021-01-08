@@ -6,7 +6,7 @@
 import Foundation
 
 /// Value type that a CoreData attribute can take
-public protocol DatabaseFieldValue {}
+public protocol DatabaseFieldValue: Equatable {}
 
 extension Bool: DatabaseFieldValue {}
 extension Date: DatabaseFieldValue {}
