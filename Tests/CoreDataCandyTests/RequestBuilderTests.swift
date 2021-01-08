@@ -3,6 +3,7 @@
 // Copyright © 2018-present Amaris Software.
 // MIT license, see LICENSE file for details
 
+import CoreData
 @testable import CoreDataCandy
 import XCTest
 
