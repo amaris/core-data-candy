@@ -18,6 +18,7 @@ public protocol SortableStep {}
 public protocol SettingsStep {}
 
 // Creation → Target → Predicate → Sort
+
 /// The request has been created
 public enum CreationStep: FetchRequestStep {}
 /// The request has a target

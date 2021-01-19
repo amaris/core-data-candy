@@ -14,7 +14,7 @@ public protocol DatabaseEntity: NSManagedObject, Fetchable {
 
     /// The associated Database model name for fetching to be used when throwing a detailed error.
     /// A default implementation is provided, which is useful when the entity is name accordingly
-    /// to its `DatabaseModel` counterpart with an 'Entity' suffix (e.g. 'PlayerEntity')
+    /// to its `DatabaseModel` counterpart with an 'Entity' suffix (e.g. 'PlayerEntity' for the model 'Player')
     static var modelName: String { get }
 }
 
