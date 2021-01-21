@@ -6,15 +6,8 @@
 import Combine
 import CoreData
 
-extension DatabaseModel where Entity: DatabaseEntity {
-
-    /// Publisher for the entity table updates in Core Data
-    /// - Parameters:
-    ///   - sort: Required sort
-    ///   - additionalSorts: Additional sorts
-    ///   - request: A request to use rather than the default one
-    ///   - context: The context where to fetch
-    /// - Returns: An array of the published models
+extension DatabaseModel {
+    
     public static func updatePublisher(
         sortingBy sort: SortDescriptor<Entity>,
         _ additionalSorts: SortDescriptor<Entity>...,

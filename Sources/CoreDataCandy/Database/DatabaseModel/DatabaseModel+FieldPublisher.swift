@@ -7,7 +7,6 @@ import Combine
 
 public extension DatabaseModel {
 
-    /// Publisher for the given field
     func publisher<F: FieldPublisher>(for keyPath: KeyPath<Self, F>) -> AnyPublisher<F.Output, Never>
     where F.Entity == Entity {
         self[keyPath: keyPath].publisher(for: entity)
