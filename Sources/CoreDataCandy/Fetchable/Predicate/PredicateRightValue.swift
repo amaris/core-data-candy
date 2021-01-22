@@ -7,7 +7,13 @@ import CoreData
 
 /// An operator and its right operand for a predicate, with no key path.
 public struct PredicateRightValue<Entity: NSManagedObject, Value: DatabaseFieldValue, TestValue> {
-    public let predicate: (KeyPath<Entity, Value>) -> Predicate<Entity, Value, TestValue>
+    public typealias PredicateExpression = (KeyPath<Entity, Value>) -> Predicate<Entity, Value, TestValue>
+    
+    public let predicate: PredicateExpression
+
+    public init(predicate: @escaping PredicateExpression) {
+        self.predicate = predicate
+    }
 }
 
 // MARK: - Values set

@@ -77,10 +77,12 @@ public extension Sort {
 // MARK: Sort integration
 
 extension Collection {
+
     func sorted(by sorts: [Sort<Element>]) -> [Element] {
         sorted {
             let sort = Sort<Element>.combine(sorts: sorts)
-            return sort.comparison($0, $1) }
+            return sort.comparison($0, $1)
+        }
     }
 
     func sorted(by sorts: Sort<Element>...) -> [Element] {
@@ -97,6 +99,7 @@ public extension Collection where Element: DatabaseModel {
     func sorted(by sorts: [Sort<Element.Entity>]) -> [Element] {
         sorted {
             let sort = Sort<Element.Entity>.combine(sorts: sorts)
-            return sort.comparison($0.entity, $1.entity) }
+            return sort.comparison($0.entity, $1.entity)
+        }
     }
 }

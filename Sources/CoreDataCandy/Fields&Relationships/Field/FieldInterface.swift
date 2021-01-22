@@ -4,14 +4,15 @@
 // MIT license, see LICENSE file for details
 
 import CoreData
+import Combine
 
 /// Holds a CoreData field/attribute with custom validation and conversion logic
-public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity> {
+public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: DatabaseEntity>: ConversionErrorObservable {
 
     // MARK: - Constants
 
     public typealias OutputConversion = (FieldValue) -> Value
-    public typealias StoreConversion = (Value) -> FieldValue
+    public typealias StoreConversion = (Value) -> FieldValue?
 
     // MARK: - Properties
 
@@ -19,6 +20,9 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Data
     public let outputConversion: OutputConversion
     public let storeConversion: StoreConversion
     public let validation: Validation<Value>
+
+    let errorSubject = PassthroughSubject<ConversionError, Never>()
+    public var conversionErrorPublisher: AnyPublisher<ConversionError, Never> { errorSubject.eraseToAnyPublisher() }
 
     // MARK: - Initialisation
 

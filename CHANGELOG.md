@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [0.3.0](https://github.com/amaris/core-data-candy/tree/0.3.0) (21/01/2021)
+
+### Added
+- Fallback value before `preconditionFailure` when converting stored value
+- Store conversion error publisher
+- Map current functions on `DatabaseModel` collections
+
+### Changed
+- `DatabaseFieldValue` now `Equatable`
+- `PredicateRightValue` public init
+- `DatabaseModel` extensions functions moved in the protocol declaration to make them customisation points.
+
 ## [0.2.2](https://github.com/amaris/core-data-candy/tree/0.2.2) (04/12/2020)
 
 ### Fixed

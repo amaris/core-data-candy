@@ -13,7 +13,7 @@ public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
 
     associatedtype FieldValue: DatabaseFieldValue
     typealias OutputConversion = (FieldValue) -> Value
-    typealias StoreConversion = (Value) -> FieldValue
+    typealias StoreConversion = (Value) -> FieldValue?
 
     // MARK: - Properties
 
@@ -28,6 +28,9 @@ public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
 
     /// Allow to validate a value before assigning it to the entity attribute
     var validation: Validation<Value> { get }
+
+    /// Emits the conversion errors thrown during conversion to store the data or output the stored data
+    var conversionErrorPublisher: AnyPublisher<ConversionError, Never> { get }
 
     // MARK: - Initialisation
 
@@ -69,7 +72,9 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 public extension FieldInterfaceProtocol {
 
     func set(_ value: Value, on entity: Entity) {
-        entity[keyPath: keyPath] = storeConversion(value)
+        if let stored = storeConversion(value) {
+            entity[keyPath: keyPath] = stored
+        }
     }
 
     func validate(_ value: Value) throws {

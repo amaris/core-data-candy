@@ -5,8 +5,8 @@
 
 import Foundation
 
-/// Value type that a CoreData attribute can take
-public protocol DatabaseFieldValue {}
+/// Value types that a CoreData attribute can take
+public protocol DatabaseFieldValue: Equatable {}
 
 extension Bool: DatabaseFieldValue {}
 extension Date: DatabaseFieldValue {}
@@ -22,7 +22,7 @@ extension NSObject: DatabaseFieldValue {}
 extension Optional: DatabaseFieldValue where Wrapped: DatabaseFieldValue {}
 extension Array: DatabaseFieldValue where Element: DatabaseFieldValue {}
 
-/** Int cannot be stored a Core Data type but we make it implement the DatabaseFieldValue
- protocol for fetching. Anyway, it will not be possible to target a Int property of a
+/** Int cannot be stored as a Core Data type but we make it implement the DatabaseFieldValue
+ protocol for fetching. Anyway, it will not be possible to target an Int property of a
  CoreData entity from a FieldWrapper */
 extension Int: DatabaseFieldValue {}
