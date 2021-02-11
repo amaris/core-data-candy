@@ -20,7 +20,7 @@ public extension DatabaseModel {
         childrenInterface.add(child, on: entity)
     }
 
-    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
+    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, from childrenKeyPath: KeyPath<Self, Children>)
     where Children.Entity == Entity {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.remove(child, on: entity)
@@ -33,7 +33,7 @@ public extension DatabaseModel {
         childrenInterface.insert(child, at: index, on: entity)
     }
 
-    func remove<ChildModel: DatabaseModel>(at index: Int, in childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws {
+    func remove<ChildModel: DatabaseModel>(at index: Int, from childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws {
         let childrenInterface = self[keyPath: childrenKeyPath]
         childrenInterface.remove(at: index, on: entity)
     }
