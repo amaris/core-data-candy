@@ -7,7 +7,7 @@ import Combine
 import CoreData
 
 extension DatabaseModel {
-    
+
     public static func updatePublisher(
         sortingBy sort: SortDescriptor<Entity>,
         _ additionalSorts: SortDescriptor<Entity>...,

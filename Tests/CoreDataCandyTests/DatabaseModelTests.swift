@@ -82,6 +82,16 @@ final class DatabaseModelTests: XCTestCase {
             .toggle(\.flag, on: model)
             .store(in: &subscriptions)
     }
+
+    func testAssignNil() throws {
+        let model = StubModel()
+
+        model.assign("toto", to: \.property)
+        XCTAssertEqual(model.current(\.property), "toto")
+
+        model.assign(nil, to: \.property)
+        XCTAssertNil(model.current(\.property))
+    }
 }
 
 extension DatabaseModelTests {
