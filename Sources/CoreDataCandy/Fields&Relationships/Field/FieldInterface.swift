@@ -12,7 +12,7 @@ public struct FieldInterface<FieldValue: DatabaseFieldValue, Value, Entity: Data
     // MARK: - Constants
 
     public typealias OutputConversion = (FieldValue) -> Value
-    public typealias StoreConversion = (Value) -> FieldValue?
+    public typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 

@@ -12,7 +12,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     // MARK: - Constants
 
     public typealias OutputConversion = (FieldValue) -> Value
-    public typealias StoreConversion = (Value) -> FieldValue?
+    public typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
@@ -52,9 +52,7 @@ public struct UniqueFieldInterface<FieldValue: DatabaseFieldValue & Equatable, V
     /// Returns the given value as a stored `FieldValue` while ensuring its unicity
     @discardableResult
     func uniqueStoredValue(for value: Value, in context: NSManagedObjectContext) throws -> FieldValue {
-        guard let storedValue = storeConversion(value) else {
-            throw ConversionError(attributeLabel: keyPath.label, description: "Internal error while converting stored value \(value) to \(Value.self)")
-        }
+        let storedValue = storeConversion(value)
 
         if try Entity.request().first().where(keyPath == storedValue).fetch(in: context) != nil {
             let field = keyPath.label.components(separatedBy: ".").last ?? ""

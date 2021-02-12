@@ -75,14 +75,14 @@ public protocol DatabaseModel: Fetchable, Hashable, CustomDebugStringConvertible
     where Children.Entity == Entity
 
     /// Remove a child from the one-ton-many relationship
-    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, to childrenKeyPath: KeyPath<Self, Children>)
+    func remove<Children: ChildrenInterfaceProtocol>(_ child: Children.ChildModel, from childrenKeyPath: KeyPath<Self, Children>)
     where Children.Entity == Entity
 
     /// Insert a child at the specified index to the ordered one-ton-many relationship
     func insert<ChildModel: DatabaseModel>(_ child: ChildModel, at index: Int, in childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws
 
     /// Remove a child  at the specified index to the ordered one-ton-many relationship
-    func remove<ChildModel: DatabaseModel>(at index: Int, in childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws
+    func remove<ChildModel: DatabaseModel>(at index: Int, from childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws
 
     /// Publisher for the given relationship
     /// - Parameters:

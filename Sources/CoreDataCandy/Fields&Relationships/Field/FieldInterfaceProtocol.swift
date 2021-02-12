@@ -13,7 +13,7 @@ public protocol FieldInterfaceProtocol: FieldPublisher, FieldModifier {
 
     associatedtype FieldValue: DatabaseFieldValue
     typealias OutputConversion = (FieldValue) -> Value
-    typealias StoreConversion = (Value) -> FieldValue?
+    typealias StoreConversion = (Value) -> FieldValue
 
     // MARK: - Properties
 
@@ -72,9 +72,7 @@ public extension FieldInterfaceProtocol where Entity: NSManagedObject {
 public extension FieldInterfaceProtocol {
 
     func set(_ value: Value, on entity: Entity) {
-        if let stored = storeConversion(value) {
-            entity[keyPath: keyPath] = stored
-        }
+        entity[keyPath: keyPath] = storeConversion(value)
     }
 
     func validate(_ value: Value) throws {
