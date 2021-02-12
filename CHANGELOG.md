@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [0.3.1](https://github.com/amaris/core-data-candy/tree/0.3.1) (12/02/2021)
+
+### Fixed
+- `nil` values assigned to `FieldInterface` were ignored [#32] 
+
 ## [0.3.0](https://github.com/amaris/core-data-candy/tree/0.3.0) (21/01/2021)
 
 ### Added
