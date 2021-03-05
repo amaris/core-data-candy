@@ -7,7 +7,7 @@ import Foundation
 import CoreData
 
 /// Allows to easily specify a predicate to fetch a Core Data entity
-public struct Predicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue> {
+public struct FetchPredicate<E: NSManagedObject, Value: DatabaseFieldValue, TestValue> {
 
     // MARK: - Constants
 
