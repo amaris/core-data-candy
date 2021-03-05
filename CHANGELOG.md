@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [1.0.0](https://github.com/amaris/core-data-candy/tree/1.0.0) (05/03/2021)
+
+### Added
+- `where(:)` filter with a single boolean
+
+### Changed
+- `Predicate` renamed to `FetchPredicate`
+
 ## [0.3.1](https://github.com/amaris/core-data-candy/tree/0.3.1) (12/02/2021)
 
 ### Fixed

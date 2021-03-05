@@ -43,7 +43,7 @@ final class PredicateTests: XCTestCase {
 
 extension PredicateTests {
 
-    func testNSFormat<Value: DatabaseFieldValue, TestValue>(predicate: Predicate<StubEntity, Value, TestValue>, expecting format: String) {
+    func testNSFormat<Value: DatabaseFieldValue, TestValue>(predicate: FetchPredicate<StubEntity, Value, TestValue>, expecting format: String) {
         XCTAssertEqual(predicate.nsValue.predicateFormat, format)
     }
 
