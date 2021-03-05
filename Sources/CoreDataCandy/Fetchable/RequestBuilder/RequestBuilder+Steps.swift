@@ -58,9 +58,18 @@ public extension RequestBuilder where Step == TargetStep {
     /// ### Examples
     ///  - `.where(\.keyPath == "Value")`
     ///  - `.where(\.keyPath >= 20)`
-    func `where`<Value: DatabaseFieldValue, TestValue>(_ predicate: Predicate<Entity, Value, TestValue>)
+    func `where`<Value: DatabaseFieldValue, TestValue>(_ predicate: FetchPredicate<Entity, Value, TestValue>)
     -> RequestBuilder<Entity, PredicateStep, Output> {
         request.predicate = predicate.nsValue
+        return .init(request: request)
+    }
+
+    /// Boolean comparison predicate
+    /// ### Examples
+    ///  - `.where(\.isCheck)`
+    func `where`(_ keyPath: KeyPath<Entity, Bool>)
+    -> RequestBuilder<Entity, PredicateStep, Output> {
+        request.predicate = (keyPath == true).nsValue
         return .init(request: request)
     }
 
@@ -82,7 +91,7 @@ public extension RequestBuilder where Step == TargetStep {
 
 public extension RequestBuilder where Step == PredicateStep {
 
-    private func compound<Value: DatabaseFieldValue, TestValue>(operator compoundOperator: NSCompoundPredicate.LogicalType, predicate: Predicate<Entity, Value, TestValue>)
+    private func compound<Value: DatabaseFieldValue, TestValue>(operator compoundOperator: NSCompoundPredicate.LogicalType, predicate: FetchPredicate<Entity, Value, TestValue>)
     -> RequestBuilder<Entity, PredicateStep, Output> {
         guard let requestPredicate = request.predicate else { return .init(request: request) }
         request.predicate = NSCompoundPredicate(type: compoundOperator, subpredicates: [requestPredicate, predicate.nsValue])
@@ -93,7 +102,7 @@ public extension RequestBuilder where Step == PredicateStep {
     /// ### Examples
     ///  - `.or(\.keyPath == "Value")`
     ///  - `.or(\.keyPath >= 20)`
-    func or<Value: DatabaseFieldValue, TestValue>(_ predicate: Predicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
+    func or<Value: DatabaseFieldValue, TestValue>(_ predicate: FetchPredicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
         compound(operator: .or, predicate: predicate)
     }
 
@@ -112,7 +121,7 @@ public extension RequestBuilder where Step == PredicateStep {
     /// ### Examples
     ///  - `.and(\.keyPath == "Value")`
     ///  - `.and(\.keyPath >= 20)`
-    func and<Value: DatabaseFieldValue, TestValue>(_ predicate: Predicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
+    func and<Value: DatabaseFieldValue, TestValue>(_ predicate: FetchPredicate<Entity, Value, TestValue>) -> RequestBuilder<Entity, PredicateStep, Output> {
         compound(operator: .and, predicate: predicate)
     }
 
