@@ -38,6 +38,16 @@ public extension DatabaseModel {
         childrenInterface.remove(at: index, on: entity)
     }
 
+    func moveElement<ChildModel: DatabaseModel>(at fromIndex: Int, to toIndex: Int, in childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws {
+        let childrenInterface = self[keyPath: childrenKeyPath]
+        childrenInterface.moveElements(at: [fromIndex], to: toIndex, on: entity)
+    }
+
+    func swapElements<ChildModel: DatabaseModel>(at aIndex: Int, _ bIndex: Int, in childrenKeyPath: KeyPath<Self, OrderedChildren<ChildModel>>) throws {
+        let childrenInterface = self[keyPath: childrenKeyPath]
+        childrenInterface.swapElements(at: aIndex, bIndex, on: entity)
+    }
+
     // MARK: Publisher
 
     func publisher<F: FieldPublisher & ChildrenInterfaceProtocol>(

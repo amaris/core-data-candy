@@ -36,6 +36,19 @@ public struct OrderedChildrenInterface<Entity: DatabaseEntity, ChildModel: Datab
         children.removeObject(at: index)
         entity[keyPath: keyPath] = children
     }
+
+    func moveElements(at fromIndexesSet: Set<Int>, to toIndex: Int, on entity: Entity) {
+        let children = mutableStorage(from: entity)
+        let indexSet = IndexSet(fromIndexesSet)
+        children.moveObjects(at: indexSet, to: toIndex)
+        entity[keyPath: keyPath] = children
+    }
+
+    func swapElements(at aIndex: Int, _ bIndex: Int, on entity: Entity) {
+        let children = mutableStorage(from: entity)
+        children.exchangeObject(at: aIndex, withObjectAt: bIndex)
+        entity[keyPath: keyPath] = children
+    }
 }
 
 extension OrderedChildrenInterface: FieldPublisher where
