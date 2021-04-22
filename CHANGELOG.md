@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. `CoreDataCandy` adheres to [Semantic Versioning](http://semver.org).
 
 ---
+## [1.1.0](https://github.com/amaris/core-data-candy/tree/1.1.0) (22/04/2021)
+
+### Added
+- Move elements in ordered children relationships 
+
 ## [1.0.0](https://github.com/amaris/core-data-candy/tree/1.0.0) (05/03/2021)
 
 ### Added
